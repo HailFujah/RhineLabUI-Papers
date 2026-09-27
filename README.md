@@ -138,7 +138,7 @@ GIF 不含声音。可单独[试听原创配乐「观测室」](public/audio/obs
 
 ## 快速运行
 
-需要 **Node.js 22.12 或更高版本**（可使用 Node.js 24），以及支持 WebGL 2 的现代桌面浏览器。首次安装依赖需要网络；应用不需要 API Key，也不需要启动后端服务。
+需要 **Node.js 22.13 或更高版本**（可使用 Node.js 24），以及支持 WebGL 2 的现代桌面浏览器。首次安装依赖需要网络；应用不需要 API Key，也不需要启动后端服务。
 
 ### 获取项目
 
@@ -181,7 +181,8 @@ npm run preview
 | `Enter`、`ACCESS FILE` 或文件编号 | 读取当前档案 |
 | 在详情模型上拖动 | 档案获得净空后，旋转观察 |
 | `/` 或 `ARCHIVE INDEX` | 打开检索，可搜索编号、标题、英文名、科室、负责人和分类 |
-| `SAVE ARCHIVE` / `SAVED` | 收藏当前档案 / 查看收藏 |
+| `READ DOCUMENT` | 从详情拆解并读取 PDF 光学切片 |
+| `SAVE` / `SAVED` | 收藏当前档案 / 查看收藏 |
 | `EXPORT` | 下载当前档案的文本文件 |
 | `Esc` | 关闭当前弹窗，或从详情返回阵列 |
 
@@ -198,6 +199,12 @@ npm run preview
 | 「清晰」 / 「磨砂」 | 切换玻璃状态，保留视角和拆解位置 |
 | 「拆解档案」 / 「一键重组」 | 展开六组部件 / 连续收回 |
 | `Esc` 或「返回档案」 | 关闭查看器，返回原档案 |
+
+### PDF 光学阅读
+
+详情页点击 **READ DOCUMENT**。X-001 以《Attention Is All You Need》作为明确标注的技术样例；也可用右上「载入 PDF」选择本地文件，文件只在当前设备读取。开发样例位于忽略目录 `verification/fixtures/attention-is-all-you-need.pdf`，生产入口从 arXiv 读取，网络失败时可选择下载好的本地文件。
+
+档案拆解后，页面从信息基板显影、抽出，成为左侧的光学切片导航。悬停提起，点击在右侧阅读；滚轮、滑杆、页码输入和方向键定位页面。阅读页可有限倾转、缩放、平移、适宽与复位，暗色主题反相 PDF 内容。Esc 先返回堆叠，再将光学片收回并重组档案。架构与复核见 [PDF 阅读器记录](verification/PDF-READER.md)。
 
 ### 显示与偏好
 
@@ -279,6 +286,7 @@ node scripts/check-quality.mjs
 
 - **MiSans**：使用小米官方字体文件，保留[字体许可](public/fonts/MiSans-license.pdf)及字体目录内的版权说明，设置页也提供署名与许可入口。
 - **Rolling Number**：用于编号和文字滚动，许可见 [`public/licenses/rolling-number.txt`](public/licenses/rolling-number.txt)。
+- **PDF.js**：PDF 解析与渲染，Apache-2.0 许可见 [`public/licenses/pdfjs.txt`](public/licenses/pdfjs.txt)；字体与解码器保留各自随包许可。论文仅作为标注的外部技术样例，不随发行包提供全文。
 - **声音**：三轨配乐为本项目程序编配；逐字输入使用原 PV 的三个 38ms 短音，来源与处理记录见 [音频说明](public/audio/README.md)。原片短音及其衍生片段不纳入原创配乐的 MIT 授权声明。
 - **其他依赖**：各自遵循其原有许可。源码公开不改变第三方资源的权利。
 

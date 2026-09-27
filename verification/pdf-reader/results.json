@@ -1,0 +1,899 @@
+{
+  "date": "2026-09-27",
+  "environment": "Chromium / local Vite; incremental verification during implementation",
+  "notes": [
+    "Counts are live objects, not GPU memory bytes.",
+    "Viewport checks are desktop simulation, not iPhone Safari.",
+    "Renderer stats are sampled every 250 ms."
+  ],
+  "checks": [
+    {
+      "name": "dark-and-rotation-limit",
+      "stats": {
+        "state": "PDF_READING",
+        "intro": 1,
+        "page": 1,
+        "readingPage": 1,
+        "pages": 15,
+        "slices": 7,
+        "thumbnails": 7,
+        "thumbnailJobs": 0,
+        "highResolutionPages": 1,
+        "highResolutionPixels": 1054704,
+        "textures": 20,
+        "camera": [
+          -2.718907618061741,
+          1.7902957342582424,
+          9.455283314017759
+        ],
+        "spread": 0.9999999999999988,
+        "targetSpread": 1,
+        "develop": 1,
+        "transport": 1,
+        "dark": 1,
+        "yaw": -0.28,
+        "pitch": -0.17999999999999994,
+        "projectedPages": [
+          {
+            "page": 1,
+            "x": -0.8072643096528532
+          },
+          {
+            "page": 2,
+            "x": -0.7416152120629255
+          },
+          {
+            "page": 3,
+            "x": -0.6728746091668815
+          },
+          {
+            "page": 4,
+            "x": -0.6040120458602904
+          },
+          {
+            "page": 5,
+            "x": -0.5350271972795068
+          },
+          {
+            "page": 6,
+            "x": -0.46591973740608167
+          },
+          {
+            "page": 7,
+            "x": -0.39668933906162795
+          }
+        ]
+      }
+    },
+    {
+      "name": "fit-width",
+      "stats": {
+        "state": "PDF_READING",
+        "intro": 1,
+        "page": 2,
+        "readingPage": 2,
+        "pages": 15,
+        "slices": 7,
+        "thumbnails": 7,
+        "thumbnailJobs": 0,
+        "highResolutionPages": 1,
+        "highResolutionPixels": 2896256,
+        "textures": 20,
+        "camera": [
+          0,
+          3.693692515099441e-16,
+          6.0322576561195165
+        ],
+        "spread": 0.999999999999999,
+        "targetSpread": 1,
+        "develop": 1,
+        "transport": 1,
+        "dark": 1,
+        "yaw": 0,
+        "pitch": 0,
+        "projectedPages": [
+          {
+            "page": 1,
+            "x": -0.810234178262374
+          },
+          {
+            "page": 2,
+            "x": -0.7376794018374793
+          },
+          {
+            "page": 3,
+            "x": -0.6728746091668815
+          },
+          {
+            "page": 4,
+            "x": -0.6040120458602904
+          },
+          {
+            "page": 5,
+            "x": -0.5350271972795066
+          },
+          {
+            "page": 6,
+            "x": -0.46591973740608156
+          },
+          {
+            "page": 7,
+            "x": -0.39668933906162784
+          }
+        ]
+      }
+    },
+    {
+      "name": "100-pages-last",
+      "stats": {
+        "state": "PDF_READING",
+        "intro": 1,
+        "page": 100,
+        "readingPage": 100,
+        "pages": 100,
+        "slices": 7,
+        "thumbnails": 8,
+        "thumbnailJobs": 0,
+        "highResolutionPages": 1,
+        "highResolutionPixels": 1054704,
+        "textures": 19,
+        "camera": [
+          0,
+          6.123233995736766e-16,
+          10
+        ],
+        "spread": 0.9999999999999993,
+        "targetSpread": 1,
+        "develop": 1,
+        "transport": 1,
+        "dark": 1,
+        "yaw": 0,
+        "pitch": 0,
+        "projectedPages": [
+          {
+            "page": 94,
+            "x": -0.8102341782623741
+          },
+          {
+            "page": 95,
+            "x": -0.7416152120629257
+          },
+          {
+            "page": 96,
+            "x": -0.6728746091668815
+          },
+          {
+            "page": 97,
+            "x": -0.6040120458602904
+          },
+          {
+            "page": 98,
+            "x": -0.5350271972795066
+          },
+          {
+            "page": 99,
+            "x": -0.46591973740608145
+          },
+          {
+            "page": 100,
+            "x": -0.3878718617712091
+          }
+        ]
+      }
+    },
+    {
+      "name": "100-pages-rapid-latest-wins",
+      "stats": {
+        "state": "PDF_READING",
+        "intro": 1,
+        "page": 87,
+        "readingPage": 87,
+        "pages": 100,
+        "slices": 7,
+        "thumbnails": 8,
+        "thumbnailJobs": 0,
+        "highResolutionPages": 1,
+        "highResolutionPixels": 1054704,
+        "textures": 21,
+        "camera": [
+          0,
+          6.123233995736766e-16,
+          10
+        ],
+        "spread": 0.9999999999999997,
+        "targetSpread": 1,
+        "develop": 1,
+        "transport": 1,
+        "dark": 1,
+        "yaw": 0,
+        "pitch": 0,
+        "projectedPages": [
+          {
+            "page": 84,
+            "x": -0.8102341782623741
+          },
+          {
+            "page": 85,
+            "x": -0.7416152120629257
+          },
+          {
+            "page": 86,
+            "x": -0.6728746091668815
+          },
+          {
+            "page": 87,
+            "x": -0.5981340023567681
+          },
+          {
+            "page": 88,
+            "x": -0.5350271972795066
+          },
+          {
+            "page": 89,
+            "x": -0.46591973740608145
+          },
+          {
+            "page": 90,
+            "x": -0.3966893390616278
+          }
+        ]
+      }
+    },
+    {
+      "name": "50-pages-last",
+      "stats": {
+        "state": "PDF_READING",
+        "intro": 1,
+        "page": 50,
+        "readingPage": 50,
+        "pages": 50,
+        "slices": 7,
+        "thumbnails": 8,
+        "thumbnailJobs": 0,
+        "highResolutionPages": 1,
+        "highResolutionPixels": 1054704,
+        "textures": 19,
+        "camera": [
+          0,
+          6.123233995736766e-16,
+          10
+        ],
+        "spread": 0.9999999999999997,
+        "targetSpread": 1,
+        "develop": 1,
+        "transport": 1,
+        "dark": 1,
+        "yaw": 0,
+        "pitch": 0,
+        "projectedPages": [
+          {
+            "page": 44,
+            "x": -0.8102341782623741
+          },
+          {
+            "page": 45,
+            "x": -0.7416152120629257
+          },
+          {
+            "page": 46,
+            "x": -0.6728746091668815
+          },
+          {
+            "page": 47,
+            "x": -0.6040120458602904
+          },
+          {
+            "page": 48,
+            "x": -0.5350271972795066
+          },
+          {
+            "page": 49,
+            "x": -0.46591973740608145
+          },
+          {
+            "page": 50,
+            "x": -0.3878718617712091
+          }
+        ]
+      }
+    },
+    {
+      "name": "badge-behind-and-middle-lift",
+      "stats": {
+        "state": "PDF_OVERVIEW",
+        "intro": 1,
+        "page": 6,
+        "readingPage": 0,
+        "pages": 15,
+        "slices": 7,
+        "thumbnails": 9,
+        "thumbnailJobs": 0,
+        "highResolutionPages": 0,
+        "highResolutionPixels": 0,
+        "textures": 20,
+        "camera": [
+          0,
+          6.123233995736766e-16,
+          10
+        ],
+        "spread": 0.9999999999999991,
+        "targetSpread": 1,
+        "develop": 1,
+        "transport": 1,
+        "dark": 1,
+        "yaw": 0,
+        "pitch": 0,
+        "projectedPages": [
+          {
+            "page": 3,
+            "x": -0.8105222965483072
+          },
+          {
+            "page": 4,
+            "x": -0.7426639506638909
+          },
+          {
+            "page": 5,
+            "x": -0.6738342034294611
+          },
+          {
+            "page": 6,
+            "x": -0.6017246147745646
+          },
+          {
+            "page": 7,
+            "x": -0.5331758587432656
+          },
+          {
+            "page": 8,
+            "x": -0.4613033903189054
+          },
+          {
+            "page": 9,
+            "x": -0.3883717329766765
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed-landscape",
+      "stats": {
+        "state": "PDF_READING",
+        "intro": 1,
+        "page": 1,
+        "readingPage": 1,
+        "pages": 2,
+        "slices": 2,
+        "thumbnails": 2,
+        "thumbnailJobs": 0,
+        "highResolutionPages": 1,
+        "highResolutionPixels": 629391,
+        "textures": 10,
+        "camera": [
+          0,
+          6.123233995736766e-16,
+          10
+        ],
+        "spread": 0.9999999999999994,
+        "targetSpread": 1,
+        "develop": 1,
+        "transport": 1,
+        "dark": 1,
+        "yaw": 0,
+        "pitch": 0,
+        "projectedPages": [
+          {
+            "page": 1,
+            "x": -0.636701792986582
+          },
+          {
+            "page": 2,
+            "x": -0.56872208163676
+          }
+        ]
+      },
+      "resolution": "903 × 697"
+    },
+    {
+      "name": "mixed-portrait",
+      "stats": {
+        "state": "PDF_READING",
+        "intro": 1,
+        "page": 2,
+        "readingPage": 2,
+        "pages": 2,
+        "slices": 2,
+        "thumbnails": 2,
+        "thumbnailJobs": 0,
+        "highResolutionPages": 1,
+        "highResolutionPixels": 1054704,
+        "textures": 10,
+        "camera": [
+          0,
+          6.123233995736766e-16,
+          10
+        ],
+        "spread": 0.9999999999999994,
+        "targetSpread": 1,
+        "develop": 1,
+        "transport": 1,
+        "dark": 1,
+        "yaw": 0,
+        "pitch": 0,
+        "projectedPages": [
+          {
+            "page": 1,
+            "x": -0.6390485125784681
+          },
+          {
+            "page": 2,
+            "x": -0.5664948590126032
+          }
+        ]
+      },
+      "resolution": "903 × 1168"
+    },
+    {
+      "name": "invalid-file-error",
+      "message": "PDF 载入失败。可以重试，或选择本地 PDF 文件。"
+    },
+    {
+      "name": "landscape-844x390",
+      "stats": {
+        "state": "PDF_READING",
+        "intro": 1,
+        "page": 3,
+        "readingPage": 3,
+        "pages": 15,
+        "slices": 7,
+        "thumbnails": 7,
+        "thumbnailJobs": 0,
+        "highResolutionPages": 1,
+        "highResolutionPixels": 1047600,
+        "textures": 20,
+        "camera": [
+          0,
+          6.123233995736766e-16,
+          10
+        ],
+        "spread": 0.9999999999999998,
+        "targetSpread": 1,
+        "develop": 1,
+        "transport": 1,
+        "dark": 1,
+        "yaw": 0,
+        "pitch": 0,
+        "projectedPages": [
+          {
+            "page": 1,
+            "x": -0.7521276850112938
+          },
+          {
+            "page": 2,
+            "x": -0.7033804631195459
+          },
+          {
+            "page": 3,
+            "x": -0.652100417760612
+          },
+          {
+            "page": 4,
+            "x": -0.6040247334123224
+          },
+          {
+            "page": 5,
+            "x": -0.5533923844234439
+          },
+          {
+            "page": 6,
+            "x": -0.5021073063129186
+          },
+          {
+            "page": 7,
+            "x": -0.45015679516556284
+          }
+        ]
+      },
+      "layout": {
+        "scroll": 844,
+        "stageScroll": 0,
+        "width": 844
+      }
+    },
+    {
+      "name": "portrait-after-scroll-fix",
+      "layout": {
+        "height": 844,
+        "root": {
+          "bottom": 844,
+          "height": 844,
+          "left": 0,
+          "right": 390,
+          "top": 0,
+          "width": 390,
+          "x": 0,
+          "y": 0
+        },
+        "scroll": 390,
+        "stageScroll": 0,
+        "width": 390
+      }
+    },
+    {
+      "name": "reassembling",
+      "stats": {
+        "state": "REASSEMBLING",
+        "intro": 0.3,
+        "page": 3,
+        "readingPage": 3,
+        "pages": 15,
+        "slices": 7,
+        "thumbnails": 7,
+        "thumbnailJobs": 0,
+        "highResolutionPages": 1,
+        "highResolutionPixels": 1047600,
+        "textures": 20,
+        "camera": [
+          0,
+          6.123233995736766e-16,
+          10
+        ],
+        "spread": 0.9930661130952843,
+        "targetSpread": 0,
+        "develop": 0,
+        "transport": 0,
+        "dark": 1,
+        "yaw": 0,
+        "pitch": 0,
+        "projectedPages": [
+          {
+            "page": 1,
+            "x": 0.0646025775242571
+          },
+          {
+            "page": 2,
+            "x": 0.06316526132501563
+          },
+          {
+            "page": 3,
+            "x": 0.061724255365057046
+          },
+          {
+            "page": 4,
+            "x": 0.06027808411935265
+          },
+          {
+            "page": 5,
+            "x": 0.05882818656299567
+          },
+          {
+            "page": 6,
+            "x": 0.05737405849325559
+          },
+          {
+            "page": 7,
+            "x": 0.055915681367382404
+          }
+        ]
+      }
+    },
+    {
+      "name": "closed-resources-and-focus",
+      "stats": {
+        "state": "CLOSED",
+        "pages": 0,
+        "slices": 0,
+        "thumbnails": 0,
+        "thumbnailJobs": 0,
+        "highResolutionPages": 0,
+        "highResolutionPixels": 0,
+        "textures": 3
+      },
+      "focus": "pdf-viewer"
+    },
+    {
+      "name": "original-model-viewer",
+      "result": "拆解与重组后状态恢复为已组装"
+    },
+    {
+      "name": "reduced-motion-super-performance",
+      "stats": {
+        "state": "PDF_READING",
+        "intro": 1,
+        "page": 3,
+        "readingPage": 3,
+        "pages": 15,
+        "slices": 7,
+        "thumbnails": 7,
+        "thumbnailJobs": 0,
+        "highResolutionPages": 1,
+        "highResolutionPixels": 1998744,
+        "textures": 20,
+        "camera": [
+          0,
+          4.026125747176308e-16,
+          6.575162324319884
+        ],
+        "spread": 1,
+        "targetSpread": 1,
+        "develop": 1,
+        "transport": 1,
+        "dark": 0,
+        "yaw": 0,
+        "pitch": 0,
+        "projectedPages": [
+          {
+            "page": 1,
+            "x": -0.8105222965483075
+          },
+          {
+            "page": 2,
+            "x": -0.7426639506638911
+          },
+          {
+            "page": 3,
+            "x": -0.6714291002050409
+          },
+          {
+            "page": 4,
+            "x": -0.6040120458602904
+          },
+          {
+            "page": 5,
+            "x": -0.5331758587432658
+          },
+          {
+            "page": 6,
+            "x": -0.4613033903189058
+          },
+          {
+            "page": 7,
+            "x": -0.3883717329766765
+          }
+        ]
+      }
+    },
+    {
+      "name": "high-quality-native-msaa-final",
+      "stats": {
+        "state": "PDF_READING",
+        "intro": 1,
+        "page": 3,
+        "readingPage": 3,
+        "pages": 15,
+        "slices": 7,
+        "thumbnails": 7,
+        "thumbnailJobs": 0,
+        "highResolutionPages": 1,
+        "highResolutionPixels": 1054704,
+        "textures": 20,
+        "camera": [
+          0,
+          6.123233995736766e-16,
+          10
+        ],
+        "spread": 0.999999999999999,
+        "targetSpread": 1,
+        "develop": 1,
+        "transport": 1,
+        "dark": 0,
+        "yaw": 0,
+        "pitch": 0,
+        "projectedPages": [
+          {
+            "page": 1,
+            "x": -0.8105222965483073
+          },
+          {
+            "page": 2,
+            "x": -0.742663950663891
+          },
+          {
+            "page": 3,
+            "x": -0.6714291002050409
+          },
+          {
+            "page": 4,
+            "x": -0.6040120458602904
+          },
+          {
+            "page": 5,
+            "x": -0.5331758587432658
+          },
+          {
+            "page": 6,
+            "x": -0.46130339031890594
+          },
+          {
+            "page": 7,
+            "x": -0.3883717329766766
+          }
+        ]
+      },
+      "quality": {
+        "ratio": 1.0416666666666667,
+        "width": 2000,
+        "height": 1125,
+        "limited": false,
+        "antialias": "native-msaa",
+        "transmission": 1,
+        "superPerformance": false
+      }
+    },
+    {
+      "name": "substrate-development-to-extraction",
+      "state": "ENTERING",
+      "stats": {
+        "state": "PROJECTING",
+        "intro": 0.6086739130434781,
+        "page": 1,
+        "readingPage": 0,
+        "pages": 15,
+        "slices": 7,
+        "thumbnails": 7,
+        "thumbnailJobs": 0,
+        "highResolutionPages": 0,
+        "highResolutionPixels": 0,
+        "textures": 18,
+        "camera": [
+          0,
+          6.123233995736766e-16,
+          10
+        ],
+        "spread": 0.9997507267001174,
+        "targetSpread": 1,
+        "develop": 1,
+        "transport": 0.00009868033739003419,
+        "dark": 0,
+        "yaw": 0,
+        "pitch": 0,
+        "projectedPages": [
+          {
+            "page": 1,
+            "x": -0.054327538971374705
+          },
+          {
+            "page": 2,
+            "x": -0.05550250160991699
+          },
+          {
+            "page": 3,
+            "x": -0.05668310857839003
+          },
+          {
+            "page": 4,
+            "x": -0.05786940316878678
+          },
+          {
+            "page": 5,
+            "x": -0.059061426580871754
+          },
+          {
+            "page": 6,
+            "x": -0.06025922041329409
+          },
+          {
+            "page": 7,
+            "x": -0.06146282666842686
+          }
+        ]
+      }
+    },
+    {
+      "name": "final-dark-middle-lift",
+      "stats": {
+        "state": "PDF_OVERVIEW",
+        "intro": 1,
+        "page": 6,
+        "readingPage": 0,
+        "pages": 15,
+        "slices": 7,
+        "thumbnails": 9,
+        "thumbnailJobs": 0,
+        "highResolutionPages": 0,
+        "highResolutionPixels": 0,
+        "textures": 20,
+        "camera": [
+          0,
+          6.123233995736766e-16,
+          10
+        ],
+        "spread": 0.9999999999999994,
+        "targetSpread": 1,
+        "develop": 1,
+        "transport": 1,
+        "dark": 1,
+        "yaw": 0,
+        "pitch": 0,
+        "projectedPages": [
+          {
+            "page": 3,
+            "x": -0.8105222965483072
+          },
+          {
+            "page": 4,
+            "x": -0.742663950663891
+          },
+          {
+            "page": 5,
+            "x": -0.6738342034294611
+          },
+          {
+            "page": 6,
+            "x": -0.6017246147745646
+          },
+          {
+            "page": 7,
+            "x": -0.5331758587432656
+          },
+          {
+            "page": 8,
+            "x": -0.4613033903189054
+          },
+          {
+            "page": 9,
+            "x": -0.3883717329766765
+          }
+        ]
+      }
+    },
+    {
+      "name": "final-dark-reading",
+      "stats": {
+        "state": "PDF_READING",
+        "intro": 1,
+        "page": 6,
+        "readingPage": 6,
+        "pages": 15,
+        "slices": 7,
+        "thumbnails": 9,
+        "thumbnailJobs": 0,
+        "highResolutionPages": 1,
+        "highResolutionPixels": 1054704,
+        "textures": 22,
+        "camera": [
+          0,
+          6.123233995736766e-16,
+          10
+        ],
+        "spread": 0.9999999999999994,
+        "targetSpread": 1,
+        "develop": 1,
+        "transport": 1,
+        "dark": 1,
+        "yaw": 0,
+        "pitch": 0,
+        "projectedPages": [
+          {
+            "page": 3,
+            "x": -0.8105222965483073
+          },
+          {
+            "page": 4,
+            "x": -0.7426639506638911
+          },
+          {
+            "page": 5,
+            "x": -0.6738342034294612
+          },
+          {
+            "page": 6,
+            "x": -0.6017246147745646
+          },
+          {
+            "page": 7,
+            "x": -0.5331758587432657
+          },
+          {
+            "page": 8,
+            "x": -0.4613033903189056
+          },
+          {
+            "page": 9,
+            "x": -0.3883717329766765
+          }
+        ]
+      }
+    }
+  ]
+}

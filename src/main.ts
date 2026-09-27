@@ -17,6 +17,8 @@ import { initPwa, pwaSettingsMarkup } from "./pwa";
 import { createRollingNumber, createRollingText } from "@kitlangton/rolling-number";
 import { ArchiveScene } from "./scene";
 import { ModelViewer } from "./model-viewer";
+import { DocumentViewer } from "./document-viewer";
+import { archiveDocument } from "./archive-documents";
 import { ContentTransition, SurfaceTransition } from "./ui-transitions";
 import { BootSequence } from "./boot";
 import { loadBootWebfonts } from "./boot-lettering";
@@ -255,6 +257,7 @@ let threeState: "on" | "closing" | "off" | "loading" = "on";
 let resumeCell: { lane: number; row: number } | undefined;
 let resumeSelection = -1;
 let viewer: ModelViewer | undefined;
+let documentViewer: DocumentViewer | undefined;
 const accessLog: { id: string; time: string }[] = [];
 const columnMemory = archiveColumns.map((_, lane) => columnFiles(lane)[0]);
 function recordAccess() {
@@ -289,6 +292,9 @@ function savePrefs() {
   scene?.setQuality(effectiveRenderQuality());
   viewer?.setQuality(effectiveRenderQuality());
   viewer?.setMotion(prefs.motion);
+  documentViewer?.setSuperPerformance(superPerformanceEnabled());
+  documentViewer?.setQuality(effectiveRenderQuality());
+  documentViewer?.setMotion(prefs.motion);
   syncQualityUI(prefs.rendering);
   updateQualitySummary();
   fileCounter.update({ animated: motionActive("rollingNumbers") && mode === "archive" });
@@ -335,6 +341,7 @@ function fit() {
     previousLayout = layoutKey;
     scene?.resize();
     viewer?.resize();
+    documentViewer?.resize();
   }
   updateQualitySummary();
   // Re-measure line covers and tab underline after wrapping changes.
@@ -512,12 +519,12 @@ function toggleSaved() {
   $("#saved-count").textContent = String(saved.size).padStart(2, "0");
   const button = $<HTMLButtonElement>('[data-action="bookmark"]');
   const added = saved.has(id);
-  button.firstChild!.textContent = added ? "− REMOVE FROM SAVED" : "＋ SAVE ARCHIVE";
+  button.firstChild!.textContent = added ? "SAVED −" : "SAVE ＋";
   button.querySelector("span")!.textContent = added ? "已收藏" : "收藏档案";
   button.setAttribute("aria-pressed", String(added));
   bookmarkFeedback?.cancel();
   if (motionActive("surfaceTransitions")) bookmarkFeedback = button.animate(
-    [{ backgroundColor: "#67634c" }, { backgroundColor: "#252820" }],
+    [{ color: "#9b7247" }, { color: "inherit" }],
     { duration: 220, easing: "ease-out" },
   );
   audio.play("confirm");
@@ -534,7 +541,7 @@ function renderDetail() {
   <dl class="metadata"><div><dt>DEPARTMENT / 科室</dt><dd>${escapeHtml(r.department)}</dd></div><div><dt>COLLECTION / 编目范围</dt><dd>${escapeHtml(r.date)}</dd></div><div><dt>RELATED / 相关人物</dt><dd>${escapeHtml(r.lead)}</dd></div><div><dt>STATUS / 状态</dt><dd><i></i>${r.clearance === "RESTRICTED" ? "目录访问" : "已归档 · 可读取"}</dd></div></dl>
   <div class="detail-tabs" role="tablist"><button id="tab-overview" class="active" role="tab" aria-controls="tab-panel" aria-selected="true" data-tab="overview">01 <span>概述</span></button><button id="tab-notes" role="tab" aria-controls="tab-panel" aria-selected="false" data-tab="notes">02 <span>研究记录</span></button><button id="tab-history" role="tab" aria-controls="tab-panel" aria-selected="false" data-tab="history">03 <span>访问日志</span></button><i class="tab-indicator" aria-hidden="true"></i></div>
   <div id="tab-panel" class="tab-panel" role="tabpanel">${overview()}</div>
-  <div class="detail-actions"><button class="solid-button" data-action="bookmark">${saved.has(r.id) ? "− REMOVE FROM SAVED" : "＋ SAVE ARCHIVE"}<span>${saved.has(r.id) ? "已收藏" : "收藏档案"}</span></button><a class="export-button" href="${assetUrl(`archives/RHINE-LAB-${r.id}.txt`)}" download="RHINE-LAB-${r.id}.txt" aria-label="导出 ${r.id} 档案">EXPORT <span>↓</span></a></div>
+  <div class="detail-actions"><button class="solid-button" data-action="pdf-viewer">READ DOCUMENT <span>${archiveDocument(r.id) ? "阅读 PDF 档案" : "载入 PDF 文档"} ↗</span></button><button class="detail-bookmark" data-action="bookmark">${saved.has(r.id) ? "SAVED −" : "SAVE ＋"}<span>${saved.has(r.id) ? "已收藏" : "收藏"}</span></button><a class="export-button" href="${assetUrl(`archives/RHINE-LAB-${r.id}.txt`)}" download="RHINE-LAB-${r.id}.txt" aria-label="导出 ${r.id} 档案">EXPORT <span>↓</span></a></div>
   <div class="detail-footnote"><a href="${escapeHtml(r.source)}" target="_blank" rel="noopener">设定参考 ↗</a><span>${String(selected + 1).padStart(3, "0")} / ${String(records.length).padStart(3, "0")}</span></div>`;
   $("#detail-content").setAttribute("tabindex", "-1");
   $('[data-action="bookmark"]').setAttribute("aria-pressed", String(saved.has(r.id)));
@@ -801,6 +808,19 @@ document.addEventListener("click", (e) => {
   if (action === "column-prev") stepColumn(-1);
   if (action === "column-next") stepColumn(1);
   if (action === "open") openFile();
+  if (action === "pdf-viewer" && mode === "detail") {
+    if (!scene) { notify("请先开启左下角的 3D 档案系统"); return; }
+    const activeScene = scene;
+    el.focus({ preventScroll: true });
+    scene.finishDecryption();
+    documentViewer ??= new DocumentViewer($("#stage"), () => { audio.setScene(mode); audio.play("page-close"); }, sound => audio.play(sound === "tick" ? "ui-tick" : sound));
+    documentViewer.setSuperPerformance(superPerformanceEnabled());
+    documentViewer.setQuality(effectiveRenderQuality());
+    documentViewer.setMotion(prefs.motion);
+    documentViewer.setTheme(scene.themeAmount);
+    documentViewer.open(records[selected].id, records[selected].title, archiveDocument(records[selected].id), () => activeScene.createAssemblyModel(), scene.documentPose());
+    audio.setScene("viewer"); audio.play("page-open");
+  }
   if (action === "model-viewer" && mode === "detail" && scene) {
     const activeScene = scene;
     // Safari does not always focus a button when it is tapped. Capture the
@@ -855,7 +875,7 @@ document.addEventListener("click", (e) => {
 });
 document.addEventListener("keydown", (e) => {
   if (!started) return;
-  if (viewer?.isOpen) return;
+  if (viewer?.isOpen || documentViewer?.isOpen) return;
   if (playground?.active && !modal) {
     if (e.key === "Escape") { e.preventDefault(); playground.stop(); }
     else if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Enter", "/"].includes(e.key) && !(e.target instanceof HTMLButtonElement)) e.preventDefault();
@@ -1005,6 +1025,7 @@ function frame(ms: number) {
   const theme = scene?.themeAmount ?? (prefs.colorTheme === "dark" ? 1 : 0);
   paintTheme(theme);
   viewer?.setTheme(theme);
+  documentViewer?.setTheme(theme);
   playground?.tick(time);
   const cinema =
     mode === "boot" && ready
@@ -1012,8 +1033,9 @@ function frame(ms: number) {
       : undefined;
   wallpaperEffects?.update(time, motionIsReduced(), motionActive("pointerParallax"));
   // The calibrated 2D opening fully covers the scene until array entry.
-  if (!viewer?.isOpen && (!cinema || cinema.time >= 21.9)) scene?.update(time, cinema);
+  if (!viewer?.isOpen && !documentViewer?.isOpen && (!cinema || cinema.time >= 21.9)) scene?.update(time, cinema);
   viewer?.update(time);
+  documentViewer?.update(time);
   if (threeState === "closing" && scene?.presentationHidden) releaseThree();
   playground?.position();
   if (scene && mode === "detail") {
@@ -1022,7 +1044,7 @@ function frame(ms: number) {
     $("#detail-content").style.translate =
       `0 ${(1 - scene.detailVisibility) * 18}px`;
     $("#detail-content").inert = scene.detailVisibility < 0.1;
-    if (pendingDetailFocus && scene.detailVisibility >= 0.1 && !modal && !viewer?.isOpen) {
+    if (pendingDetailFocus && scene.detailVisibility >= 0.1 && !modal && !viewer?.isOpen && !documentViewer?.isOpen) {
       $("#detail-content").focus({ preventScroll: true });
       pendingDetailFocus = false;
     }
@@ -1091,6 +1113,7 @@ function releaseThree() {
   if (!scene) return;
   resumeCell = { ...scene.getStats().selectedCell }; resumeSelection = selected;
   viewer?.dispose(); viewer = undefined;
+  documentViewer?.dispose(); documentViewer = undefined;
   scene.dispose(); scene = undefined;
   if (mode === "detail") {
     $("#detail-content").style.opacity = "1";

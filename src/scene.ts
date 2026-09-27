@@ -494,6 +494,16 @@ export class ArchiveScene {
   }
 
   private assemblyTemplate?: Promise<THREE.Group>;
+  documentPose() {
+    // Keep the exact detail projection at handoff, including user inspection.
+    this.model.updateMatrixWorld(true);
+    const center = new THREE.Vector3(0, 1.85, 0).applyMatrix4(this.model.matrixWorld);
+    const camera = this.camera.clone();
+    camera.position.sub(center);
+    camera.near = .1;
+    camera.updateProjectionMatrix();
+    return { camera, rotation: this.model.getWorldQuaternion(new THREE.Quaternion()) };
+  }
   async createAssemblyModel() {
     this.assemblyTemplate ??= new GLTFLoader()
       .loadAsync(publicAsset("assets/archive-assembly.glb"))

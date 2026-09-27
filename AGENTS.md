@@ -69,6 +69,19 @@
 - 独立查看器沿用既有视觉规范与原生实现流程；部件模型通过 Blender MCP 制作，保留源文件与生成脚本，见 DESIGN.md。
 - 阵列中的抽取与归位继续遵守上文约束。独立查看器在自己的场景内旋转观察与分层拆解，关闭后回到原档案。
 
+## PDF 光学档案（2026-09-27，覆盖早期原型）
+
+- 用户最终指定入口位于详情页原「收藏档案」主按钮的位置；收藏降为与 EXPORT 并列的次要动作。PDF 不放在 360° 模型查看器内。`archive-documents.ts` 关联附件；X-001 当前为明确标注的 Attention Is All You Need 技术样例，其余档案可选择本地 PDF。
+- 布局按用户标注的官方参考图和本地 14.30 秒视频：左侧品牌、竖向分界、斜向从左至右／远至近的光学切片与紧凑页码导航；右侧保留留白的三维阅读面板。载体复用既有 Blender 盖板、齐平嵌片和角部紧固件，取消厚框和整条黑色页眉。禁止把参考图或视频作为产品背景。
+- 用户撤回阅读页完整 360° 旋转：PDF 保持正面主视角，左右限 ±0.28 rad，上下限 ±0.18 rad；缩放、平移、适宽、复位继续可用。独立模型查看器仍保留 360°。
+- 暗色下所有 PDF 内容在同一 shader 中反相，包括 thumbnail、基板投影、高清页；玻璃、HUD、标识按现有暗色调色板变化。不得仅反相外层 DOM 或遗漏新加载的页面。
+- 用户进一步要求 PDF 字符框在切片组后面：背景、字符框、透明 WebGL 切片、HUD 按此顺序合成。悬停仅上提，前方页面继续遮挡被提起页；不能将选中页强制置顶或沿 Z 轴越过相邻页。深度约束见 `scripts/check-pdf-layout.mjs`。
+- `DocumentViewer` 统一控制 `LOADING → EXPLODING → PROJECTING → ENTERING → PDF_OVERVIEW → SELECTING → PDF_READING`。返回阅读堆叠用 `RETURNING_PAGE`；退出用 `RETRACTING → REASSEMBLING → RETURNING_ARCHIVE → CLOSED`。后续操作替换待选目标，保留当前位姿；异步加载按 generation 与 AbortController 取消。
+- 拆解共享 `archive-assembly.ts` 的六组部件、深度及 5.5 阻尼；源档案投影从 `ArchiveScene.documentPose()` 接续。PDF 切片必须先在信息基板上渐显，再沿实体路径抽出并移入左侧位置。退出先将切片归入基板，再实际重组六组部件，完成后镜头返回详情；不能用隐藏模型代替重组。
+- 左侧最多七个可见真实页面，缓存围绕当前页的十三页窗口加投影／抽出页（上限十五张 thumbnail），最多两个 thumbnail 渲染任务。右侧只保留当前高清页，正常上限 400 万像素／4096 边长，超级性能模式 200 万像素。关闭释放 PDF worker、页面资源，避免整份高分辨率 GPU 常驻。
+- 详情与 PDF 使用各自 WebGL 上下文，阅读全过程共用一个 DocumentViewer renderer、相机、灯光，暂停主场景；环境贴图不能跨 renderer 复用。分辨率、材质和纹理预算沿用画质设置；文档场景使用原生 MSAA，避免全帧 OutputPass 再次映射 PDF 颜色，保持正文对比度及反相。PDF.js 与 worker 按需加载；字体、CMap、WASM 同源版本化，随现有 PWA 发行包缓存。
+- 第三方测试 PDF、从视频提取的帧均保存在 Git 忽略的 `verification/fixtures/`；不发布原片或压力样例。架构、测试步骤和实际验证边界见 `verification/PDF-READER.md`。
+
 ## 循环档案阵列
 
 - 用户确认：主界面的档案阵列上下切档案、左右切列均可持续循环，画面不出现队列尽头。

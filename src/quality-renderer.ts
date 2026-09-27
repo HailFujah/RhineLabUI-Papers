@@ -35,7 +35,7 @@ export function applyTextureQuality(
 
 export function resizeQuality(
   renderer: THREE.WebGLRenderer,
-  composer: EffectComposer,
+  composer: EffectComposer | undefined,
   host: HTMLElement,
   quality: RenderQuality,
   superPerformance = false,
@@ -53,8 +53,8 @@ export function resizeQuality(
   );
   renderer.setPixelRatio(dimensions.ratio);
   renderer.setSize(width, height);
-  composer.setPixelRatio(dimensions.ratio);
-  composer.setSize(width, height);
+  composer?.setPixelRatio(dimensions.ratio);
+  composer?.setSize(width, height);
   renderer.transmissionResolutionScale = quality.transmission;
   host.dataset.renderQuality = JSON.stringify({
     ...dimensions,

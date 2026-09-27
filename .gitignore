@@ -19,6 +19,9 @@ __pycache__/
 
 reference/local-files-connection.js
 
+# User-requested third-party PDF sample used only for local reader validation.
+verification/fixtures/
+
 # Local integration checkout
 .main-integration/
 

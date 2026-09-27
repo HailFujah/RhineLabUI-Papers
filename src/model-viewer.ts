@@ -13,21 +13,7 @@ import {
 } from "./quality-renderer";
 import { fullMotion, type MotionPreferences } from "./motion-preferences";
 
-const PARTS = [
-  { id: "fasteners", label: "紧固件", en: "FASTENERS", depth: 2.75 },
-  { id: "cover", label: "透明盖板", en: "OPTICAL COVER", depth: 1.85 },
-  {
-    id: "optical-lenses",
-    label: "折射环组",
-    en: "REFRACTIVE RINGS",
-    depth: 0.75,
-  },
-  { id: "optical-core", label: "光学核心", en: "OPTICAL CORE", depth: -0.15 },
-  { id: "substrate", label: "信息基板", en: "SUBSTRATE", depth: -1.1 },
-  { id: "carrier", label: "背板与框架", en: "CARRIER", depth: -2.05 },
-] as const;
-
-type ModelSource = { model: THREE.Group; dispose: () => void; setClarity?: (value: number) => void };
+import { ARCHIVE_PARTS as PARTS, groupArchiveParts, spreadArchiveParts, type ArchiveModelSource as ModelSource } from "./archive-assembly";
 export class ModelViewer {
   private themeAmount = 0;
   setTheme(value: number) { this.themeAmount = value; }
@@ -263,16 +249,7 @@ export class ModelViewer {
         return;
       }
       this.source = source;
-      for (const part of PARTS) {
-        const group = new THREE.Group();
-        group.name = part.id;
-        this.groups.set(part.id, group);
-      }
-      for (const child of [...source.model.children]) {
-        const group = this.groups.get(child.userData.assemblyPart ?? "cover");
-        group?.add(child);
-      }
-      for (const group of this.groups.values()) source.model.add(group);
+      this.groups = groupArchiveParts(source.model);
       source.model.position.set(0, -1.85, 0);
       this.scene.add(source.model);
       applyTextureQuality(source.model, this.renderer, this.quality);
@@ -599,9 +576,7 @@ export class ModelViewer {
         this.spread = { value: this.targetSpread, velocity: 0 };
         this.setStatus(this.targetSpread ? "已拆解" : "已组装");
       }
-      for (const part of PARTS) {
-        this.groups.get(part.id)!.position.z = part.depth * this.spread.value;
-      }
+      spreadArchiveParts(this.groups, this.spread.value);
     }
     this.controls.update();
     this.cameraMotion.update(
