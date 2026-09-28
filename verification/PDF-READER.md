@@ -137,7 +137,9 @@
 
 本轮上述针对性回归、`tsc --noEmit` 和直接 Vite 构建通过；沿用既有主包大于 500 kB 提示。
 
-本次尝试打开本地浏览器复核，但 Browser Use 无法校验保存的浏览器权限，访问被阻挡；未改用其他通道绕过。待权限恢复后复核浅／暗主题进出、中途退出、重复打开、清晰盖板后环组是否持续可见，以及显影视角与抽片起点是否稳定。
+本次尝试用 Codex 的 `mcp__cua_repl.js` 和 Browser Use 内置浏览器打开本地页面，具体调用为 `await cua.createBrowserTab("iab", "http://127.0.0.1:5173/?scene=detail", { visible: true })`。调用在创建标签页／访问 URL 前的 Browser Use 权限代理处失败，完整错误为：`Browser Use could not complete this action because a browser security check was unavailable. Reason: Browser Use could not request permission. Browser use cannot access http://127.0.0.1:5173 because saved browser permissions could not be verified. Please try again later. This failure may be temporary. The agent may retry after the issue is resolved, but must not bypass browser security controls or use an indirect workaround.` 工具没有返回 HTTP 状态码，页面读取、脚本执行和截图阶段均未开始。该错误来自 Codex Browser Use 对已保存浏览器权限的校验层；没有证据指向 Windows 权限、DevTools/CDP、项目服务器或网站鉴权，也不是终端的 workspace sandbox 拒绝。
+
+项目侧继续独立验证：`127.0.0.1:5173` 由 `D:\Nodejs\node.exe`（PID 18524）监听；curl 对 `/?scene=detail`、`src/main.ts`、`src/document-viewer.ts`、`src/document-source-fade.ts` 和 Attention 测试 PDF 均返回 HTTP 200，PDF 为 `application/pdf`、2,215,244 字节。`tsc --noEmit`、针对性 render-list 检查及直接 Vite 构建通过。项目没有 ESLint 依赖、脚本或配置，因此本轮不存在可执行的 ESLint 检查；不能把“未安装”误报为 lint 失败。浏览器 GPU 画面、console 与截图验收继续列为待解决项，待 Browser Use 权限校验恢复后复核浅／暗主题进出、中途退出、重复打开、清晰盖板后环组是否持续可见，以及显影视角与抽片起点是否稳定。
 
 ## 实际验证（2026-09-27）
 
