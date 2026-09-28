@@ -44,7 +44,10 @@ export async function inspectPaper(source: string | Uint8Array, filename: string
     const arxiv = front.match(/arXiv\s*:\s*(\d{4}\.\d{4,5}(?:v\d+)?)/i)?.[1] ?? "";
     const title = field("Title", "dc:title");
     const fallback = titleCandidate || filename.replace(/\.pdf$/i, "");
-    const abstract = front.match(/(?:^|\n)\s*Abstract\s*\n?([\s\S]*?)(?=\n\s*(?:1\s+)?Introduction\b|$)/i)?.[1]?.trim() ?? "";
+    const abstractBlock = front.match(/(?:^|\n)\s*Abstract\s*[:：]?\s*([\s\S]*?)(?=\n\s*(?:(?:1|I)[.\s]+)?Introduction\b|\n\s*(?:Keywords|Index Terms)\s*[:：]|$)/i)?.[1] ?? "";
+    // The sample puts contribution notes and the conference footer before the
+    // next page's Introduction. Those notes are outside the original Abstract.
+    const abstract = abstractBlock.split(/\n\s*(?:[*∗†‡]+\s*)?(?:Equal contribution\b|Corresponding author\s*[:：]|Work (?:done|performed) while\b)/i)[0].trim();
     const affiliations = firstPage.split(/\bAbstract\b|摘要/)[0].split(/\r?\n/)
       .map(line => line.trim()).filter(line => line.length < 180 && !/@|https?:|arxiv/i.test(line) && /\b(?:University|Institute|Laboratory|Laboratories|Google Brain|Google Research)\b|大学|研究所|研究院/.test(line));
     const dateMatch = front.match(/(?:Publication date|Published(?: online)?|发表日期|出版日期)\s*[:：]\s*(\d{4}(?:-\d{2}(?:-\d{2})?)?)/i);
@@ -55,13 +58,14 @@ export async function inspectPaper(source: string | Uint8Array, filename: string
       translatedTitle: "", authors: field("Author", "dc:creator").split(/\s*;\s*|\s+and\s+/).filter(Boolean),
       institutions: [...new Set(affiliations)], published: dateMatch?.[1] ?? conference?.[2] ?? "", venue: venue || conference?.[1] || "", fields: [],
       keywords: field("Keywords", "pdf:Keywords").split(/[,;，；]/).map(v => v.trim()).filter(Boolean),
-      doi, abstract: abstract.slice(0, 12_000), url: paperUrl(arxiv ? `https://arxiv.org/abs/${arxiv}` : doi ? `https://doi.org/${doi}` : ""),
+      doi, abstract: abstract.slice(0, 12_000), abstractLabel: "原文摘要", url: paperUrl(arxiv ? `https://arxiv.org/abs/${arxiv}` : doi ? `https://doi.org/${doi}` : ""),
       references: splitReferences(bibliography),
     };
     // The supplied technical sample has explicitly sourced metadata, not a
     // heuristic guess from a PDF creation date or an author affiliation.
     if (arxiv.replace(/v\d+$/, "") === "1706.03762" || /^Attention Is All You Need[.\s]*$/i.test(paper.title)) {
-      return { pages: document.pageCount, paper: { ...structuredClone(samplePapers["X-001"]), references: paper.references } };
+      return { pages: document.pageCount, paper: { ...structuredClone(samplePapers["X-001"]),
+        abstract: paper.abstract, abstractLabel: "原文摘要", references: paper.references } };
     }
     return { pages: document.pageCount, paper };
   } finally { signal.removeEventListener("abort", abort); document.destroy(); }

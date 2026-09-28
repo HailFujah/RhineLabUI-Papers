@@ -21,8 +21,8 @@ import { DocumentViewer } from "./document-viewer";
 import { archiveDocument, setLibraryDocuments } from "./archive-documents";
 import { PaperLibraryPanel } from "./paper-library-panel";
 import { inspectPaper } from "./paper-import";
-import { readingVisits, recordReading, type StoredPaper } from "./paper-library";
-import { paperUrl } from "./paper-metadata";
+import { readingVisits, recordReading, saveExtractedAbstract, type StoredPaper } from "./paper-library";
+import { paperUrl, type PaperMetadata } from "./paper-metadata";
 import "./paper-library.css";
 import { ContentTransition, SurfaceTransition } from "./ui-transitions";
 import { BootSequence } from "./boot";
@@ -126,8 +126,9 @@ let modal: "search" | "saved" | "settings" | "upload" | null = null,
   filter = "全部档案";
 let activeTab = "overview";
 let libraryPanel: PaperLibraryPanel | undefined;
-let referencesJob: AbortController | undefined;
-const referencesErrors = new Map<string, string>();
+let paperTextJob: AbortController | undefined;
+const paperTextErrors = new Map<string, string>();
+const paperTextLoaded = new WeakSet<PaperMetadata>();
 const reviewParams = new URLSearchParams(location.search);
 let frozenTime =
   reviewParams.get("freeze") === "1"
@@ -323,6 +324,7 @@ function fit() {
   stage.style.height = `${height}px`;
   stage.style.transform = `translate(-50%, -50%) scale(${scale})`;
   stage.dataset.layout = kind;
+  syncDetailScrollFocus();
   stage.dataset.touch = String(coarse);
   viewport.dataset.mobileBoot = String(mode === "boot" && (coarse || viewport.clientWidth < 1100));
   stage.style.setProperty("--stage-scale", String(scale));
@@ -375,7 +377,7 @@ function setMode(next: Mode) {
     hoverCode.finish();
     $("#hover-label").hidden = true;
   }
-  if (next !== "detail") { referencesJob?.abort(); referencesJob = undefined; }
+  if (next !== "detail") { paperTextJob?.abort(); paperTextJob = undefined; }
   mode = next;
   syncWallpaperBackground();
   audio.setScene(next);
@@ -419,7 +421,7 @@ function setMode(next: Mode) {
   }
 }
 function select(index: number, navigation?: ArchiveNavigation) {
-  referencesJob?.abort(); referencesJob = undefined;
+  paperTextJob?.abort(); paperTextJob = undefined;
   selected = (index + records.length) % records.length;
   columnMemory[catalogGroup(selected)] = selected;
   if (mode === "detail") setMode("archive");
@@ -577,39 +579,66 @@ function renderDetail() {
   const text = (value?: string) => escapeHtml(value || "未录入");
   $("#object-id").textContent = "NO." + recordLabel(r).slice(2);
   $("#detail-content").innerHTML = `
+  <section class="detail-info" aria-label="论文信息"><header class="detail-heading">
   <div class="detail-kicker"><span>FILE ${escapeHtml(recordLabel(r))}</span><span>${paper ? "PAPER ARCHIVE" : "原档案 · 尚未关联论文"}</span></div>
   <h2>${escapeHtml(paper?.title || r.en)}</h2><div class="detail-title-cn">${escapeHtml(paper ? paper.translatedTitle || "中文译名未录入" : r.title)}</div>
   <div class="detail-rule"></div>
+  </header><div class="detail-metadata-scroll" role="region" aria-label="作者、机构与论文特征">
   <dl class="metadata"><div><dt>AUTHORS / 作者</dt><dd>${text(paper?.authors.join(", "))}</dd></div><div><dt>INSTITUTIONS / 机构</dt><dd>${text(paper?.institutions.join(" / "))}</dd></div><div><dt>PUBLISHED / 发表时间</dt><dd>${text(paper?.published)}</dd></div><div><dt>VENUE / 期刊／会议</dt><dd>${text(paper?.venue)}</dd></div></dl>
-  <dl class="paper-secondary"><div><dt>FIELDS / 研究领域</dt><dd>${text(paper?.fields.join(" · "))}</dd></div><div><dt>KEYWORDS / 关键词</dt><dd>${text(paper?.keywords.join(" · "))}</dd></div><div><dt>DOI${paper?.doiKind ? ` / ${escapeHtml(paper.doiKind)}` : ""}</dt><dd>${paper?.doi ? `<a href="${escapeHtml(paperUrl(`https://doi.org/${paper.doi}`))}" target="_blank" rel="noopener">${escapeHtml(paper.doi)} ↗</a>` : "未录入"}</dd></div></dl>
+  <dl class="paper-secondary"><div><dt>FIELDS / 研究领域</dt><dd>${text(paper?.fields.join(" · "))}</dd></div><div><dt>KEYWORDS / 关键词</dt><dd>${text(paper?.keywords.join(" · "))}</dd></div></dl>
+  </div></section>
+  <section class="detail-reading-window" aria-label="论文内容">
   <div class="detail-tabs" role="tablist"><button id="tab-overview" class="active" role="tab" aria-controls="tab-panel" aria-selected="true" data-tab="overview">01 <span>摘要</span></button><button id="tab-notes" role="tab" aria-controls="tab-panel" aria-selected="false" data-tab="notes">02 <span>论文引用</span></button><button id="tab-history" role="tab" aria-controls="tab-panel" aria-selected="false" data-tab="history">03 <span>阅读记录</span></button><i class="tab-indicator" aria-hidden="true"></i></div>
-  <div id="tab-panel" class="tab-panel" role="tabpanel">${overview()}</div>
+  <div id="tab-panel" class="tab-panel" role="tabpanel" tabindex="0">${overview()}</div>
+  </section><footer class="detail-footer">
   <div class="detail-actions"><button class="solid-button" data-action="pdf-viewer">READ DOCUMENT <span>${attachment ? "阅读 PDF 档案" : "载入 PDF 文档"} ↗</span></button><button class="detail-bookmark" data-action="bookmark">${saved.has(r.id) ? "SAVED −" : "SAVE ＋"}<span>${saved.has(r.id) ? "已收藏" : "收藏"}</span></button><button class="export-button" data-action="download-pdf" ${attachment ? "" : "disabled"} aria-label="下载论文 PDF">DOWNLOAD <svg viewBox="0 0 17 20" fill="none" stroke="currentColor" stroke-width="1.1" aria-hidden="true"><path d="M8.5 2v12m-4-4 4 4 4-4M3 18h11"/></svg></button></div>
-  <div class="detail-footnote">${link ? `<a href="${escapeHtml(link)}" target="_blank" rel="noopener">论文页面 ↗</a>` : "<span>论文页面未录入</span>"}<span>${String(selected + 1).padStart(3, "0")} / ${String(records.length).padStart(3, "0")}</span></div>`;
+  <div class="detail-footnote">${link ? `<a href="${escapeHtml(link)}" target="_blank" rel="noopener">论文页面 ↗</a>` : "<span>论文页面未录入</span>"}<span>${String(selected + 1).padStart(3, "0")} / ${String(records.length).padStart(3, "0")}</span></div></footer>`;
+  syncDetailScrollFocus();
   $("#detail-content").setAttribute("tabindex", "-1");
   $('[data-action="bookmark"]').setAttribute("aria-pressed", String(saved.has(r.id)));
   documentDecryption.reset($("#detail-content"), !motionActive("documentReveal") || !scene || scene.decryptionFrame.phase === "clear");
   setTab(activeTab, false);
 }
+function syncDetailScrollFocus() {
+  const compact = ["compact", "portrait"].includes($("#stage").dataset.layout ?? "");
+  document.querySelector(".detail-info")?.setAttribute("tabindex", compact ? "0" : "-1");
+  document.querySelector(".detail-metadata-scroll")?.setAttribute("tabindex", compact ? "-1" : "0");
+}
 function overview() {
   const r = records[selected];
-  return `<div class="panel-label">ABSTRACT / ${escapeHtml(r.paper?.abstractLabel || "摘要")}</div><p>${escapeHtml(r.paper ? r.paper.abstract || "摘要未录入。" : r.abstract)}</p>`;
+  const paper = r.paper;
+  const needsOriginal = paper && (!paper.abstract || paper.abstractLabel === "中文概述");
+  const abstract = paper ? needsOriginal
+    ? paperTextErrors.get(r.id) || (paperTextLoaded.has(paper) ? "未识别到原文 Abstract，可在 PDF 中查看。" : archiveDocument(r.id) ? "正在读取原文 Abstract…" : "摘要未录入。")
+    : paper.abstract : r.abstract;
+  return `<div class="panel-label">ABSTRACT / ${paper ? "原文摘要" : "摘要"}</div><p>${escapeHtml(abstract)}</p>`;
 }
 function referencesMarkup() {
   const r = records[selected], references = r.paper?.references;
-  return `<div class="panel-label">REFERENCES / 论文末尾参考文献</div>${references?.length ? `<ol class="paper-references">${references.map(reference => `<li>${escapeHtml(reference)}</li>`).join("")}</ol>` : `<p>${escapeHtml(referencesErrors.get(r.id) || (!r.paper ? "尚未关联论文。" : references ? "尚无可识别的参考文献，可在 PDF 中查看，或通过 UPLOAD ARCHIVE 编辑补录。" : "正在读取论文参考文献…"))}</p>`}`;
+  return `<div class="panel-label">REFERENCES / 论文末尾参考文献</div>${references?.length ? `<ol class="paper-references">${references.map(reference => `<li>${escapeHtml(reference)}</li>`).join("")}</ol>` : `<p>${escapeHtml(paperTextErrors.get(r.id) || (!r.paper ? "尚未关联论文。" : references ? "尚无可识别的参考文献，可在 PDF 中查看，或通过 UPLOAD ARCHIVE 编辑补录。" : "正在读取论文参考文献…"))}</p>`}`;
 }
-async function ensureReferences() {
+async function ensurePaperText() {
   const r = records[selected], paper = r.paper, attachment = archiveDocument(r.id);
-  if (!paper || paper.references !== undefined || referencesErrors.has(r.id) || referencesJob) return;
-  if (!attachment) { paper.references = []; $("#tab-panel").innerHTML = referencesMarkup(); return; }
-  const job = referencesJob = new AbortController();
-  try { paper.references = (await inspectPaper(attachment.url, attachment.title, job.signal)).paper.references ?? []; }
-  catch { if (!job.signal.aborted) referencesErrors.set(r.id, "无法读取参考文献，请检查 PDF 是否可用。可在阅读器中查看原文。"); }
+  if (!paper || paperTextErrors.has(r.id) || paperTextJob) return;
+  const needsAbstract = (!paper.abstract || paper.abstractLabel === "中文概述") && !paperTextLoaded.has(paper);
+  if (!needsAbstract && (activeTab !== "notes" || paper.references !== undefined)) return;
+  if (!attachment) { paperTextLoaded.add(paper); paper.references ??= []; return; }
+  const job = paperTextJob = new AbortController();
+  try {
+    const result = (await inspectPaper(attachment.url, attachment.title, job.signal)).paper;
+    if (job.signal.aborted) return;
+    if (needsAbstract) {
+      paper.abstract = result.abstract; paper.abstractLabel = "原文摘要";
+      void saveExtractedAbstract(r.id, result.abstract).catch(() => { /* The extracted text remains readable for this session. */ });
+    }
+    paper.references ??= result.references ?? [];
+    paperTextLoaded.add(paper);
+  }
+  catch { if (!job.signal.aborted) paperTextErrors.set(r.id, "无法读取论文文字，请检查 PDF 是否可用。可在阅读器中查看原文。"); }
   finally {
-    if (referencesJob === job) referencesJob = undefined;
-    if (!job.signal.aborted && records[selected].id === r.id && mode === "detail" && activeTab === "notes") {
-      $("#tab-panel").innerHTML = referencesMarkup(); documentDecryption.refresh();
+    if (paperTextJob === job) paperTextJob = undefined;
+    if (!job.signal.aborted && records[selected].id === r.id && mode === "detail" && ["overview", "notes"].includes(activeTab)) {
+      $("#tab-panel").innerHTML = activeTab === "overview" ? overview() : referencesMarkup(); documentDecryption.refresh();
     }
   }
 }
@@ -634,7 +663,7 @@ function setTab(tab: string, sound = true) {
       : tab === "notes"
         ? referencesMarkup()
         : `<div class="panel-label">READING HISTORY / 阅读记录</div>${readingVisits(r.id).map(entry => `<div class="log-row"><span>${escapeHtml(new Date(entry.time).toLocaleString("zh-CN"))}</span><b>PAGE ${entry.page} / ${entry.pages}</b></div>`).join("") || '<p>尚未阅读此论文。</p>'}<p class="log-note">保存最近 12 次页码记录，仅保存在本浏览器。</p>`;
-  if (tab === "notes") void ensureReferences();
+  if (tab === "notes" || tab === "overview") void ensurePaperText();
   $("#tab-panel").scrollTop = 0;
   documentDecryption.refresh();
   if (sound) {
@@ -1001,6 +1030,10 @@ document.addEventListener("keydown", (e) => {
     return;
   }
   if (typing || modal || !ready) return;
+  // Focused document windows keep native keyboard scrolling; the page tabs
+  // retain their own left/right navigation and the scene keeps its shortcuts.
+  if ((e.target as HTMLElement).closest(".detail-info, .tab-panel") &&
+      ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "PageUp", "PageDown", "Home", "End", " "].includes(e.key)) return;
   if (
     (e.target as HTMLElement).dataset.tab &&
     ["ArrowLeft", "ArrowRight"].includes(e.key)

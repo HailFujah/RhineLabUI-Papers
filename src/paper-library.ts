@@ -56,6 +56,25 @@ export async function fileHash(file: File) {
   return [...new Uint8Array(digest)].map(value => value.toString(16).padStart(2, "0")).join("");
 }
 
+/** Replace only the superseded sample summary or a missing abstract. */
+export async function saveExtractedAbstract(id: string, abstract: string) {
+  if (!id.startsWith("paper:") || !abstract) return;
+  const db = await openDatabase();
+  return new Promise<void>((resolve, reject) => {
+    const transaction = db.transaction("papers", "readwrite");
+    const store = transaction.objectStore("papers");
+    const request = store.get(id);
+    request.onsuccess = () => {
+      const record = request.result as StoredPaper | undefined;
+      if (record && (!record.paper.abstract || record.paper.abstractLabel === "中文概述")) {
+        store.put({ ...record, paper: { ...record.paper, abstract, abstractLabel: "原文摘要" } });
+      }
+    };
+    transaction.oncomplete = () => resolve();
+    transaction.onerror = transaction.onabort = () => reject(transaction.error ?? request.error);
+  });
+}
+
 export type ReadingVisit = { time: string; page: number; pages: number };
 export function readingVisits(id: string): ReadingVisit[] {
   try {

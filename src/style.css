@@ -737,13 +737,24 @@ button {
 }
 .detail-content {
   position: absolute;
-  left: 1154px;
-  top: 289px;
+  right: 59px;
+  top: 208px;
+  bottom: 176px;
   width: 636px;
+  display: grid;
+  grid-template-rows: minmax(0, 1.2fr) minmax(0, 1fr) auto;
+  gap: 16px;
+  overflow: hidden;
   pointer-events: auto;
   opacity: 0;
   outline: none !important;
 }
+.detail-info { display: grid; grid-template-rows: auto minmax(0, 1fr); min-height: 0; min-width: 0; }
+.detail-metadata-scroll, .detail-reading-window { min-height: 0; min-width: 0; }
+.detail-metadata-scroll, .tab-panel { overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; touch-action: pan-y; scrollbar-width: thin; scrollbar-color: var(--theme-line, #bbb4a6) transparent; scrollbar-gutter: stable; padding-right: 10px; }
+.detail-metadata-scroll:focus-visible, .detail-info:focus-visible, .tab-panel:focus-visible { outline: 1px solid var(--theme-line, #aaa59a); outline-offset: -1px; }
+.detail-reading-window { display: flex; flex-direction: column; }
+.detail-footer { min-width: 0; }
 .detail-kicker {
   display: flex;
   justify-content: space-between;
@@ -782,7 +793,7 @@ button {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 25px 42px;
-  margin: 28px 0 34px;
+  margin: 20px 0;
 }
 .metadata dt {
   font-size: 9px;
@@ -802,6 +813,7 @@ button {
   vertical-align: middle;
 }
 .detail-tabs {
+  flex: none;
   position: relative;
   display: flex;
   gap: 34px;
@@ -835,12 +847,13 @@ button {
   transition: none;
 }
 .tab-panel {
-  height: 189px;
-  padding-top: 22px;
+  flex: 1;
+  min-height: 0;
+  padding-top: 16px;
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: thin;
-  scrollbar-color: #bbb4a6 transparent;
+  scrollbar-color: var(--theme-line, #bbb4a6) transparent;
 }
 .panel-label {
   font-size: 9px;
@@ -890,7 +903,7 @@ button {
 .detail-actions {
   display: flex;
   justify-content: space-between;
-  margin-top: 19px;
+  margin-top: 0;
   align-items: center;
   gap: 30px;
 }
@@ -931,7 +944,7 @@ button {
 .export-button svg { width: 17px; height: 19px; flex: none; }
 .export-button:disabled { opacity: .45; cursor: default; }
 .nav-upload-icon { width: 18px; height: 20px; flex: none; }
-.paper-secondary { display: grid; gap: 9px; margin: -10px 0 24px; font-size: 12px; }
+.paper-secondary { display: grid; gap: 9px; margin: 0 0 12px; font-size: 12px; }
 .paper-secondary > div { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 10px; }
 .paper-secondary dt { color: var(--theme-muted, #77756d); font-size: 10px; letter-spacing: .5px; }
 .paper-secondary dd { margin: 0; overflow-wrap: anywhere; }
@@ -946,7 +959,7 @@ button {
   font-size: 8px;
   letter-spacing: 0.6px;
   color: #9a9487;
-  margin-top: 22px;
+  margin-top: 12px;
 }
 .detail-footnote a {
   color: inherit;
