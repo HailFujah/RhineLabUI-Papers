@@ -11,7 +11,7 @@ import { damp, smooth } from "./motion";
 import { PdfSliceFactory, type PdfSlice } from "./pdf-slice";
 import { pdfSlicePosition, pdfWindow } from "./pdf-layout";
 import { pdfPageMaterial } from "./pdf-material";
-import { brandHeading, logo } from "./brand";
+import { brandHeading } from "./brand";
 import type { ArchiveDocument } from "./archive-documents";
 import type { PdfDocument, PdfRaster } from "./pdf-document";
 import "./document-viewer.css";
@@ -121,7 +121,6 @@ export class DocumentViewer {
         <label class="document-import">载入 PDF ↗<input type="file" accept="application/pdf,.pdf" aria-label="选择本地 PDF 文件"></label>
       </header>
       <div class="document-division" aria-hidden="true"><i></i></div>
-      <div class="document-section-card" aria-hidden="true"><strong>PDF</strong><div>${logo}</div><span>OPTICAL DOCUMENT</span><small class="document-section-page">PAGE 01</small></div>
       <div class="document-stage-label" aria-live="polite"></div>
       <section class="document-navigation" aria-label="PDF 切片导航">
         <div class="document-panel-heading"><span>01 / SLICE ARCHIVE</span><span class="document-count"></span></div>
@@ -134,7 +133,7 @@ export class DocumentViewer {
       </section>
       <section class="document-reading" aria-label="三维 PDF 阅读页">
         <div class="document-panel-heading"><span>OPTICAL PROJECTION / 正面限角</span><span class="document-resolution"></span></div>
-        <div class="document-read-hit" tabindex="0" role="group" aria-label="三维阅读页：拖动有限倾转，滚轮缩放，双指缩放平移，Home 复位"></div>
+        <div class="document-read-hit" tabindex="0" role="group" aria-label="三维阅读页：左键拖动有限倾转，滚轮缩放，右键拖动平移，双指缩放平移，Home 复位"></div>
         <div class="document-empty"><span>SELECT A SLICE</span><p>从左侧抽出一页</p><small>悬停提起 · 点击阅读</small></div>
         <footer class="document-reader-hud">
           <div><button data-document="overview">↙ 返回堆叠</button><span class="document-page-status" aria-live="polite"></span><button data-document="prev" aria-label="上一页">←</button><button data-document="next" aria-label="下一页">→</button></div>
@@ -167,6 +166,11 @@ export class DocumentViewer {
     this.controls.touches.ONE = THREE.TOUCH.ROTATE; this.controls.touches.TWO = THREE.TOUCH.DOLLY_PAN;
     this.controls.addEventListener("start", () => this.cameraMotion.interruptReset(this.controlCamera, this.controls.target));
     this.controls.addEventListener("end", () => this.scheduleHD());
+    this.readHit.addEventListener("pointerdown", event => {
+      // OrbitControls reduces pan with camera distance, but this reader moves
+      // a separate page mesh. Compensate zoom so mouse dragging stays responsive.
+      this.controls.panSpeed = event.pointerType === "touch" ? .7 : 1.8 * Math.max(1, this.zoom());
+    }, { capture: true });
     this.resetView(false);
     this.root.addEventListener("click", event => this.click(event));
     this.root.addEventListener("keydown", event => this.keydown(event));
@@ -212,7 +216,7 @@ export class DocumentViewer {
     this.controls.enabled = state === "PDF_READING" || state === "SELECTING";
     const phases: Partial<Record<State, string>> = { LOADING: "PREPARING / 载入档案内容", EXPLODING: "01 / 拆解档案", PROJECTING: "02 / 光学核心投影 · 切片显影", ENTERING: "03 / 从信息基板抽出光学切片", RETRACTING: "RETURN / 光学切片归入信息基板", REASSEMBLING: "REASSEMBLING / 一键重组档案", RETURNING_ARCHIVE: "ARCHIVE / 返回档案预览" };
     this.el(".document-stage-label").textContent = phases[state] ?? "";
-    this.el(".document-instruction").textContent = ready ? "滚轮浏览切片 / 拖动有限倾转 · 双指缩放平移" : "REFRACTIVE RINGS → OPTICAL CORE → SUBSTRATE";
+    this.el(".document-instruction").textContent = ready ? "滚轮浏览切片 / 左键倾转 · 右键平移 · 双指缩放平移" : "REFRACTIVE RINGS → OPTICAL CORE → SUBSTRATE";
   }
   setTheme(theme: number) { this.theme = theme; }
   setMotion(motion: MotionPreferences) { this.motion = { ...motion }; }
@@ -456,7 +460,6 @@ export class DocumentViewer {
   }
   private refreshHover() {
     this.el(".document-hover").textContent = `PAGE ${pad(this.hover ?? this.page)} / ${pad(this.pdf?.pageCount ?? 0)}${this.hover ? "  ↗ 抽出阅读" : ""}`;
-    this.el(".document-section-page").textContent = `PAGE ${pad(this.hover ?? this.page)} / ${pad(this.pdf?.pageCount ?? 0)}`;
   }
   private refreshHUD() {
     this.refreshHover();
@@ -650,8 +653,8 @@ export class DocumentViewer {
         (object.material as THREE.MeshBasicMaterial).opacity = smooth((progress - .30) / .16) * (1 - smooth((progress - .58) / .14)) * (object instanceof THREE.LineSegments ? .55 : .75);
       }
     }
-    // The background fades over the frozen detail canvas. Keep the WebGL
-    // canvas transparent so the DOM section badge can sit behind real slides.
+    // The background fades over the frozen detail canvas beneath the transparent
+    // WebGL canvas, keeping the model visible throughout the archive handoff.
     const background = this.scene.background as THREE.Color;
     const backgroundColor = background.clone(); this.scene.background = null;
     this.renderer.setClearColor(backgroundColor, 0);
