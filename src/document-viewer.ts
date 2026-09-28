@@ -169,7 +169,7 @@ export class DocumentViewer {
     this.readHit.addEventListener("pointerdown", event => {
       // OrbitControls reduces pan with camera distance, but this reader moves
       // a separate page mesh. Compensate zoom so mouse dragging stays responsive.
-      this.controls.panSpeed = event.pointerType === "touch" ? .7 : 1.8 * Math.max(1, this.zoom());
+      this.controls.panSpeed = .7 * (event.pointerType === "touch" ? 1 : Math.max(1, this.zoom()));
     }, { capture: true });
     this.resetView(false);
     this.root.addEventListener("click", event => this.click(event));

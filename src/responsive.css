@@ -30,6 +30,9 @@
 [data-mobile-boot="true"] > .mobile-entry { display: flex; position: absolute; bottom: max(28px, env(safe-area-inset-bottom)); right: max(24px, env(safe-area-inset-right)); align-items: center; gap: 32px; min-height: 48px; padding: 0 16px; font-size: 14px; border-bottom: 1px solid #8e897b; }
 [data-mobile-boot="true"] .skip { display: none; }
 .three-scene canvas { touch-action: none; }
+#stage[data-layout="desktop"] { --ui-brand-top: 52px; --ui-nav-top: 62px; }
+[data-layout="desktop"] .brand { top: var(--ui-brand-top); }
+[data-layout="desktop"] .system-nav { top: var(--ui-nav-top); }
 [data-layout="desktop"] .archive-callout { left: 50.520833%; width: 49.479167%; }
 [data-layout="desktop"] .file-summary { width: min(652px, calc(100% - 117px)); gap: 20px; }
 [data-layout="desktop"] .archive-navigation { left: 26.25%; }
