@@ -1,6 +1,14 @@
 # 修改档案内容
 
-[`archives.json`](archives.json) 是页面与 TXT 下载共用的档案数据。修改内容无需编辑 TypeScript；`src/data.ts` 只保留类型和阵列位置映射。
+[`archives.json`](archives.json) 是原 40 份设定档案与 TXT 导出共用的数据。修改原档案内容无需编辑 TypeScript；`src/data.ts` 同时负责原档案／个人论文库的数据切换与阵列位置映射。
+
+## 论文数据（2026-09-28）
+
+新上传论文通过 UPLOAD ARCHIVE 进入浏览器 IndexedDB 的独立论文库，不写入 `archives.json`。论文详情使用独立的 PaperMetadata：原名、中文译名、作者数组、机构数组、发表时间、期刊／会议、研究领域、关键词、DOI、摘要、论文页面和参考文献数组。论文引用指末尾参考文献，不是 BibTeX。阅读记录独立保存在本地。
+
+[`papers.json`](papers.json) 仅维护既有 X-001 附件的 Attention Is All You Need 示例元数据，不保存论文全文。原 40 份数据不重编号、不改分类；附带论文元数据的详情可以显示论文信息，其余原档案缺失的论文字段显示未录入，不将虚构人物当作者。
+
+个人论文库按期刊分行，同一行按发表日期升序，每个期刊内显示 X-001、X-002…；持久 ID 为 `paper:UUID`，不能拿显示序号作收藏／阅读记录键。缺日期置后，期刊别名需编辑统一。日期可填 YYYY、YYYY-MM、YYYY-MM-DD。原五类、每类八份的内容校验只应用于原档案库，不能套到新论文库上。详情 DOWNLOAD 下载 PDF；历史 TXT 仍由原导出脚本维护。架构及识别限制见 [PAPER-LIBRARY.md](../verification/PAPER-LIBRARY.md)。
 
 ## 文件结构
 

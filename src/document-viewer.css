@@ -64,8 +64,8 @@
 .document-viewer button:hover { color:var(--theme-accent,#9b7247); }
 .document-viewer button:disabled { opacity:.35; cursor:default; }
 .document-viewer button:focus-visible { outline:1px solid currentColor; outline-offset:4px; }
-.detail-actions { gap:22px; }
-.detail-bookmark { display:flex; align-items:center; gap:8px; font-size:11px; padding:13px 0; white-space:nowrap; border-bottom:1px solid #aaa59a; }
+.detail-actions { gap:14px; }
+.detail-bookmark { display:flex; align-items:center; gap:4px; font-size:11px; padding:13px 0; white-space:nowrap; border-bottom:1px solid #aaa59a; }
 .detail-bookmark[aria-pressed="true"] { color:var(--theme-accent,#9b7247); }
 .detail-bookmark span { font-size:10px; }
 .detail-actions .solid-button[data-action="pdf-viewer"] { margin-right:auto; }

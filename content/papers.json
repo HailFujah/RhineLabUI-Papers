@@ -1,0 +1,18 @@
+{
+  "X-001": {
+    "title": "Attention Is All You Need",
+    "translatedTitle": "注意力机制就是你所需的一切",
+    "authors": ["Ashish Vaswani", "Noam Shazeer", "Niki Parmar", "Jakob Uszkoreit", "Llion Jones", "Aidan N. Gomez", "Łukasz Kaiser", "Illia Polosukhin"],
+    "institutions": ["Google Brain", "Google Research", "University of Toronto"],
+    "published": "2017",
+    "venue": "Advances in Neural Information Processing Systems",
+    "fields": ["自然语言处理", "机器学习"],
+    "keywords": ["Transformer", "自注意力", "机器翻译"],
+    "doi": "10.48550/arXiv.1706.03762",
+    "doiKind": "预印本",
+    "abstract": "论文提出 Transformer：以注意力机制组织序列信息，通过多头注意力、位置编码和前馈网络构成编码器与解码器。作者在机器翻译任务中验证了这一架构的效果，并讨论其并行训练能力。",
+    "abstractLabel": "中文概述",
+    "url": "https://arxiv.org/abs/1706.03762",
+    "publicationUrl": "https://papers.nips.cc/paper_files/paper/2017/hash/3f5ee243547dee91fbd053c1c4a845aa-Abstract.html"
+  }
+}

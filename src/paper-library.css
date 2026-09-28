@@ -1,0 +1,40 @@
+.paper-library-modal { max-height:calc(100% - 70px); overflow:auto; scrollbar-width:thin; overscroll-behavior:contain; }
+.paper-library-modal input:focus-visible,.paper-library-modal textarea:focus-visible { outline:1px solid currentColor; outline-offset:4px; }
+.paper-import-note { font-size:12px; line-height:1.8; color:var(--theme-muted,#77756d); }
+.paper-library-actions { display:flex; flex-wrap:wrap; align-items:center; gap:12px 25px; }
+.paper-library-actions button,.paper-file-pick { min-height:44px; display:inline-flex; align-items:center; gap:14px; border-bottom:1px solid var(--theme-line,#aaa59a); font-size:12px; }
+.paper-file-pick { position:relative; cursor:pointer; }
+.paper-file-pick input { position:absolute; inset:0; width:100%; opacity:0; cursor:pointer; }
+.paper-file-pick:focus-within { outline:1px solid currentColor; outline-offset:4px; }
+.paper-import-status { min-height:22px; font-size:12px; line-height:1.7; margin:18px 0; }
+.paper-edit-form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px 24px; margin:22px 0 34px; }
+.paper-edit-form[hidden],.file-ticks button[hidden] { display:none; }
+.paper-edit-form label { display:flex; flex-direction:column; gap:9px; font-size:11px; color:var(--theme-muted,#77756d); }
+.paper-edit-form input,.paper-edit-form textarea { width:100%; min-width:0; border:0; border-bottom:1px solid var(--theme-line,#aaa59a); background:transparent; color:var(--theme-ink,#20221c); font:14px/1.6 MiSans,sans-serif; padding:8px 0; border-radius:0; }
+.paper-edit-form textarea { resize:vertical; min-height:75px; }
+.paper-field-wide { grid-column:1/-1; }
+.paper-library-modal :disabled { opacity:.45; cursor:wait; }
+.paper-library-list { margin-top:28px; }
+.paper-library-item { display:flex; align-items:center; gap:20px; border-bottom:1px solid var(--theme-line,#aaa59a); }
+.paper-library-item button { min-height:52px; padding:12px 0; font-size:11px; }
+.paper-library-item button:first-child { flex:1; min-width:0; text-align:left; }
+.paper-library-item strong { display:block; font-size:14px; font-weight:500; overflow-wrap:anywhere; }
+.paper-library-item small { display:block; color:var(--theme-muted,#77756d); margin-top:7px; font-size:11px; }
+.paper-library-item button:last-child { flex-shrink:0; }
+.column-navigation strong { max-width:285px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+[data-library="papers"] .category-filters { max-height:150px; overflow:auto; flex-wrap:wrap; scrollbar-width:thin; }
+[data-library="papers"] .eyebrow { display:flex; align-items:baseline; gap:10px; }
+[data-library="papers"] #archive-category { min-width:0; max-width:70%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.detail-content h2 { overflow-wrap:anywhere; }
+[data-layout="portrait"] .column-navigation strong { max-width:145px; }
+:is([data-layout="portrait"],[data-layout="compact"]) .paper-edit-form input,
+:is([data-layout="portrait"],[data-layout="compact"]) .paper-edit-form textarea { font-size:16px; }
+[data-layout="portrait"] .paper-edit-form { grid-template-columns:1fr; }
+@media (max-width: 460px) {
+  [data-layout="portrait"] .nav-saved-label { display:none; }
+  [data-layout="portrait"] .system-nav { gap:0; }
+  [data-layout="portrait"] #saved-count::before { content:"＋ "; }
+}
+@media (max-width: 360px) {
+  [data-layout="portrait"] .brand { transform:scale(.34) !important; }
+}

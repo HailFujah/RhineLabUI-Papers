@@ -105,7 +105,8 @@ export class DocumentViewer {
   get isOpen() { return this.state !== "CLOSED"; }
   private get browsing() { return readerStates.has(this.state); }
 
-  constructor(parent: HTMLElement, private onClose: () => void, private sound: (sound: "explode" | "assemble" | "tick") => void) {
+  constructor(parent: HTMLElement, private onClose: () => void, private sound: (sound: "explode" | "assemble" | "tick") => void,
+    private onRead?: (page: number, pages: number) => void) {
     this.root.className = "document-viewer";
     this.root.hidden = true;
     this.root.setAttribute("role", "dialog");
@@ -209,6 +210,7 @@ export class DocumentViewer {
   }
   private el<T extends HTMLElement = HTMLElement>(selector: string) { return this.root.querySelector<T>(selector)!; }
   private setState(state: State) {
+    if (state === "PDF_READING" && this.state !== state && this.pdf && this.attachment?.url) this.onRead?.(this.displayedPage, this.pdf.pageCount);
     this.state = state; this.root.dataset.state = state;
     const ready = readerStates.has(state);
     this.el(".document-navigation").inert = !ready;

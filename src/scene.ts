@@ -19,7 +19,7 @@ import { applyTextureQuality, resizeQuality } from "./quality-renderer";
 import { CardAppearance } from "./appearance";
 import { configureInternalOptics } from "./internal-optics";
 import { DecryptionController } from "./decryption";
-import { fileAtSlot, fileLocation } from "./data";
+import { fileLocation, records, recordLabel } from "./data";
 import {
   cellKey,
   sameCell,
@@ -211,6 +211,7 @@ export class ArchiveScene {
   private pulses: { row: number; lane: number; time: number }[] = [];
   private pendingPulse: ArchiveCell | null = null;
   private selectedSlot = 76;
+  private selectedIndex = 0;
   private detail = 0;
   private targetDetail = 0;
   private reveal = 0;
@@ -580,7 +581,7 @@ export class ArchiveScene {
     if (mode !== "archive") this.pendingPulse = null;
     this.looping = mode !== "hidden";
     if (!this.looping) {
-      const canonical = fileLocation(fileAtSlot(this.selectedSlot));
+      const canonical = fileLocation(this.selectedIndex);
       this.selectedCell = { lane: canonical.lane, row: canonical.row };
       this.coordinateOrigin = { lane: 0, row: 0 };
       for (const old of this.outgoing) {
@@ -707,6 +708,7 @@ export class ArchiveScene {
     }
   }
   select(index: number, navigation?: ArchiveNavigation) {
+    this.selectedIndex = index;
     if (!this.navigatingDrag) this.cancelPointer();
     this.setHover(null);
     this.lastInteraction = this.clock;
@@ -792,7 +794,7 @@ export class ArchiveScene {
     c.fillText("INTERNAL DATABASE", 25, 174);
     c.fillStyle = "#171713";
     c.font = "bold 130px MiSans";
-    c.fillText("NO." + String(index + 1).padStart(3, "0"), 22, 360);
+    c.fillText("NO." + recordLabel(records[index]).slice(2), 22, 360);
     c.fillRect(782, 32, 221, 39);
     c.fillStyle = "#eee9de";
     c.font = "24px MiSans";
@@ -1825,7 +1827,7 @@ export class ArchiveScene {
       pulses: this.pulses.map((pulse) => ({ ...pulse })),
       referenceTime: Math.round((this.scanTime + 5) * 100) / 100,
       selectedSlot: this.selectedSlot,
-      selectedLane: Math.floor(this.selectedSlot / 32),
+      selectedLane: fileLocation(this.selectedIndex).lane,
       selectedCell: { ...this.selectedCell },
       hoverCell: this.hoverCell ? { ...this.hoverCell } : null,
       hoverLifts: Object.fromEntries(this.hoverLifts),

@@ -18,7 +18,12 @@ import { createRollingNumber, createRollingText } from "@kitlangton/rolling-numb
 import { ArchiveScene } from "./scene";
 import { ModelViewer } from "./model-viewer";
 import { DocumentViewer } from "./document-viewer";
-import { archiveDocument } from "./archive-documents";
+import { archiveDocument, setLibraryDocuments } from "./archive-documents";
+import { PaperLibraryPanel } from "./paper-library-panel";
+import { inspectPaper } from "./paper-import";
+import { readingVisits, recordReading, type StoredPaper } from "./paper-library";
+import { paperUrl } from "./paper-metadata";
+import "./paper-library.css";
 import { ContentTransition, SurfaceTransition } from "./ui-transitions";
 import { BootSequence } from "./boot";
 import { loadBootWebfonts } from "./boot-lettering";
@@ -28,7 +33,7 @@ import {
   categories,
   archiveColumns,
   columnFiles,
-  fileLocation,
+  catalogGroup, recordLabel, libraryKind, useArchiveLibrary, usePaperLibrary,
 } from "./data";
 import { TerminalAudio } from "./audio";
 import { audioSettingsMarkup } from "./audio-settings";
@@ -69,7 +74,8 @@ $("#stage").innerHTML = `
   <header class="brand">${brandHeading}</header>
   <nav class="system-nav" aria-label="系统导航">
     <button data-action="search"><span class="nav-glyph">⌕</span> ARCHIVE INDEX <span class="key">/</span></button>
-    <button data-action="saved" aria-label="查看收藏档案" title="收藏档案">＋ SAVED <span id="saved-count">00</span></button>
+    <button data-action="saved" aria-label="查看当前库收藏" title="当前库收藏"><span class="nav-saved-label">＋ SAVED</span><span id="saved-count">00</span></button>
+    <button data-action="upload-archive" aria-label="导入论文／切换论文库" title="导入论文／切换论文库"><svg class="nav-upload-icon" viewBox="0 0 18 20" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="M9 14V3m-4 4 4-4 4 4M3 14v3h12v-3"/></svg> UPLOAD ARCHIVE</button>
     <button class="settings-button" data-action="settings" aria-label="系统设置" title="系统设置"><span class="settings-glyph" aria-hidden="true">◷</span><span class="settings-label">设置</span></button>
   </nav>
   <button id="skip" class="skip" data-action="skip">ENTER SYSTEM <span>↗</span></button>
@@ -87,7 +93,7 @@ $("#stage").innerHTML = `
     <div id="hover-label" class="hover-label" hidden>X-<span id="hover-code">001</span> / <span id="hover-title"></span></div>
     <div class="archive-counter"><span class="tiny-label">ARCHIVE / SELECT</span><div><span id="selected-number">01</span><i>/</i><span class="count-total">12</span></div></div>
     <div class="archive-navigation"><button data-action="prev" aria-label="上一个档案">↑</button><div id="file-ticks" class="file-ticks"></div><button data-action="next" aria-label="下一个档案">↓</button></div>
-    <div class="column-navigation"><button data-action="column-prev" aria-label="上一列">←</button><div><span id="column-number">COLUMN <span id="column-index">03</span> / 05</span><strong id="column-name">机构档案</strong></div><button data-action="column-next" aria-label="下一列">→</button></div>
+    <div class="column-navigation"><button data-action="column-prev" aria-label="上一列">←</button><div><span id="column-number"><span id="column-axis">COLUMN</span> <span id="column-index">03</span> / <span id="column-total">05</span></span><strong id="column-name">机构档案</strong></div><button data-action="column-next" aria-label="下一列">→</button></div>
     <div class="archive-hint"><kbd>←</kbd> <kbd>→</kbd> 切换列 <span>／</span> <kbd>↑</kbd> <kbd>↓</kbd> 前后档案 <span>／</span> <kbd>ENTER</kbd> 读取</div>
   </section>
   <section id="detail-ui" class="detail-ui" aria-label="档案内容" hidden>
@@ -115,10 +121,13 @@ let mode: Mode = "boot",
   bootStart = 0,
   lastStep = "",
   ready = false;
-let modal: "search" | "saved" | "settings" | null = null,
+let modal: "search" | "saved" | "settings" | "upload" | null = null,
   searchQuery = "",
   filter = "全部档案";
 let activeTab = "overview";
+let libraryPanel: PaperLibraryPanel | undefined;
+let referencesJob: AbortController | undefined;
+const referencesErrors = new Map<string, string>();
 const reviewParams = new URLSearchParams(location.search);
 let frozenTime =
   reviewParams.get("freeze") === "1"
@@ -258,14 +267,7 @@ let resumeCell: { lane: number; row: number } | undefined;
 let resumeSelection = -1;
 let viewer: ModelViewer | undefined;
 let documentViewer: DocumentViewer | undefined;
-const accessLog: { id: string; time: string }[] = [];
 const columnMemory = archiveColumns.map((_, lane) => columnFiles(lane)[0]);
-function recordAccess() {
-  accessLog.unshift({
-    id: records[selected].id,
-    time: new Date().toLocaleTimeString("en-GB"),
-  });
-}
 function saveAudioPrefs() {
   try {
     localStorage.setItem("rhine-settings", JSON.stringify(prefs));
@@ -357,7 +359,7 @@ window.visualViewport?.addEventListener("resize", fit);
 window.visualViewport?.addEventListener("scroll", fit);
 matchMedia("(pointer: coarse)").addEventListener("change", fit);
 fit();
-$("#file-ticks").innerHTML = columnFiles(fileLocation(selected).lane)
+$("#file-ticks").innerHTML = columnFiles(catalogGroup(selected))
   .map(
     (index) => `<button data-select="${index}"></button>`,
   )
@@ -373,7 +375,7 @@ function setMode(next: Mode) {
     hoverCode.finish();
     $("#hover-label").hidden = true;
   }
-  if (next === "detail" && mode !== "detail") recordAccess();
+  if (next !== "detail") { referencesJob?.abort(); referencesJob = undefined; }
   mode = next;
   syncWallpaperBackground();
   audio.setScene(next);
@@ -417,8 +419,9 @@ function setMode(next: Mode) {
   }
 }
 function select(index: number, navigation?: ArchiveNavigation) {
+  referencesJob?.abort(); referencesJob = undefined;
   selected = (index + records.length) % records.length;
-  columnMemory[fileLocation(selected).lane] = selected;
+  columnMemory[catalogGroup(selected)] = selected;
   if (mode === "detail") setMode("archive");
   activeTab = "overview";
   scene?.select(selected, navigation);
@@ -427,7 +430,11 @@ function select(index: number, navigation?: ArchiveNavigation) {
   audio.play(columnMove ? "column" : "tick", columnMove ? navigation.direction * .45 : 0);
 }
 function stepFile(direction: number) {
-  const files = columnFiles(fileLocation(selected).lane);
+  if (libraryKind === "papers") {
+    if (archiveColumns.length > 1) select(columnMemory[wrap(catalogGroup(selected) + direction, archiveColumns.length)], { axis: "row", direction });
+    return;
+  }
+  const files = columnFiles(catalogGroup(selected));
   if (files.length < 2) return;
   select(
     files[(files.indexOf(selected) + direction + files.length) % files.length],
@@ -435,13 +442,18 @@ function stepFile(direction: number) {
   );
 }
 function stepColumn(direction: number) {
-  const lane = fileLocation(selected).lane;
+  const lane = catalogGroup(selected);
+  if (libraryKind === "papers") {
+    const files = columnFiles(lane);
+    if (files.length > 1) select(files[wrap(files.indexOf(selected) + direction, files.length)], { axis: "lane", direction });
+    return;
+  }
   const next = wrap(lane + direction, archiveColumns.length);
   select(columnMemory[next], { axis: "lane", direction });
 }
 function updateSelection(navigation?: ArchiveNavigation) {
   const r = records[selected];
-  const { lane } = fileLocation(selected);
+  const lane = catalogGroup(selected);
   const files = columnFiles(lane);
   selectionTitle.update({ text: r.title, animated: motionActive("rollingText") && mode === "archive" });
   clearanceTitle.update({ text: r.clearance, animated: motionActive("rollingText") && mode === "archive" });
@@ -453,7 +465,7 @@ function updateSelection(navigation?: ArchiveNavigation) {
         : "down"
       : "auto";
   selectedCode.update({
-    value: Number(r.id.slice(2)),
+    value: Number(recordLabel(r).slice(2)),
     animated: motionActive("rollingNumbers") && mode === "archive",
     direction,
   });
@@ -461,7 +473,7 @@ function updateSelection(navigation?: ArchiveNavigation) {
     value: files.indexOf(selected) + 1,
     animated: motionActive("rollingNumbers") && mode === "archive",
     direction:
-      navigation && "axis" in navigation && navigation.axis === "row"
+      navigation && "axis" in navigation && navigation.axis === (libraryKind === "papers" ? "lane" : "row")
         ? direction
         : "auto",
   });
@@ -470,28 +482,55 @@ function updateSelection(navigation?: ArchiveNavigation) {
     value: lane + 1,
     animated: motionActive("rollingNumbers") && mode === "archive",
     direction:
-      navigation && "axis" in navigation && navigation.axis === "lane"
+      navigation && "axis" in navigation && navigation.axis === (libraryKind === "papers" ? "row" : "lane")
         ? direction
         : "auto",
   });
   columnTitle.update({ text: archiveColumns[lane], animated: motionActive("rollingText") && mode === "archive" });
-  $<HTMLButtonElement>('[data-action="column-prev"]').disabled = false;
-  $<HTMLButtonElement>('[data-action="column-next"]').disabled = false;
+  $("#column-name").title = archiveColumns[lane];
+  const papers = libraryKind === "papers";
+  $("#column-axis").textContent = papers ? "JOURNAL" : "COLUMN";
+  $("#column-total").textContent = String(archiveColumns.length).padStart(2, "0");
+  $(".archive-hint").innerHTML = papers ? '<kbd>←</kbd> <kbd>→</kbd> 发表时间 <span>／</span> <kbd>↑</kbd> <kbd>↓</kbd> 切换期刊 <span>／</span> <kbd>ENTER</kbd> 读取' : '<kbd>←</kbd> <kbd>→</kbd> 切换列 <span>／</span> <kbd>↑</kbd> <kbd>↓</kbd> 前后档案 <span>／</span> <kbd>ENTER</kbd> 读取';
+  for (const [action, label] of [["column-prev", papers ? "较早论文" : "上一列"], ["column-next", papers ? "较晚论文" : "下一列"], ["prev", papers ? "上一个期刊" : "上一个档案"], ["next", papers ? "下一个期刊" : "下一个档案"]]) {
+    const button = $<HTMLButtonElement>(`[data-action="${action}"]`);
+    button.setAttribute("aria-label", label);
+    button.disabled = action.startsWith("column") ? (papers ? files.length < 2 : archiveColumns.length < 2) : (papers ? archiveColumns.length < 2 : files.length < 2);
+  }
+  const tickStart = Math.max(0, Math.min(files.indexOf(selected) - 3, files.length - fileTicks.length));
   fileTicks.forEach((button, slot) => {
-    const index = files[slot], record = records[index];
+    const index = files[tickStart + slot], record = records[index];
+    button.hidden = !record;
+    if (!record) { delete button.dataset.select; return; }
     button.dataset.select = String(index);
-    button.setAttribute("aria-label", `选择档案 ${record.id} ${record.title}`);
-    button.title = `${record.id} · ${record.title}`;
+    button.setAttribute("aria-label", `选择档案 ${recordLabel(record)} ${record.title}`);
+    button.title = `${recordLabel(record)} · ${record.title}`;
     button.classList.toggle("selected", index === selected);
     button.setAttribute("aria-pressed", String(index === selected));
   });
-  $("#saved-count").textContent = String(saved.size).padStart(2, "0");
+  $("#saved-count").textContent = String(records.filter(record => saved.has(record.id)).length).padStart(2, "0");
+}
+function changeLibrary(papers?: StoredPaper[], id?: string) {
+  setMode("archive"); scene?.setMode("hidden");
+  if (papers?.length) { usePaperLibrary(papers); setLibraryDocuments(papers); }
+  else { useArchiveLibrary(); setLibraryDocuments([]); }
+  $("#stage").dataset.library = libraryKind;
+  columnMemory.splice(0, columnMemory.length, ...archiveColumns.map((_, group) => columnFiles(group)[0]));
+  selected = Math.max(0, records.findIndex(record => record.id === id));
+  columnMemory[catalogGroup(selected)] = selected;
+  activeTab = "overview"; resumeCell = undefined; resumeSelection = -1;
+  scene?.select(selected); scene?.setMode("archive"); updateSelection();
+  if (id) openFile();
+}
+function switchLibrary(papers?: StoredPaper[], id?: string) {
+  closeModal(() => changeLibrary(papers, id));
 }
 function replayBoot(forcePreview = false) {
   if (!ready) return;
   closeModal(() => replayBootAfterModal(forcePreview));
 }
 function replayBootAfterModal(forcePreview: boolean) {
+  if (libraryKind === "papers") changeLibrary();
   bootStart = performance.now() / 1000 - 1.76;
   frozenTime = null;
   lastStep = "";
@@ -516,11 +555,11 @@ function toggleSaved() {
   try {
     localStorage.setItem("rhine-saved", JSON.stringify([...saved]));
   } catch {}
-  $("#saved-count").textContent = String(saved.size).padStart(2, "0");
+  $("#saved-count").textContent = String(records.filter(record => saved.has(record.id)).length).padStart(2, "0");
   const button = $<HTMLButtonElement>('[data-action="bookmark"]');
   const added = saved.has(id);
   button.firstChild!.textContent = added ? "SAVED −" : "SAVE ＋";
-  button.querySelector("span")!.textContent = added ? "已收藏" : "收藏档案";
+  button.querySelector("span")!.textContent = added ? "已收藏" : "收藏";
   button.setAttribute("aria-pressed", String(added));
   bookmarkFeedback?.cancel();
   if (motionActive("surfaceTransitions")) bookmarkFeedback = button.animate(
@@ -533,23 +572,46 @@ function toggleSaved() {
 function renderDetail() {
   tabTransition.cancel();
   const r = records[selected];
-  $("#object-id").textContent = "NO." + String(selected + 1).padStart(3, "0");
+  const paper = r.paper, attachment = archiveDocument(r.id);
+  const link = paperUrl(paper?.url || paper?.publicationUrl || "");
+  const text = (value?: string) => escapeHtml(value || "未录入");
+  $("#object-id").textContent = "NO." + recordLabel(r).slice(2);
   $("#detail-content").innerHTML = `
-  <div class="detail-kicker"><span>FILE ${r.id}</span><span>${escapeHtml(r.clearance)}</span></div>
-  <h2>${escapeHtml(r.en)}</h2><div class="detail-title-cn">${escapeHtml(r.title)}<span>${escapeHtml(r.category)}</span></div>
+  <div class="detail-kicker"><span>FILE ${escapeHtml(recordLabel(r))}</span><span>${paper ? "PAPER ARCHIVE" : "原档案 · 尚未关联论文"}</span></div>
+  <h2>${escapeHtml(paper?.title || r.en)}</h2><div class="detail-title-cn">${escapeHtml(paper ? paper.translatedTitle || "中文译名未录入" : r.title)}</div>
   <div class="detail-rule"></div>
-  <dl class="metadata"><div><dt>DEPARTMENT / 科室</dt><dd>${escapeHtml(r.department)}</dd></div><div><dt>COLLECTION / 编目范围</dt><dd>${escapeHtml(r.date)}</dd></div><div><dt>RELATED / 相关人物</dt><dd>${escapeHtml(r.lead)}</dd></div><div><dt>STATUS / 状态</dt><dd><i></i>${r.clearance === "RESTRICTED" ? "目录访问" : "已归档 · 可读取"}</dd></div></dl>
-  <div class="detail-tabs" role="tablist"><button id="tab-overview" class="active" role="tab" aria-controls="tab-panel" aria-selected="true" data-tab="overview">01 <span>概述</span></button><button id="tab-notes" role="tab" aria-controls="tab-panel" aria-selected="false" data-tab="notes">02 <span>研究记录</span></button><button id="tab-history" role="tab" aria-controls="tab-panel" aria-selected="false" data-tab="history">03 <span>访问日志</span></button><i class="tab-indicator" aria-hidden="true"></i></div>
+  <dl class="metadata"><div><dt>AUTHORS / 作者</dt><dd>${text(paper?.authors.join(", "))}</dd></div><div><dt>INSTITUTIONS / 机构</dt><dd>${text(paper?.institutions.join(" / "))}</dd></div><div><dt>PUBLISHED / 发表时间</dt><dd>${text(paper?.published)}</dd></div><div><dt>VENUE / 期刊／会议</dt><dd>${text(paper?.venue)}</dd></div></dl>
+  <dl class="paper-secondary"><div><dt>FIELDS / 研究领域</dt><dd>${text(paper?.fields.join(" · "))}</dd></div><div><dt>KEYWORDS / 关键词</dt><dd>${text(paper?.keywords.join(" · "))}</dd></div><div><dt>DOI${paper?.doiKind ? ` / ${escapeHtml(paper.doiKind)}` : ""}</dt><dd>${paper?.doi ? `<a href="${escapeHtml(paperUrl(`https://doi.org/${paper.doi}`))}" target="_blank" rel="noopener">${escapeHtml(paper.doi)} ↗</a>` : "未录入"}</dd></div></dl>
+  <div class="detail-tabs" role="tablist"><button id="tab-overview" class="active" role="tab" aria-controls="tab-panel" aria-selected="true" data-tab="overview">01 <span>摘要</span></button><button id="tab-notes" role="tab" aria-controls="tab-panel" aria-selected="false" data-tab="notes">02 <span>论文引用</span></button><button id="tab-history" role="tab" aria-controls="tab-panel" aria-selected="false" data-tab="history">03 <span>阅读记录</span></button><i class="tab-indicator" aria-hidden="true"></i></div>
   <div id="tab-panel" class="tab-panel" role="tabpanel">${overview()}</div>
-  <div class="detail-actions"><button class="solid-button" data-action="pdf-viewer">READ DOCUMENT <span>${archiveDocument(r.id) ? "阅读 PDF 档案" : "载入 PDF 文档"} ↗</span></button><button class="detail-bookmark" data-action="bookmark">${saved.has(r.id) ? "SAVED −" : "SAVE ＋"}<span>${saved.has(r.id) ? "已收藏" : "收藏"}</span></button><a class="export-button" href="${assetUrl(`archives/RHINE-LAB-${r.id}.txt`)}" download="RHINE-LAB-${r.id}.txt" aria-label="导出 ${r.id} 档案">EXPORT <span>↓</span></a></div>
-  <div class="detail-footnote"><a href="${escapeHtml(r.source)}" target="_blank" rel="noopener">设定参考 ↗</a><span>${String(selected + 1).padStart(3, "0")} / ${String(records.length).padStart(3, "0")}</span></div>`;
+  <div class="detail-actions"><button class="solid-button" data-action="pdf-viewer">READ DOCUMENT <span>${attachment ? "阅读 PDF 档案" : "载入 PDF 文档"} ↗</span></button><button class="detail-bookmark" data-action="bookmark">${saved.has(r.id) ? "SAVED −" : "SAVE ＋"}<span>${saved.has(r.id) ? "已收藏" : "收藏"}</span></button><button class="export-button" data-action="download-pdf" ${attachment ? "" : "disabled"} aria-label="下载论文 PDF">DOWNLOAD <svg viewBox="0 0 17 20" fill="none" stroke="currentColor" stroke-width="1.1" aria-hidden="true"><path d="M8.5 2v12m-4-4 4 4 4-4M3 18h11"/></svg></button></div>
+  <div class="detail-footnote">${link ? `<a href="${escapeHtml(link)}" target="_blank" rel="noopener">论文页面 ↗</a>` : "<span>论文页面未录入</span>"}<span>${String(selected + 1).padStart(3, "0")} / ${String(records.length).padStart(3, "0")}</span></div>`;
   $("#detail-content").setAttribute("tabindex", "-1");
   $('[data-action="bookmark"]').setAttribute("aria-pressed", String(saved.has(r.id)));
   documentDecryption.reset($("#detail-content"), !motionActive("documentReveal") || !scene || scene.decryptionFrame.phase === "clear");
   setTab(activeTab, false);
 }
 function overview() {
-  return `<div class="panel-label">ABSTRACT / 摘要</div><p>${escapeHtml(records[selected].abstract)}</p>`;
+  const r = records[selected];
+  return `<div class="panel-label">ABSTRACT / ${escapeHtml(r.paper?.abstractLabel || "摘要")}</div><p>${escapeHtml(r.paper ? r.paper.abstract || "摘要未录入。" : r.abstract)}</p>`;
+}
+function referencesMarkup() {
+  const r = records[selected], references = r.paper?.references;
+  return `<div class="panel-label">REFERENCES / 论文末尾参考文献</div>${references?.length ? `<ol class="paper-references">${references.map(reference => `<li>${escapeHtml(reference)}</li>`).join("")}</ol>` : `<p>${escapeHtml(referencesErrors.get(r.id) || (!r.paper ? "尚未关联论文。" : references ? "尚无可识别的参考文献，可在 PDF 中查看，或通过 UPLOAD ARCHIVE 编辑补录。" : "正在读取论文参考文献…"))}</p>`}`;
+}
+async function ensureReferences() {
+  const r = records[selected], paper = r.paper, attachment = archiveDocument(r.id);
+  if (!paper || paper.references !== undefined || referencesErrors.has(r.id) || referencesJob) return;
+  if (!attachment) { paper.references = []; $("#tab-panel").innerHTML = referencesMarkup(); return; }
+  const job = referencesJob = new AbortController();
+  try { paper.references = (await inspectPaper(attachment.url, attachment.title, job.signal)).paper.references ?? []; }
+  catch { if (!job.signal.aborted) referencesErrors.set(r.id, "无法读取参考文献，请检查 PDF 是否可用。可在阅读器中查看原文。"); }
+  finally {
+    if (referencesJob === job) referencesJob = undefined;
+    if (!job.signal.aborted && records[selected].id === r.id && mode === "detail" && activeTab === "notes") {
+      $("#tab-panel").innerHTML = referencesMarkup(); documentDecryption.refresh();
+    }
+  }
 }
 function setTab(tab: string, sound = true) {
   if (sound && tab === activeTab) return;
@@ -570,23 +632,32 @@ function setTab(tab: string, sound = true) {
     tab === "overview"
       ? overview()
       : tab === "notes"
-        ? `<div class="panel-label">RESEARCH NOTES / 研究记录</div><ol class="research-notes">${r.findings.map((f, i) => `<li><span>${String(i + 1).padStart(2, "0")}</span>${escapeHtml(f)}</li>`).join("")}</ol>`
-        : `<div class="panel-label">ACCESS LOG / 本次访问</div>${accessLog
-            .filter((entry) => entry.id === r.id)
-            .slice(0, 4)
-            .map(
-              (entry) =>
-                `<div class="log-row"><span>${entry.time}</span><span>JOYCE MOORE</span><b>READ AUTHORIZED</b></div>`,
-            )
-            .join(
-              "",
-            )}<p class="log-note">本次会话已通过身份验证。档案内容以当前终端可访问范围展示。</p>`;
+        ? referencesMarkup()
+        : `<div class="panel-label">READING HISTORY / 阅读记录</div>${readingVisits(r.id).map(entry => `<div class="log-row"><span>${escapeHtml(new Date(entry.time).toLocaleString("zh-CN"))}</span><b>PAGE ${entry.page} / ${entry.pages}</b></div>`).join("") || '<p>尚未阅读此论文。</p>'}<p class="log-note">保存最近 12 次页码记录，仅保存在本浏览器。</p>`;
+  if (tab === "notes") void ensureReferences();
   $("#tab-panel").scrollTop = 0;
   documentDecryption.refresh();
   if (sound) {
     tabTransition.reveal($("#tab-panel"), !motionActive("surfaceTransitions"));
     audio.play("ui-tick");
   }
+}
+let downloading = false;
+async function downloadPaper(button: HTMLButtonElement) {
+  const attachment = archiveDocument(records[selected].id);
+  if (!attachment || downloading) return;
+  downloading = true; button.disabled = true;
+  try {
+    const response = await fetch(attachment.url, { signal: AbortSignal.timeout(60_000) });
+    if (!response.ok) throw new Error("PDF 下载失败");
+    const blob = await response.blob();
+    if (!(await blob.slice(0, 1024).text()).includes("%PDF-")) throw new Error("地址未返回 PDF 文件");
+    const url = URL.createObjectURL(blob), link = document.createElement("a");
+    link.href = url; link.download = `${attachment.title.replace(/[<>:"/\\|?*\u0000-\u001f]/g, "_").slice(0, 160)}.pdf`;
+    document.body.append(link); link.click(); link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 30_000);
+  } catch { notify("无法下载 PDF，请检查网络，或通过论文页面获取原文。"); }
+  finally { downloading = false; if (button.isConnected) button.disabled = false; }
 }
 function notify(message: string) {
   clearTimeout(toastTimer);
@@ -618,6 +689,7 @@ function closeModal(afterClose?: () => void) {
   }
   if (modalClosing) return;
   modalClosing = true;
+  libraryPanel?.dispose(); libraryPanel = undefined;
   audio.play("page-close");
   modalTransition!.hide(!motionActive("surfaceTransitions"), () => {
     modal = null;
@@ -634,15 +706,26 @@ function closeModal(afterClose?: () => void) {
 }
 function renderModal() {
   if (!modal) return;
+  libraryPanel?.dispose(); libraryPanel = undefined;
   modalTransition?.dispose();
+  if (modal === "upload") {
+    $("#modal-root").innerHTML = '<div class="modal-backdrop"><section class="terminal-modal paper-library-modal" role="dialog" aria-modal="true" aria-label="导入论文"><div class="modal-top"><span>RHINE LAB / PERSONAL LIBRARY</span><button data-action="close-modal" aria-label="关闭窗口">CLOSE <span>×</span></button></div><div class="paper-library-body"></div></section></div>';
+    libraryPanel = new PaperLibraryPanel($(".paper-library-body"), (papers, id) => switchLibrary(papers, id), () => switchLibrary());
+  } else {
   $("#modal-root").innerHTML =
     `<div class="modal-backdrop"><section class="terminal-modal ${modal === "settings" ? "settings-modal" : ""}" role="dialog" aria-modal="true" aria-label="${modal === "settings" ? "系统设置" : modal === "saved" ? "收藏档案" : "档案检索"}"><div class="modal-top"><span>RHINE LAB / ${modal === "settings" ? "SYSTEM PREFERENCES" : "ARCHIVE DIRECTORY"}</span><button data-action="close-modal" aria-label="关闭窗口">CLOSE <span>×</span></button></div>${modal === "settings" ? settingsMarkup() : `<h2>${modal === "saved" ? "SAVED ARCHIVES" : "ARCHIVE INDEX"}<small>${modal === "saved" ? "收藏档案" : "内部档案检索"}</small></h2><div class="search-field"><span>⌕</span><input id="archive-search" type="search" autocomplete="off" placeholder="输入档案编号、名称或科室" aria-label="检索档案"/><span class="key">ESC</span></div><div class="category-filters">${categories.map((c, i) => `<button data-filter="${escapeHtml(c)}" class="${i === 0 ? "active" : ""}">${escapeHtml(c)}</button>`).join("")}</div><div class="result-header"><span>FILE / 档案</span><span>DEPARTMENT / 科室</span><span>ACCESS</span></div><div id="search-results" class="search-results"></div><div class="modal-bottom"><span id="result-count"></span><span>INTERNAL DATABASE <i>●</i> CONNECTED</span></div>`}</section></div>`;
+  }
   const backdrop = $(".modal-backdrop");
   backdrop.hidden = true;
   modalTransition = new SurfaceTransition(backdrop, $(".terminal-modal"));
   modalTransition.show(!motionActive("surfaceTransitions"));
   if (modal === "settings") updateQualitySummary();
-  if (modal !== "settings") {
+  if (modal !== "settings" && modal !== "upload") {
+    if (libraryKind === "papers") {
+      $("#archive-search").setAttribute("placeholder", "检索论文名称、作者、期刊、DOI 或关键词");
+      $(".result-header > span:nth-child(2)").textContent = "VENUE / 期刊 · 发表时间";
+      $(".terminal-modal h2 small").textContent = modal === "saved" ? "论文库收藏" : "个人论文库检索";
+    }
     renderResults();
     requestAnimationFrame(() => {
       if (backdrop.isConnected && !modalClosing) $("#archive-search").focus();
@@ -664,7 +747,7 @@ function renderResults() {
       ({ r }) =>
         (modal !== "saved" || saved.has(r.id)) &&
         (filter === "全部档案" || r.category === filter) &&
-        `${r.id} ${r.title} ${r.en} ${r.department} ${r.lead}`
+        `${recordLabel(r)} ${r.title} ${r.en} ${r.department} ${r.lead} ${r.category} ${r.paper?.title ?? ""} ${r.paper?.authors.join(" ") ?? ""} ${r.paper?.doi ?? ""} ${r.paper?.keywords.join(" ") ?? ""}`
           .toLowerCase()
           .includes(searchQuery.toLowerCase()),
     );
@@ -672,12 +755,15 @@ function renderResults() {
     ? results
         .map(
           ({ r, i }) =>
-            `<button class="result-row" data-result="${i}"><span class="result-name"><b>${r.id}</b><span>${escapeHtml(r.title)}<small>${escapeHtml(r.en)}</small></span>${saved.has(r.id) ? "<i>＋</i>" : ""}</span><span>${escapeHtml(r.department)}</span><span>${r.clearance === "RESTRICTED" ? "CATALOG ONLY" : "AUTHORIZED"} <i>↗</i></span></button>`,
+            `<button class="result-row" data-result="${i}"><span class="result-name"><b>${escapeHtml(recordLabel(r))}</b><span>${escapeHtml(r.title)}<small>${escapeHtml(r.en)}</small></span>${saved.has(r.id) ? "<i>＋</i>" : ""}</span><span>${escapeHtml(libraryKind === "papers" ? `${r.category} · ${r.date || "日期未录入"}` : r.department)}</span><span>${r.clearance === "RESTRICTED" ? "CATALOG ONLY" : "AUTHORIZED"} <i>↗</i></span></button>`,
         )
         .join("")
     : `<div class="empty-results"><span>∅</span><strong>${modal === "saved" && !searchQuery ? "尚无收藏档案" : "没有匹配的档案"}</strong><p>${modal === "saved" && !searchQuery ? "读取档案时，选择 SAVE ARCHIVE 将其保存在此处。" : "尝试其他名称、档案编号，或切换科室分类。"}</p><button data-action="reset-search">${modal === "saved" ? "查看全部档案 →" : "重置检索 →"}</button></div>`;
   $("#result-count").textContent =
     `${String(results.length).padStart(2, "0")} RECORDS FOUND`;
+  if (!results.length) $(".empty-results p").textContent = modal === "saved" && !searchQuery
+    ? "在详情页选择 SAVE，将当前库中的文档保存在此处。"
+    : libraryKind === "papers" ? "尝试论文名称、作者、期刊、DOI 或关键词。" : "尝试其他名称、档案编号，或切换分类。";
 }
 function updateQualitySummary() {
   const summary = document.querySelector("#quality-summary");
@@ -808,17 +894,22 @@ document.addEventListener("click", (e) => {
   if (action === "column-prev") stepColumn(-1);
   if (action === "column-next") stepColumn(1);
   if (action === "open") openFile();
+  if (action === "upload-archive") { el.focus({ preventScroll: true }); openModal("upload"); }
+  if (action === "download-pdf") void downloadPaper(el as HTMLButtonElement);
   if (action === "pdf-viewer" && mode === "detail") {
     if (!scene) { notify("请先开启左下角的 3D 档案系统"); return; }
     const activeScene = scene;
     el.focus({ preventScroll: true });
     scene.finishDecryption();
-    documentViewer ??= new DocumentViewer($("#stage"), () => { audio.setScene(mode); audio.play("page-close"); }, sound => audio.play(sound === "tick" ? "ui-tick" : sound));
+    documentViewer ??= new DocumentViewer($("#stage"), () => {
+      audio.setScene(mode); audio.play("page-close");
+      if (mode === "detail" && activeTab === "history") setTab("history", false);
+    }, sound => audio.play(sound === "tick" ? "ui-tick" : sound), (page, pages) => recordReading(records[selected].id, page, pages));
     documentViewer.setSuperPerformance(superPerformanceEnabled());
     documentViewer.setQuality(effectiveRenderQuality());
     documentViewer.setMotion(prefs.motion);
     documentViewer.setTheme(scene.themeAmount);
-    documentViewer.open(records[selected].id, records[selected].title, archiveDocument(records[selected].id), () => activeScene.createAssemblyModel(), scene.documentPose());
+    documentViewer.open(recordLabel(records[selected]), records[selected].title, archiveDocument(records[selected].id), () => activeScene.createAssemblyModel(), scene.documentPose());
     audio.setScene("viewer"); audio.play("page-open");
   }
   if (action === "model-viewer" && mode === "detail" && scene) {
@@ -833,7 +924,7 @@ document.addEventListener("click", (e) => {
     viewer.setMotion(prefs.motion);
     scene.finishDecryption();
     viewer.open(
-      records[selected].id,
+      recordLabel(records[selected]),
       records[selected].title,
       () => activeScene.createAssemblyModel(),
       !motionActive("viewerNavigation"),
@@ -885,7 +976,7 @@ document.addEventListener("keydown", (e) => {
     e.preventDefault();
     return;
   }
-  const typing = e.target instanceof HTMLInputElement;
+  const typing = e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLSelectElement;
   if (e.key === "Escape") {
     if (modal) closeModal();
     else if (mode === "detail" || (mode === "boot" && ready)) { const sound = mode === "detail" ? "back" : "ui-tick"; setMode("archive"); audio.play(sound); }
@@ -894,7 +985,7 @@ document.addEventListener("keydown", (e) => {
   if (modal && e.key === "Tab") {
     const focusables = [
       ...$("#modal-root").querySelectorAll<HTMLElement>(
-        'button,input:not(:disabled),select:not(:disabled),summary,[tabindex="0"]',
+        'button:not(:disabled),input:not(:disabled),textarea:not(:disabled),select:not(:disabled),summary,[tabindex="0"]',
       ),
     ];
     const visible = focusables.filter(el => el.getClientRects().length > 0);
@@ -1089,7 +1180,7 @@ function bindScene(scene: ArchiveScene, cell?: { lane: number; row: number }) {
       const animated = motionActive("rollingText") && mode === "archive";
       const numbersAnimated = motionActive("rollingNumbers") && mode === "archive";
       hoverCode.update({
-        value: Number(records[i].id.slice(2)),
+        value: Number(recordLabel(records[i]).slice(2)),
         animated: !label.hidden && numbersAnimated,
       });
       hoverTitle.update({ text: records[i].title, animated: !label.hidden && animated });
@@ -1300,7 +1391,7 @@ if (isWallpaper) {
   workbench = new Workbench($("#stage"), () => {
     if (ready && mode !== "boot") setMode("archive");
   }, lane => {
-    if (ready && !modal) select(columnMemory[lane]);
+    if (ready && !modal) select(columnMemory[lane] ?? columnMemory[0]);
   });
   workbench.setMotion(prefs.motion);
   playground = new ArchivePlayground($("#stage"), () => scene,

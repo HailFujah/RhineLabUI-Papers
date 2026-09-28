@@ -4,7 +4,7 @@
 
 ## 入口与架构
 
-详情页主按钮为 **READ DOCUMENT**，收藏与 EXPORT 并列。X-001 附件为明确标注的《Attention Is All You Need》技术样例，其他档案可选择本地 PDF。原 360° 查看器继续独立查看实体模型。
+详情页主按钮为 **READ DOCUMENT**，收藏与 DOWNLOAD 并列。X-001 附件为明确标注的《Attention Is All You Need》技术样例，其他档案可选择本地 PDF。原 360° 查看器继续独立查看实体模型。个人论文库、元数据与期刊排列的新增行为见 `PAPER-LIBRARY.md`，以下原有视觉证据不代表已检查新增导入流程。
 
 | 模块 | 职责 |
 | --- | --- |

@@ -1,4 +1,4 @@
-import { archiveColumns, columnFiles, fileLocation } from "./data.ts";
+import { archiveColumns, columnFiles, fileLocation, libraryKind, catalogGroup } from "./data.ts";
 
 export type ArchiveCell = { lane: number; row: number };
 export type ArchiveNavigation =
@@ -25,6 +25,10 @@ export function nearestOccurrence(
 }
 
 export function fileAtCell({ lane, row }: ArchiveCell) {
+  if (libraryKind === "papers") {
+    const files = columnFiles(wrap(row - 12, archiveColumns.length));
+    return files[wrap(lane, files.length)];
+  }
   const files = columnFiles(wrap(lane, archiveColumns.length));
   return files[wrap(row - 12, files.length)];
 }
@@ -36,6 +40,13 @@ export function selectionCell(
 ): ArchiveCell {
   if (navigation && "cell" in navigation) return { ...navigation.cell };
   const next = fileLocation(index);
+  if (libraryKind === "papers") {
+    const files = columnFiles(catalogGroup(index));
+    return {
+      lane: navigation?.axis === "lane" ? current.lane + navigation.direction : nearestOccurrence(next.lane, current.lane, files.length),
+      row: navigation?.axis === "row" ? current.row + navigation.direction : nearestOccurrence(next.row, current.row, archiveColumns.length),
+    };
+  }
   const row = nearestOccurrence(
     next.row,
     current.row,
