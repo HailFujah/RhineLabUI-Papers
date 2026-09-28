@@ -89,9 +89,10 @@
 - 用户撤回阅读页完整 360° 旋转：PDF 保持正面主视角，左右限 ±0.28 rad，上下限 ±0.18 rad；缩放、平移、适宽、复位继续可用。独立模型查看器仍保留 360°。
 - 暗色下所有 PDF 内容在同一 shader 中反相，包括 thumbnail、基板投影、高清页；玻璃、HUD、标识按现有暗色调色板变化。不得仅反相外层 DOM 或遗漏新加载的页面。
 - 2026-09-28：用户要求删除 PDF 预览页的矩形 PDF 标牌，覆盖此前保留在切片后的方案；明暗和各尺寸统一移除。用户试用后撤回额外的灵敏度提升：鼠标右键平移恢复 0.7 基础系数，只乘以 max(1, 当前缩放倍数) 补偿放大衰减；触摸仍为 0.7。悬停仅上提，前方页面继续遮挡被提起页；不能将选中页强制置顶或沿 Z 轴越过相邻页。深度约束见 `scripts/check-pdf-layout.mjs`。
-- `DocumentViewer` 统一控制 `LOADING → EXPLODING → PROJECTING → ENTERING → PDF_OVERVIEW → SELECTING → PDF_READING`。返回阅读堆叠用 `RETURNING_PAGE`；退出用 `RETRACTING → REASSEMBLING → RETURNING_ARCHIVE → CLOSED`。后续操作替换待选目标，保留当前位姿；异步加载按 generation 与 AbortController 取消。
-- 拆解共享 `archive-assembly.ts` 的六组部件、深度及 5.5 阻尼；源档案投影从 `ArchiveScene.documentPose()` 接续。PDF 切片必须先在信息基板上渐显，再沿实体路径抽出并移入左侧位置。退出先将切片归入基板，再实际重组六组部件，完成后镜头返回详情；不能用隐藏模型代替重组。
+- `DocumentViewer` 统一控制 `LOADING → CENTERING → EXPLODING → PROJECTING → ENTERING → PDF_OVERVIEW → SELECTING → PDF_READING`。返回阅读堆叠用 `RETURNING_PAGE`；退出用 `DISMISSING → REASSEMBLING → RETURNING_ARCHIVE → CLOSED`。后续操作替换待选目标，保留当前位姿；异步加载按 generation 与 AbortController 取消。
+- 拆解共享 `archive-assembly.ts` 的六组部件、深度及 5.5 阻尼；源档案投影从 `ArchiveScene.documentPose()` 接续。进入先从当前屏幕位置直接居中，再拆解；PDF 切片仍先在信息基板上渐显，再抽出并移入左侧位置。2026-09-29 用户撤回退出时切片归入基板的要求：左侧切片按页码错峰移出左侧，当前阅读页向右退场，模型在中央实际重组六组部件后返回详情。
 - 2026-09-28：用户要求重组后直接回到左侧档案预览，保留重组速度及返回时长。`RETURNING_ARCHIVE` 从当前画面捕获姿态，按模型的屏幕位置与取景尺寸插值后还原相机；禁止混用世界位置、朝向和焦距的独立插值造成先向右再折返。
+- 2026-09-29 节奏修订覆盖上述旧时长：`document-motion.ts` 统一投影路径与阶段时间。进入约 6.6 秒，先居中约 1.19 秒，再按原阻尼拆解；切片显影约 1.39 秒、抽出约 2.11 秒。退场每片 1.65 秒、错峰 140ms，各片使用同一屏幕移动距离；相机变换不额外加快切片。模型重组后用 1.15 秒直接回到实际详情位置。关闭途中保留捕获姿态，禁止恢复切片塞回模型的逆播流程。
 - 左侧最多七个可见真实页面，缓存围绕当前页的十三页窗口加投影／抽出页（上限十五张 thumbnail），最多两个 thumbnail 渲染任务。右侧只保留当前高清页，正常上限 400 万像素／4096 边长，超级性能模式 200 万像素。关闭释放 PDF worker、页面资源，避免整份高分辨率 GPU 常驻。
 - 详情与 PDF 使用各自 WebGL 上下文，阅读全过程共用一个 DocumentViewer renderer、相机、灯光，暂停主场景；环境贴图不能跨 renderer 复用。分辨率、材质和纹理预算沿用画质设置；文档场景使用原生 MSAA，避免全帧 OutputPass 再次映射 PDF 颜色，保持正文对比度及反相。PDF.js 与 worker 按需加载；字体、CMap、WASM 同源版本化，随现有 PWA 发行包缓存。
 - 2026-09-29：PDF 进出拆解／重组的源盖板继续共用 `CardAppearance` 的完全清晰材质。透明画布会触发 Three.js 折射缓冲的半透明白底回退；`DocumentViewer` 用仅在原生折射预渲染写入颜色的背景平面提供当前主题的线性背景色，最终画布仍透明。不要通过降低盖板 opacity 或另换白色材质处理。此背景判断依赖查看器直接输出画布，升级 Three.js 或增加后处理时须复核；详见 `verification/PDF-READER.md`。

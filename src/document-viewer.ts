@@ -8,6 +8,7 @@ import { normalizeQuality, type RenderQuality } from "./render-quality";
 import { fullMotion, type MotionPreferences } from "./motion-preferences";
 import { themeEnvironment } from "./theme-material";
 import { damp, smooth } from "./motion";
+import { DOCUMENT_MOTION as TIMING, frameArchiveCamera, frameSliceStack } from "./document-motion";
 import { PdfSliceFactory, type PdfSlice } from "./pdf-slice";
 import { pdfSlicePosition, pdfWindow } from "./pdf-layout";
 import { pdfPageMaterial } from "./pdf-material";
@@ -16,21 +17,15 @@ import type { ArchiveDocument } from "./archive-documents";
 import type { PdfDocument, PdfRaster } from "./pdf-document";
 import "./document-viewer.css";
 
-type State = "CLOSED" | "LOADING" | "EXPLODING" | "PROJECTING" | "ENTERING" | "PDF_OVERVIEW" | "SELECTING" | "PDF_READING" | "RETURNING_PAGE" | "RETRACTING" | "REASSEMBLING" | "RETURNING_ARCHIVE" | "ERROR";
+type State = "CLOSED" | "LOADING" | "CENTERING" | "EXPLODING" | "PROJECTING" | "ENTERING" | "PDF_OVERVIEW" | "SELECTING" | "PDF_READING" | "RETURNING_PAGE" | "DISMISSING" | "REASSEMBLING" | "RETURNING_ARCHIVE" | "ERROR";
 type Thumbnail = { raster: PdfRaster; texture: THREE.CanvasTexture };
 const pad = (n: number) => String(n).padStart(2, "0");
 const release = (raster?: PdfRaster) => { if (raster) raster.canvas.width = raster.canvas.height = 1; };
 const cancellation = (error: unknown) => error instanceof Error && ["AbortError", "RenderingCancelledException"].includes(error.name);
 const readerStates = new Set<State>(["PDF_OVERVIEW", "SELECTING", "PDF_READING", "RETURNING_PAGE"]);
-const closingStates = new Set<State>(["RETRACTING", "REASSEMBLING", "RETURNING_ARCHIVE"]);
-
-// The archive is centered at the origin. Describe its framing independently
-// of the very different lens distances used by the detail and PDF scenes.
-const archiveFraming = (camera: THREE.PerspectiveCamera) => {
-  const center = camera.position.clone().negate().applyQuaternion(camera.quaternion.clone().invert());
-  const halfHeight = -center.z * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) / camera.zoom;
-  return { x: center.x / halfHeight, y: center.y / halfHeight, halfHeight };
-};
+const closingStates = new Set<State>(["DISMISSING", "REASSEMBLING", "RETURNING_ARCHIVE"]);
+type DismissedSlice = { slice: PdfSlice; position: THREE.Vector3; end: THREE.Vector3;
+  rotation: THREE.Quaternion; scale: number; delay: number; reveal: number; active: number };
 
 /** Detail -> physical disassembly -> optical projection -> slice archive.
  * A single renderer and explicit state own all transitions and asynchronous work. */
@@ -40,10 +35,10 @@ export class DocumentViewer {
   private camera = new THREE.PerspectiveCamera(34, 16 / 9, .1, 300);
   private projectionCamera = new THREE.PerspectiveCamera(34, 16 / 9, .1, 300);
   private substrateCamera = new THREE.PerspectiveCamera(34, 16 / 9, .1, 300);
+  private readingCamera = new THREE.PerspectiveCamera(34, 16 / 9, .1, 300);
   private readClip = [new THREE.Plane(), new THREE.Plane(), new THREE.Plane(), new THREE.Plane()];
   private identity = new THREE.Quaternion();
   private origin = new THREE.Vector3();
-  private readingCameraPosition = new THREE.Vector3(0, 0, 17);
   private renderer: THREE.WebGLRenderer;
   // A linear-color backdrop for the native transmission capture only. Keeping
   // it out of the canvas lets the existing DOM/detail crossfade stay transparent.
@@ -80,7 +75,9 @@ export class DocumentViewer {
   private attachment?: ArchiveDocument;
   private provider?: () => Promise<ArchiveModelSource>;
   private pose?: ArchiveDocumentPose;
-  private archiveReturn?: { camera: THREE.PerspectiveCamera; rotation: THREE.Quaternion; intro: number };
+  private archiveReturn?: { camera: THREE.PerspectiveCamera; rotation: THREE.Quaternion; intro: number; background: number };
+  private dismissal?: { elapsed: number; camera: THREE.PerspectiveCamera; rotation: THREE.Quaternion;
+    sourceOpacity: number; entry: number; background: number; restoreDelay: number; slices: DismissedSlice[] };
   private page = 1;
   private hover: number | null = null;
   private displayedPage = 0;
@@ -172,6 +169,7 @@ export class DocumentViewer {
     this.projectionCamera.lookAt(0, 0, 0);
     this.substrateCamera.position.set(1.2, .6, 8);
     this.substrateCamera.lookAt(0, 0, -1.1);
+    this.readingCamera.position.set(0, 0, 17);
     this.controls = new OrbitControls(this.controlCamera, this.readHit);
     this.controls.enableDamping = false;
     this.controls.rotateSpeed = .65; this.controls.zoomSpeed = .7; this.controls.panSpeed = .7;
@@ -196,7 +194,7 @@ export class DocumentViewer {
       if (!file || closingStates.has(this.state)) return;
       const generation = this.generation;
       void file.arrayBuffer().then(bytes => {
-        if (!this.isOpen || generation !== this.generation) return;
+        if (!this.isOpen || closingStates.has(this.state) || generation !== this.generation) return;
         this.attachment = { title: file.name, url: "" };
         this.el("#document-title").textContent = file.name;
         this.el(".document-file").textContent = "LOCAL DOCUMENT / 仅在此设备读取";
@@ -231,7 +229,7 @@ export class DocumentViewer {
     this.el(".document-navigation").inert = !ready;
     this.el(".document-reading").inert = !ready;
     this.controls.enabled = state === "PDF_READING" || state === "SELECTING";
-    const phases: Partial<Record<State, string>> = { LOADING: "PREPARING / 载入档案内容", EXPLODING: "01 / 拆解档案", PROJECTING: "02 / 光学核心投影 · 切片显影", ENTERING: "03 / 从信息基板抽出光学切片", RETRACTING: "RETURN / 光学切片归入信息基板", REASSEMBLING: "REASSEMBLING / 一键重组档案", RETURNING_ARCHIVE: "ARCHIVE / 返回档案预览" };
+    const phases: Partial<Record<State, string>> = { LOADING: "PREPARING / 载入档案内容", CENTERING: "POSITIONING / 档案移入观察中心", EXPLODING: "01 / 拆解档案", PROJECTING: "02 / 光学核心投影 · 切片显影", ENTERING: "03 / 从信息基板抽出光学切片", DISMISSING: "CLOSING / 光学切片依次退场", REASSEMBLING: "REASSEMBLING / 一键重组档案", RETURNING_ARCHIVE: "ARCHIVE / 返回档案预览" };
     this.el(".document-stage-label").textContent = phases[state] ?? "";
     this.el(".document-instruction").textContent = ready ? "滚轮浏览切片 / 左键倾转 · 右键平移 · 双指缩放平移" : "REFRACTIVE RINGS → OPTICAL CORE → SUBSTRATE";
   }
@@ -253,6 +251,7 @@ export class DocumentViewer {
     this.root.parentElement!.dataset.documentActive = "true";
     this.intro = 0; this.lastTime = 0; this.spread = { value: 0, velocity: 0 };
     this.archiveReturn = undefined;
+    this.dismissal = undefined;
     this.el("#document-title").textContent = attachment?.title ?? title;
     this.el(".document-file").textContent = `FILE ${id} / ${attachment?.sample ? "技术样例 · arXiv:1706.03762" : "DOCUMENT ARCHIVE"}`;
     this.el(".document-back").focus({ preventScroll: true });
@@ -301,7 +300,7 @@ export class DocumentViewer {
       this.el(".document-count").textContent = `${pad(pdf.pageCount)} PAGES`;
       this.ensureWindow(); this.refreshHUD(); this.message("");
       if (preserveIntro || !this.motion.viewerModelTransition) { this.intro = 1; this.setState("PDF_OVERVIEW"); this.navHit.focus({ preventScroll: true }); }
-      else { this.intro = 0; this.setState("EXPLODING"); this.sound("explode"); }
+      else { this.intro = 0; this.setState("CENTERING"); }
     } catch (error) {
       if (job.signal.aborted || generation !== this.generation || cancellation(error)) return;
       this.setState("ERROR");
@@ -588,20 +587,122 @@ export class DocumentViewer {
   private updateArchiveReturn() {
     const from = this.archiveReturn!, to = this.pose!;
     const amount = smooth(1 - this.intro / from.intro);
-    const start = archiveFraming(from.camera), end = archiveFraming(to.camera);
-    const halfHeight = THREE.MathUtils.lerp(start.halfHeight, end.halfHeight, amount);
-    this.camera.fov = THREE.MathUtils.lerp(from.camera.fov, to.camera.fov, amount);
-    this.camera.zoom = THREE.MathUtils.lerp(from.camera.zoom, to.camera.zoom, amount);
-    this.camera.quaternion.slerpQuaternions(from.camera.quaternion, to.camera.quaternion, amount);
-    // Move the projected center straight to its detail position while changing
-    // framing smoothly. A world-position lerp plus lens/orientation changes
-    // makes the archive swing to the right before returning to the left.
-    this.camera.position.set(
-      -THREE.MathUtils.lerp(start.x, end.x, amount) * halfHeight,
-      -THREE.MathUtils.lerp(start.y, end.y, amount) * halfHeight,
-      halfHeight * this.camera.zoom / Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2)),
-    ).applyQuaternion(this.camera.quaternion);
+    frameArchiveCamera(this.camera, from.camera, to.camera, amount);
     this.sourcePivot.quaternion.slerpQuaternions(from.rotation, to.rotation, amount);
+  }
+
+  private setSourceOpacity(opacity: number, developing = false) {
+    this.sourcePivot.visible = opacity > .001;
+    for (const [material, original] of this.sourceMaterials) {
+      material.opacity = original.opacity * opacity;
+      const transparent = original.transparent || opacity < .999;
+      if (material.transparent !== transparent) { material.transparent = transparent; material.needsUpdate = true; }
+      // Developing paper is absent from the transmission prepass. Its fragments
+      // must not be rejected by the clear cover's depth during projection.
+      material.depthWrite = opacity > .95 && original.depthWrite && !(original.opticalCover && developing);
+    }
+  }
+
+  private beginDismissal() {
+    const camera = this.camera.clone(), slices: DismissedSlice[] = [];
+    const viewRotation = camera.quaternion.clone().invert();
+    const develop = smooth((this.intro - TIMING.developStart) / (TIMING.developed - TIMING.developStart));
+    this.scene.updateMatrixWorld(true);
+    const capture = (slice: PdfSlice, side: number, delay: number, reveal: number, active: number) => {
+      const position = slice.root.getWorldPosition(new THREE.Vector3());
+      const rotation = slice.root.getWorldQuaternion(new THREE.Quaternion());
+      const scale = slice.root.getWorldScale(new THREE.Vector3()).x;
+      const end = position.clone().sub(camera.position).applyQuaternion(camera.quaternion.clone().invert());
+      const halfHeight = -end.z * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) / camera.zoom;
+      const radius = Math.hypot(slice.width, slice.height) * scale / 2;
+      // Clear the whole carrier past the screen edge, not just its center.
+      end.x = side * (halfHeight * camera.aspect + radius + .3);
+      end.y += halfHeight * .12;
+      end.applyQuaternion(camera.quaternion).add(camera.position);
+      this.scene.attach(slice.root);
+      slices.push({ slice, position, end, rotation, scale, delay, reveal, active });
+    };
+    if (this.stack.visible) for (const [page, slice] of [...this.slices].sort(([a], [b]) => a - b)) {
+      if (slice.root.visible) capture(slice, -1, slices.length * TIMING.dismissStagger, develop,
+        page === (this.hover ?? this.page) ? 1 : .38);
+    }
+    // Give the queue one screen-space travel distance, so later pages do not
+    // accelerate past earlier pages just because they start farther from the edge.
+    const departures = slices.map(item => {
+      const start = item.position.clone().sub(camera.position).applyQuaternion(viewRotation);
+      const end = item.end.clone().sub(camera.position).applyQuaternion(viewRotation);
+      const halfHeight = -start.z * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) / camera.zoom;
+      return { item, start, halfHeight, travel: (start.x - end.x) / halfHeight };
+    });
+    const travel = Math.max(0, ...departures.map(item => item.travel));
+    for (const { item, start, halfHeight } of departures) {
+      start.x -= travel * halfHeight;
+      start.y += halfHeight * .12;
+      item.end.copy(start).applyQuaternion(camera.quaternion).add(camera.position);
+    }
+    const hasReading = Boolean(this.reading?.root.visible);
+    if (hasReading) capture(this.reading!, 1, 0, 1, 1);
+    this.dismissal = { elapsed: 0, camera, rotation: this.sourcePivot.quaternion.clone(), slices,
+      sourceOpacity: 1 - smooth((this.intro - .82) / .17),
+      entry: smooth((this.intro - TIMING.transportStart) / (1 - TIMING.transportStart)),
+      background: smooth(this.intro / .18), restoreDelay: hasReading ? TIMING.dismissSeconds : slices.length ? .8 : 0 };
+    this.projection.visible = false;
+    this.stack.visible = false;
+    this.setState("DISMISSING");
+  }
+
+  private updateClosing(dt: number) {
+    if (!this.motion.viewerModelTransition) { this.finishClose(); return; }
+    let entry = 0, background = 1;
+    if (this.state === "RETURNING_ARCHIVE") {
+      this.intro = Math.max(0, this.intro - dt * this.archiveReturn!.intro / TIMING.returnSeconds);
+      if (this.intro === 0) { this.finishClose(); return; }
+      this.updateArchiveReturn();
+      background = this.archiveReturn!.background * smooth(this.intro / this.archiveReturn!.intro);
+      this.setSourceOpacity(1);
+    } else {
+      const dismissal = this.dismissal!;
+      dismissal.elapsed += dt;
+      const restore = smooth((dismissal.elapsed - dismissal.restoreDelay) / TIMING.restoreSeconds);
+      frameArchiveCamera(this.camera, dismissal.camera, this.projectionCamera, restore);
+      this.sourcePivot.quaternion.slerpQuaternions(dismissal.rotation, this.identity, restore);
+      this.setSourceOpacity(THREE.MathUtils.lerp(dismissal.sourceOpacity, 1, restore));
+      entry = dismissal.entry * (1 - smooth(dismissal.elapsed / TIMING.dismissSeconds));
+      background = THREE.MathUtils.lerp(dismissal.background, 1, restore);
+      let dismissed = true;
+      for (const item of dismissal.slices) {
+        const amount = smooth((dismissal.elapsed - item.delay) / TIMING.dismissSeconds);
+        item.slice.root.visible = amount < 1;
+        dismissed &&= amount === 1;
+        if (amount === 1) continue;
+        frameSliceStack(item.slice.root, this.camera, dismissal.camera, dismissal.camera,
+          item.position, item.end, item.scale, item.scale, amount);
+        item.slice.root.quaternion.copy(this.camera.quaternion)
+          .multiply(dismissal.camera.quaternion.clone().invert()).multiply(item.rotation);
+        item.slice.emphasis(item.active, this.theme);
+        item.slice.setReveal(item.reveal);
+      }
+      if (this.state === "DISMISSING" && restore === 1) { this.setState("REASSEMBLING"); this.sound("assemble"); }
+      if (this.state === "REASSEMBLING") {
+        damp(this.spread, 0, 5.5, dt);
+        if (this.source) spreadArchiveParts(this.parts, this.spread.value);
+        if (dismissed && this.spread.value < .001 && Math.abs(this.spread.velocity) < .01) {
+          this.spread = { value: 0, velocity: 0 };
+          if (this.source) spreadArchiveParts(this.parts, 0);
+          this.intro = 1;
+          this.archiveReturn = { camera: this.camera.clone(), rotation: this.sourcePivot.quaternion.clone(), intro: 1, background: 1 };
+          this.setState("RETURNING_ARCHIVE");
+        }
+      }
+    }
+    this.camera.updateProjectionMatrix();
+    const color = this.scene.background as THREE.Color;
+    this.el(".document-wash").style.backgroundColor = `#${color.getHexString()}`;
+    this.root.style.setProperty("--document-entry", String(entry));
+    this.root.style.setProperty("--document-background", String(background));
+    this.renderScene();
+    this.root.dataset.stats = JSON.stringify({ state: this.state, spread: this.spread.value,
+      dismissElapsed: this.dismissal?.elapsed ?? 0, remainingSlices: this.dismissal?.slices.filter(item => item.slice.root.visible).length ?? 0 });
   }
 
   private renderScene() {
@@ -626,63 +727,42 @@ export class DocumentViewer {
     this.scene.background ??= new THREE.Color("#eae5e1");
     themeEnvironment(this.scene, this.renderer, this.theme);
     this.source?.model.traverse(child => { if (child.userData.themeAmount) child.userData.themeAmount.value = this.theme; });
-    if (["EXPLODING", "PROJECTING", "ENTERING"].includes(this.state)) {
-      this.intro = this.motion.viewerModelTransition ? Math.min(1, this.intro + dt / 4.6) : 1;
-      const next: State = this.intro < .30 ? "EXPLODING" : this.intro < .62 ? "PROJECTING" : this.intro < 1 ? "ENTERING" : "PDF_OVERVIEW";
-      if (next !== this.state) { this.setState(next); if (next === "PDF_OVERVIEW") this.navHit.focus({ preventScroll: true }); }
-    }
-    if (this.state === "RETRACTING") {
-      this.intro = Math.max(.30, this.intro - dt / 1.8);
-      if (this.intro <= .30) { this.setState("REASSEMBLING"); this.sound("assemble"); }
-    }
-    if (this.state === "REASSEMBLING" && this.spread.value < .001 && Math.abs(this.spread.velocity) < .01) {
-      // Capture the displayed pose, including an interrupted opening animation.
-      this.archiveReturn = { camera: this.camera.clone(), rotation: this.sourcePivot.quaternion.clone(), intro: this.intro };
-      this.setState("RETURNING_ARCHIVE");
-    }
-    if (this.state === "RETURNING_ARCHIVE") {
-      this.intro = this.motion.viewerModelTransition ? Math.max(0, this.intro - dt / 1.9) : 0;
-      if (this.intro === 0) { this.finishClose(); return; }
+    if (closingStates.has(this.state)) { this.updateClosing(dt); return; }
+    if (["CENTERING", "EXPLODING", "PROJECTING", "ENTERING"].includes(this.state)) {
+      this.intro = this.motion.viewerModelTransition ? Math.min(1, this.intro + dt / TIMING.openingSeconds) : 1;
+      const next: State = this.intro < TIMING.centered ? "CENTERING" : this.intro < TIMING.exploded ? "EXPLODING"
+        : this.intro < TIMING.transportStart ? "PROJECTING" : this.intro < 1 ? "ENTERING" : "PDF_OVERVIEW";
+      if (next !== this.state) {
+        this.setState(next);
+        if (next === "EXPLODING") this.sound("explode");
+        if (next === "PDF_OVERVIEW") this.navHit.focus({ preventScroll: true });
+      }
     }
     const progress = this.intro;
-    const expand = smooth(progress / .30), enter = smooth((progress - .65) / .35);
-    const reassemble = this.state === "REASSEMBLING" || this.state === "RETURNING_ARCHIVE";
-    const targetSpread = reassemble ? 0 : progress < .30 ? expand : 1;
+    const center = smooth(progress / TIMING.centered);
+    const transport = smooth((progress - TIMING.transportStart) / (1 - TIMING.transportStart));
+    const enter = transport;
+    // Finish the direct move into the center before releasing any parts.
+    const targetSpread = progress < TIMING.centered ? 0 : 1;
     if (this.motion.viewerModelTransition) damp(this.spread, targetSpread, 5.5, dt);
     else this.spread = { value: targetSpread, velocity: 0 };
     if (this.source) spreadArchiveParts(this.parts, this.spread.value);
-    const openingCamera = this.pose!.camera;
-    const target = this.projectionCamera;
-    this.camera.position.lerpVectors(openingCamera.position, target.position, expand);
-    this.camera.quaternion.slerpQuaternions(openingCamera.quaternion, target.quaternion, expand);
-    this.camera.fov = THREE.MathUtils.lerp(openingCamera.fov, 34, expand);
-    this.camera.zoom = THREE.MathUtils.lerp(openingCamera.zoom, 1, expand);
-    const dolly = smooth((progress - .48) / .20);
-    this.camera.position.lerp(this.substrateCamera.position, dolly);
-    this.camera.quaternion.slerp(this.substrateCamera.quaternion, dolly);
-    this.camera.position.lerp(this.readingCameraPosition, enter);
-    this.camera.quaternion.slerp(this.identity, enter);
-    this.sourcePivot.quaternion.copy(this.pose!.rotation).slerp(this.identity, expand);
-    if (this.state === "RETURNING_ARCHIVE") this.updateArchiveReturn();
+    frameArchiveCamera(this.camera, this.pose!.camera, this.projectionCamera, center);
+    const dolly = smooth((progress - TIMING.dollyStart) / (TIMING.transportStart - TIMING.dollyStart));
+    if (dolly > 0) frameArchiveCamera(this.camera, this.projectionCamera, this.substrateCamera, dolly);
+    if (transport > 0) frameArchiveCamera(this.camera, this.substrateCamera, this.readingCamera, transport);
+    this.sourcePivot.quaternion.copy(this.pose!.rotation).slerp(this.identity, center);
     this.camera.updateProjectionMatrix();
     this.sourcePivot.scale.setScalar(1);
     this.sourcePivot.position.copy(this.origin);
-    this.sourcePivot.visible = progress < .97;
-    const sourceOpacity = 1 - smooth((progress - .76) / .20);
-    for (const [material, original] of this.sourceMaterials) {
-      material.opacity = original.opacity * sourceOpacity;
-      const transparent = original.transparent || sourceOpacity < .999;
-      if (material.transparent !== transparent) { material.transparent = transparent; material.needsUpdate = true; }
-      // Developing paper is transparent and absent from Three's transmission
-      // prepass. The clear cover must not reject those fragments by depth.
-      material.depthWrite = sourceOpacity > .95 && original.depthWrite && !(original.opticalCover && progress > .30);
-    }
+    const sourceOpacity = 1 - smooth((progress - .82) / .17);
+    this.setSourceOpacity(sourceOpacity, progress > TIMING.exploded);
     this.projection.position.copy(this.sourcePivot.position); this.projection.quaternion.copy(this.sourcePivot.quaternion); this.projection.scale.copy(this.sourcePivot.scale);
-    this.projection.visible = progress > .3 && progress < .98;
+    this.projection.visible = progress > TIMING.exploded && progress < .78;
     if (this.projectionDark) this.projectionDark.value = this.theme;
     for (const object of this.projection.children) {
       if (object instanceof THREE.Mesh || object instanceof THREE.LineSegments) {
-        (object.material as THREE.MeshBasicMaterial).opacity = smooth((progress - .30) / .16) * (1 - smooth((progress - .58) / .14)) * (object instanceof THREE.LineSegments ? .55 : .75);
+        (object.material as THREE.MeshBasicMaterial).opacity = smooth((progress - TIMING.exploded) / .12) * (1 - smooth((progress - .63) / .15)) * (object instanceof THREE.LineSegments ? .55 : .75);
       }
     }
     // The background fades over the frozen detail canvas beneath the transparent
@@ -693,14 +773,13 @@ export class DocumentViewer {
     this.root.style.setProperty("--document-background", String(smooth(progress / .18)));
     // The actual navigation meshes first develop on the substrate, then lift
     // out and travel to their navigator positions. No substitute DOM/card fade.
-    const develop = smooth((progress - .40) / .19);
-    const transport = smooth((progress - .60) / .40);
-    this.stack.visible = Boolean(this.pdf) && progress > .40;
+    const develop = smooth((progress - TIMING.developStart) / (TIMING.developed - TIMING.developStart));
+    this.stack.visible = Boolean(this.pdf) && progress > TIMING.developStart;
     const substrate = new THREE.Vector3(0, 0, -1.1 * this.spread.value + .04).applyQuaternion(this.sourcePivot.quaternion);
-    this.stack.position.lerpVectors(substrate, this.navPosition, transport);
-    this.stack.position.z += Math.sin(transport * Math.PI) * 1.8;
+    if (transport > 0) frameSliceStack(this.stack, this.camera, this.substrateCamera, this.readingCamera,
+      substrate, this.navPosition, .74, this.navScale, transport);
+    else { this.stack.position.copy(substrate); this.stack.scale.setScalar(.74); }
     this.stack.quaternion.slerpQuaternions(this.sourcePivot.quaternion, this.navQuaternion, transport);
-    this.stack.scale.setScalar(THREE.MathUtils.lerp(.74, this.navScale, transport));
     const pages = this.pdf ? pdfWindow(this.page, this.pdf.pageCount) : [];
     for (const [page, slice] of this.slices) {
       const p = pdfSlicePosition(pages.indexOf(page), pages.length);
@@ -755,8 +834,13 @@ export class DocumentViewer {
     this.loadJob?.abort(); this.hdJob?.abort(); clearTimeout(this.hdTimer);
     for (const job of this.thumbJobs.values()) job.abort();
     this.pendingPage = null;
-    this.setState(this.intro > .30 ? "RETRACTING" : "REASSEMBLING"); this.message("");
-    if (!this.motion.viewerModelTransition || this.intro === 0) this.finishClose();
+    this.message("");
+    if (!this.motion.viewerModelTransition || this.intro === 0) { this.finishClose(); return; }
+    if (this.intro < TIMING.centered) {
+      this.archiveReturn = { camera: this.camera.clone(), rotation: this.sourcePivot.quaternion.clone(), intro: this.intro,
+        background: smooth(this.intro / .18) };
+      this.setState("RETURNING_ARCHIVE");
+    } else this.beginDismissal();
   }
   private clearDocument() {
     this.generation++; this.loadJob?.abort(); this.hdJob?.abort(); clearTimeout(this.hdTimer);
@@ -774,6 +858,7 @@ export class DocumentViewer {
   }
   private finishClose() {
     this.archiveReturn = undefined;
+    this.dismissal = undefined;
     this.clearDocument(); this.disposeProjection();
     this.factory?.dispose(); this.factory = undefined;
     this.source?.model.removeFromParent(); this.source?.dispose(); this.source = undefined; this.parts.clear();

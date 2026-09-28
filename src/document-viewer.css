@@ -54,6 +54,7 @@
 .document-empty small { font-size:11px; letter-spacing:.08em; }
 .document-viewer:is([data-state="SELECTING"],[data-state="PDF_READING"],[data-state="RETURNING_PAGE"]) .document-reader-hud { opacity:1; visibility:visible; }
 .document-viewer:is([data-state="SELECTING"],[data-state="PDF_READING"],[data-state="RETURNING_PAGE"]) .document-empty { display:none; }
+.document-viewer:is([data-state="DISMISSING"],[data-state="REASSEMBLING"],[data-state="RETURNING_ARCHIVE"]) .document-empty { display:none; }
 .document-viewer:not([data-state="PDF_READING"]):not([data-state="SELECTING"]) .document-read-hit { pointer-events:none; }
 .document-message { position:absolute; left:44%; right:5%; top:44%; font-size:14px; line-height:1.8; text-align:center; padding:20px; background:rgba(var(--theme-paper-rgb,234,229,225),.93); z-index:4; }
 .document-message button { display:block; margin:12px auto 0; border-bottom:1px solid currentColor; padding:8px; }
