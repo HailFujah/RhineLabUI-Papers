@@ -45,6 +45,14 @@ export class DocumentViewer {
   private origin = new THREE.Vector3();
   private readingCameraPosition = new THREE.Vector3(0, 0, 17);
   private renderer: THREE.WebGLRenderer;
+  // A linear-color backdrop for the native transmission capture only. Keeping
+  // it out of the canvas lets the existing DOM/detail crossfade stay transparent.
+  private transmissionBackdrop = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.ShaderMaterial({
+    uniforms: { backgroundColor: { value: new THREE.Color() } },
+    vertexShader: "void main() { gl_Position = vec4(position.xy, 1.0, 1.0); }",
+    fragmentShader: "uniform vec3 backgroundColor; void main() { gl_FragColor = vec4(backgroundColor, 1.0); }",
+    depthTest: false, depthWrite: false, colorWrite: false, toneMapped: false,
+  }));
   private state: State = "CLOSED";
   private quality = normalizeQuality(undefined);
   private motion = fullMotion();
@@ -152,7 +160,14 @@ export class DocumentViewer {
     this.el(".document-canvas").append(this.renderer.domElement);
     this.scene.background = new THREE.Color("#eae5e1");
     createArchiveLighting(this.renderer, this.scene);
-    this.scene.add(this.sourcePivot, this.stack, this.projection);
+    this.transmissionBackdrop.frustumCulled = false;
+    this.transmissionBackdrop.renderOrder = -Infinity;
+    // This viewer renders directly to the canvas; only Three's transmission
+    // prepass uses a render target. Draw the backdrop before its opaque objects.
+    this.transmissionBackdrop.onBeforeRender = renderer => {
+      this.transmissionBackdrop.material.colorWrite = renderer.getRenderTarget() !== null;
+    };
+    this.scene.add(this.transmissionBackdrop, this.sourcePivot, this.stack, this.projection);
     this.projectionCamera.position.set(7.2, 3.8, 12);
     this.projectionCamera.lookAt(0, 0, 0);
     this.substrateCamera.position.set(1.2, .6, 8);
@@ -589,6 +604,21 @@ export class DocumentViewer {
     this.sourcePivot.quaternion.slerpQuaternions(from.rotation, to.rotation, amount);
   }
 
+  private renderScene() {
+    const background = this.scene.background as THREE.Color;
+    // With a transparent clear, Three substitutes half-transparent white in
+    // its transmission target. Overwrite that fallback with the theme color,
+    // while preserving the original physical glass and opaque interior capture.
+    this.transmissionBackdrop.material.uniforms.backgroundColor.value.copy(background);
+    this.scene.background = null;
+    this.renderer.setClearColor(background, 0);
+    try {
+      this.renderer.render(this.scene, this.camera);
+    } finally {
+      this.scene.background = background;
+    }
+  }
+
   update(time: number) {
     if (!this.isOpen) return;
     const dt = Math.max(0, Math.min(this.lastTime ? time - this.lastTime : 1 / 60, .05)); this.lastTime = time;
@@ -658,9 +688,7 @@ export class DocumentViewer {
     // The background fades over the frozen detail canvas beneath the transparent
     // WebGL canvas, keeping the model visible throughout the archive handoff.
     const background = this.scene.background as THREE.Color;
-    const backgroundColor = background.clone(); this.scene.background = null;
-    this.renderer.setClearColor(backgroundColor, 0);
-    this.el(".document-wash").style.backgroundColor = `#${backgroundColor.getHexString()}`;
+    this.el(".document-wash").style.backgroundColor = `#${background.getHexString()}`;
     this.root.style.setProperty("--document-entry", String(enter));
     this.root.style.setProperty("--document-background", String(smooth(progress / .18)));
     // The actual navigation meshes first develop on the substrate, then lift
@@ -710,8 +738,7 @@ export class DocumentViewer {
       this.reading.clip(amount > .985 ? this.readClip : null);
       this.el(".document-zoom").textContent = `${Math.round(zoom * 100)}%`;
     }
-    this.renderer.render(this.scene, this.camera);
-    this.scene.background = backgroundColor;
+    this.renderScene();
     if (time - this.statsTime > .25) {
       this.statsTime = time;
       this.root.dataset.stats = JSON.stringify({ state: this.state, intro: progress, page: this.page, readingPage: this.displayedPage,
@@ -761,6 +788,7 @@ export class DocumentViewer {
   dispose() {
     if (this.isOpen) this.finishClose();
     this.resizeObserver.disconnect(); this.controls.dispose();
+    this.transmissionBackdrop.geometry.dispose(); this.transmissionBackdrop.material.dispose();
     this.scene.environment?.dispose();
     this.renderer.dispose(); this.renderer.forceContextLoss(); this.root.remove();
   }

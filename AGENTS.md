@@ -94,6 +94,7 @@
 - 2026-09-28：用户要求重组后直接回到左侧档案预览，保留重组速度及返回时长。`RETURNING_ARCHIVE` 从当前画面捕获姿态，按模型的屏幕位置与取景尺寸插值后还原相机；禁止混用世界位置、朝向和焦距的独立插值造成先向右再折返。
 - 左侧最多七个可见真实页面，缓存围绕当前页的十三页窗口加投影／抽出页（上限十五张 thumbnail），最多两个 thumbnail 渲染任务。右侧只保留当前高清页，正常上限 400 万像素／4096 边长，超级性能模式 200 万像素。关闭释放 PDF worker、页面资源，避免整份高分辨率 GPU 常驻。
 - 详情与 PDF 使用各自 WebGL 上下文，阅读全过程共用一个 DocumentViewer renderer、相机、灯光，暂停主场景；环境贴图不能跨 renderer 复用。分辨率、材质和纹理预算沿用画质设置；文档场景使用原生 MSAA，避免全帧 OutputPass 再次映射 PDF 颜色，保持正文对比度及反相。PDF.js 与 worker 按需加载；字体、CMap、WASM 同源版本化，随现有 PWA 发行包缓存。
+- 2026-09-29：PDF 进出拆解／重组的源盖板继续共用 `CardAppearance` 的完全清晰材质。透明画布会触发 Three.js 折射缓冲的半透明白底回退；`DocumentViewer` 用仅在原生折射预渲染写入颜色的背景平面提供当前主题的线性背景色，最终画布仍透明。不要通过降低盖板 opacity 或另换白色材质处理。此背景判断依赖查看器直接输出画布，升级 Three.js 或增加后处理时须复核；详见 `verification/PDF-READER.md`。
 - 第三方测试 PDF、从视频提取的帧均保存在 Git 忽略的 `verification/fixtures/`；不发布原片或压力样例。架构、测试步骤和实际验证边界见 `verification/PDF-READER.md`。
 
 ## 循环档案阵列
