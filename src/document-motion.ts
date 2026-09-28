@@ -1,15 +1,17 @@
 import * as THREE from "three";
+import { ARCHIVE_LIFT_RATE, damp, type Spring } from "./motion";
 
-// Seconds and normalized phase boundaries. Assembly itself still uses the
-// original model viewer's 5.5 critical damping; travel has its own pacing.
+// Projection timings start at the end of spring-driven centering's visible travel.
+// Phase boundaries retain the original normalized projection coordinates.
 export const DOCUMENT_MOTION = {
-  openingSeconds: 6.6,
+  projectionSeconds: 5.412,
   dismissSeconds: 1.45,
   dismissStagger: .12,
   restoreDelay: .65,
-  restoreSeconds: 1.2,
-  returnSeconds: 1.15,
   pageExtractRate: 5.5,
+  // Start the next action once only a visually tiny tail remains. The previous
+  // spring keeps running to its own original settling gate during the handoff.
+  handoffProgress: .995,
   centered: .18,
   projectionStart: .30,
   beamRise: .055,
@@ -19,6 +21,19 @@ export const DOCUMENT_MOTION = {
   dollyStart: .48,
   transportStart: .68,
 } as const;
+
+/** The same response as the library lift, applied directly to projected travel.
+ * No second easing or fixed-duration rescaling: 99% arrives in about 1.58 s.
+ * Snap only the last 0.1%, once speed is below 1% of the path per second. */
+export function advanceArchiveTravel(travel: Spring, dt: number) {
+  damp(travel, 1, ARCHIVE_LIFT_RATE, dt);
+  if (Math.abs(1 - travel.value) < .001 && Math.abs(travel.velocity) < .01) {
+    travel.value = 1;
+    travel.velocity = 0;
+    return true;
+  }
+  return false;
+}
 
 const viewPoint = (point: THREE.Vector3, camera: THREE.PerspectiveCamera) =>
   point.clone().sub(camera.position).applyQuaternion(camera.quaternion.clone().invert());

@@ -1,4 +1,16 @@
 import * as THREE from "three";
+import { damp, type Spring } from "./motion";
+
+/** The original 360-degree viewer's entire motion, including its settling gate. */
+export function advanceArchiveAssembly(spread: Spring, target: number, dt: number, animate = true) {
+  if (animate) damp(spread, target, 5.5, dt);
+  if (!animate || (Math.abs(spread.value - target) < .0001 && Math.abs(spread.velocity) < .001)) {
+    spread.value = target;
+    spread.velocity = 0;
+    return true;
+  }
+  return false;
+}
 
 /** One physical breakdown for the object study and document projection. */
 export const ARCHIVE_PARTS = [

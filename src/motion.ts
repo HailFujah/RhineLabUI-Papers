@@ -96,6 +96,8 @@ export function cinematicField(
 }
 
 export const INSPECTION_LIFT = 4.05;
+// The interactive archive's physical lift, from the 0.4 preview to inspection.
+export const ARCHIVE_LIFT_RATE = 4.2;
 export const ALIGNMENT_EPSILON = 0.001;
 // Hold altitude while facing back into the slot. Descent begins only once
 // alignment is complete; this also applies to independently returning copies.

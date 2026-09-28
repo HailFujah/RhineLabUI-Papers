@@ -1,14 +1,14 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { createArchiveLighting } from "./archive-lighting";
-import { groupArchiveParts, spreadArchiveParts, type ArchiveDocumentPose, type ArchiveModelSource } from "./archive-assembly";
+import { advanceArchiveAssembly, groupArchiveParts, spreadArchiveParts, type ArchiveDocumentPose, type ArchiveModelSource } from "./archive-assembly";
 import { ViewerCameraMotion } from "./viewer-camera";
 import { applyTextureQuality, resizeQuality } from "./quality-renderer";
 import { normalizeQuality, type RenderQuality } from "./render-quality";
 import { fullMotion, type MotionPreferences } from "./motion-preferences";
 import { themeEnvironment } from "./theme-material";
-import { damp, smooth } from "./motion";
-import { DOCUMENT_MOTION as TIMING, frameArchiveCamera, frameSliceStack } from "./document-motion";
+import { damp, smooth, type Spring } from "./motion";
+import { DOCUMENT_MOTION as TIMING, advanceArchiveTravel, frameArchiveCamera, frameSliceStack } from "./document-motion";
 import { PdfSliceFactory, type PdfSlice } from "./pdf-slice";
 import { pdfSlicePosition, pdfWindow } from "./pdf-layout";
 import { pdfPageMaterial } from "./pdf-material";
@@ -76,14 +76,15 @@ export class DocumentViewer {
   private attachment?: ArchiveDocument;
   private provider?: () => Promise<ArchiveModelSource>;
   private pose?: ArchiveDocumentPose;
-  private archiveReturn?: { camera: THREE.PerspectiveCamera; rotation: THREE.Quaternion; intro: number; background: number };
+  private archiveReturn?: { camera: THREE.PerspectiveCamera; rotation: THREE.Quaternion; intro: number; background: number; travel: Spring };
   private dismissal?: { elapsed: number; camera: THREE.PerspectiveCamera; rotation: THREE.Quaternion;
-    sourceOpacity: number; entry: number; background: number; restoreDelay: number; slices: DismissedSlice[] };
+    sourceOpacity: number; entry: number; background: number; restoreDelay: number; restore: Spring; slices: DismissedSlice[] };
   private page = 1;
   private hover: number | null = null;
   private displayedPage = 0;
   private pendingPage: number | null = null;
   private intro = 0;
+  private centering = { value: 0, velocity: 0 };
   private spread = { value: 0, velocity: 0 };
   private extraction = { value: 0, velocity: 0 };
   private lastTime = 0;
@@ -251,6 +252,7 @@ export class DocumentViewer {
     this.root.hidden = false;
     this.root.parentElement!.dataset.documentActive = "true";
     this.intro = 0; this.lastTime = 0; this.spread = { value: 0, velocity: 0 };
+    this.centering = { value: 0, velocity: 0 };
     this.archiveReturn = undefined;
     this.dismissal = undefined;
     this.el("#document-title").textContent = attachment?.title ?? title;
@@ -300,8 +302,11 @@ export class DocumentViewer {
       this.el<HTMLInputElement>(".document-jump").max = String(pdf.pageCount);
       this.el(".document-count").textContent = `${pad(pdf.pageCount)} PAGES`;
       this.ensureWindow(); this.refreshHUD(); this.message("");
-      if (preserveIntro || !this.motion.viewerModelTransition) { this.intro = 1; this.setState("PDF_OVERVIEW"); this.navHit.focus({ preventScroll: true }); }
-      else { this.intro = 0; this.setState("CENTERING"); }
+      if (preserveIntro || !this.motion.viewerModelTransition) {
+        this.intro = 1; this.centering = { value: 1, velocity: 0 };
+        this.setState("PDF_OVERVIEW"); this.navHit.focus({ preventScroll: true });
+      }
+      else { this.intro = 0; this.centering = { value: 0, velocity: 0 }; this.setState("CENTERING"); }
     } catch (error) {
       if (job.signal.aborted || generation !== this.generation || cancellation(error)) return;
       this.setState("ERROR");
@@ -587,7 +592,7 @@ export class DocumentViewer {
 
   private updateArchiveReturn() {
     const from = this.archiveReturn!, to = this.pose!;
-    const amount = smooth(1 - this.intro / from.intro);
+    const amount = from.travel.value;
     frameArchiveCamera(this.camera, from.camera, to.camera, amount);
     this.sourcePivot.quaternion.slerpQuaternions(from.rotation, to.rotation, amount);
   }
@@ -643,7 +648,7 @@ export class DocumentViewer {
     }
     const hasReading = Boolean(this.reading?.root.visible);
     if (hasReading) capture(this.reading!, 1, 0, 1, 1);
-    this.dismissal = { elapsed: 0, camera, rotation: this.sourcePivot.quaternion.clone(), slices,
+    this.dismissal = { elapsed: 0, camera, rotation: this.sourcePivot.quaternion.clone(), slices, restore: { value: 0, velocity: 0 },
       sourceOpacity: 1 - smooth((this.intro - .82) / .17),
       entry: smooth((this.intro - TIMING.transportStart) / (1 - TIMING.transportStart)),
       background: smooth(this.intro / .18), restoreDelay: hasReading ? TIMING.dismissSeconds : slices.length ? TIMING.restoreDelay : 0 };
@@ -656,15 +661,23 @@ export class DocumentViewer {
     if (!this.motion.viewerModelTransition) { this.finishClose(); return; }
     let entry = 0, background = 1;
     if (this.state === "RETURNING_ARCHIVE") {
-      this.intro = Math.max(0, this.intro - dt * this.archiveReturn!.intro / TIMING.returnSeconds);
-      if (this.intro === 0) { this.finishClose(); return; }
+      // Reassembly finishes its original slow tail while the archive begins
+      // travelling home. Do not truncate or speed up the physical part motion.
+      const assembled = advanceArchiveAssembly(this.spread, 0, dt);
+      if (this.source) spreadArchiveParts(this.parts, this.spread.value);
+      const returning = this.archiveReturn!;
+      const arrived = advanceArchiveTravel(returning.travel, dt);
+      this.intro = returning.intro * (1 - returning.travel.value);
+      if (arrived && assembled) { this.finishClose(); return; }
       this.updateArchiveReturn();
       background = this.archiveReturn!.background * smooth(this.intro / this.archiveReturn!.intro);
       this.setSourceOpacity(1);
     } else {
       const dismissal = this.dismissal!;
       dismissal.elapsed += dt;
-      const restore = smooth((dismissal.elapsed - dismissal.restoreDelay) / TIMING.restoreSeconds);
+      const restoreDt = Math.min(dt, Math.max(0, dismissal.elapsed - dismissal.restoreDelay));
+      if (restoreDt > 0) advanceArchiveTravel(dismissal.restore, restoreDt);
+      const restore = dismissal.restore.value;
       frameArchiveCamera(this.camera, dismissal.camera, this.projectionCamera, restore);
       this.sourcePivot.quaternion.slerpQuaternions(dismissal.rotation, this.identity, restore);
       this.setSourceOpacity(THREE.MathUtils.lerp(dismissal.sourceOpacity, 1, restore));
@@ -683,15 +696,14 @@ export class DocumentViewer {
         item.slice.emphasis(item.active, this.theme);
         item.slice.setReveal(item.reveal);
       }
-      if (this.state === "DISMISSING" && restore === 1) { this.setState("REASSEMBLING"); this.sound("assemble"); }
+      if (this.state === "DISMISSING" && restore >= TIMING.handoffProgress) { this.setState("REASSEMBLING"); this.sound("assemble"); }
       if (this.state === "REASSEMBLING") {
-        damp(this.spread, 0, 5.5, dt);
+        advanceArchiveAssembly(this.spread, 0, dt);
         if (this.source) spreadArchiveParts(this.parts, this.spread.value);
-        if (dismissed && this.spread.value < .001 && Math.abs(this.spread.velocity) < .01) {
-          this.spread = { value: 0, velocity: 0 };
-          if (this.source) spreadArchiveParts(this.parts, 0);
+        if (dismissed && this.spread.value <= 1 - TIMING.handoffProgress && this.spread.velocity <= 0) {
           this.intro = 1;
-          this.archiveReturn = { camera: this.camera.clone(), rotation: this.sourcePivot.quaternion.clone(), intro: 1, background: 1 };
+          this.archiveReturn = { camera: this.camera.clone(), rotation: this.sourcePivot.quaternion.clone(), intro: 1, background: 1,
+            travel: { value: 0, velocity: 0 } };
           this.setState("RETURNING_ARCHIVE");
         }
       }
@@ -733,7 +745,13 @@ export class DocumentViewer {
     this.source?.model.traverse(child => { if (child.userData.themeAmount) child.userData.themeAmount.value = this.theme; });
     if (closingStates.has(this.state)) { this.updateClosing(dt); return; }
     if (["CENTERING", "EXPLODING", "PROJECTING", "ENTERING"].includes(this.state)) {
-      this.intro = this.motion.viewerModelTransition ? Math.min(1, this.intro + dt / TIMING.openingSeconds) : 1;
+      if (!this.motion.viewerModelTransition) {
+        this.intro = 1; this.centering = { value: 1, velocity: 0 };
+      } else {
+        advanceArchiveTravel(this.centering, dt);
+        if (this.state === "CENTERING") this.intro = TIMING.centered * Math.min(1, this.centering.value / TIMING.handoffProgress);
+        else this.intro = Math.min(1, this.intro + dt * (1 - TIMING.centered) / TIMING.projectionSeconds);
+      }
       const next: State = this.intro < TIMING.centered ? "CENTERING" : this.intro < TIMING.projectionStart ? "EXPLODING"
         : this.intro < TIMING.transportStart ? "PROJECTING" : this.intro < 1 ? "ENTERING" : "PDF_OVERVIEW";
       if (next !== this.state) {
@@ -743,13 +761,15 @@ export class DocumentViewer {
       }
     }
     const progress = this.intro;
-    const center = smooth(progress / TIMING.centered);
+    // The library lift already supplies the acceleration curve. Applying smooth
+    // again would create a different, faster middle segment.
+    const center = this.centering.value;
     const transport = smooth((progress - TIMING.transportStart) / (1 - TIMING.transportStart));
     const enter = transport;
-    // Finish the direct move into the center before releasing any parts.
+    // The last 0.5% of centering settles as disassembly begins, without an idle
+    // pause or a jump to the center. Both motions retain their original rates.
     const targetSpread = progress < TIMING.centered ? 0 : 1;
-    if (this.motion.viewerModelTransition) damp(this.spread, targetSpread, 5.5, dt);
-    else this.spread = { value: targetSpread, velocity: 0 };
+    advanceArchiveAssembly(this.spread, targetSpread, dt, this.motion.viewerModelTransition);
     if (this.source) spreadArchiveParts(this.parts, this.spread.value);
     frameArchiveCamera(this.camera, this.pose!.camera, this.projectionCamera, center);
     const dolly = smooth((progress - TIMING.dollyStart) / (TIMING.transportStart - TIMING.dollyStart));
@@ -847,7 +867,7 @@ export class DocumentViewer {
     if (!this.motion.viewerModelTransition || this.intro === 0) { this.finishClose(); return; }
     if (this.intro < TIMING.centered) {
       this.archiveReturn = { camera: this.camera.clone(), rotation: this.sourcePivot.quaternion.clone(), intro: this.intro,
-        background: smooth(this.intro / .18) };
+        background: smooth(this.intro / .18), travel: { value: 0, velocity: 0 } };
       this.setState("RETURNING_ARCHIVE");
     } else this.beginDismissal();
   }

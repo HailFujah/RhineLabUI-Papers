@@ -49,6 +49,7 @@ import {
   idleWave,
   cinematicField,
   INSPECTION_LIFT,
+  ARCHIVE_LIFT_RATE,
   returnStep,
 } from "./motion";
 
@@ -1414,7 +1415,7 @@ export class ArchiveScene {
                 !this.targetDetail &&
                 this.lift.value < 0.4
               ? 7.6
-              : 4.2,
+              : ARCHIVE_LIFT_RATE,
           dt,
         );
       }

@@ -13,7 +13,7 @@ import {
 } from "./quality-renderer";
 import { fullMotion, type MotionPreferences } from "./motion-preferences";
 
-import { ARCHIVE_PARTS as PARTS, groupArchiveParts, spreadArchiveParts, type ArchiveModelSource as ModelSource } from "./archive-assembly";
+import { ARCHIVE_PARTS as PARTS, advanceArchiveAssembly, groupArchiveParts, spreadArchiveParts, type ArchiveModelSource as ModelSource } from "./archive-assembly";
 export class ModelViewer {
   private themeAmount = 0;
   setTheme(value: number) { this.themeAmount = value; }
@@ -567,13 +567,7 @@ export class ModelViewer {
       if (Math.abs(this.clarity.value - this.targetClarity) < .0001 && Math.abs(this.clarity.velocity) < .001)
         this.clarity = { value: this.targetClarity, velocity: 0 };
       this.source.setClarity?.(this.clarity.value);
-      if (this.motion.viewerModelTransition) damp(this.spread, this.targetSpread, 5.5, dt);
-      else this.spread = { value: this.targetSpread, velocity: 0 };
-      if (
-        Math.abs(this.spread.value - this.targetSpread) < 0.0001 &&
-        Math.abs(this.spread.velocity) < 0.001
-      ) {
-        this.spread = { value: this.targetSpread, velocity: 0 };
+      if (advanceArchiveAssembly(this.spread, this.targetSpread, dt, this.motion.viewerModelTransition)) {
         this.setStatus(this.targetSpread ? "已拆解" : "已组装");
       }
       spreadArchiveParts(this.groups, this.spread.value);
