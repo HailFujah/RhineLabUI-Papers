@@ -13,6 +13,7 @@
 | ArchiveScene.documentPose() | 捕获详情模型实际姿态与相机投影 |
 | document-viewer.ts | 状态、相机、交互、异步取消及资源生命周期 |
 | document-motion.ts | 原抬升曲线驱动的模型移动、投影阶段时长、相机直接构图路径与切片插值 |
+| document-source-fade.ts | 保持原生折射捕获完整、只淡入最终模型画面 |
 | pdf-document.ts | PDF.js worker、解析、受像素预算约束的栅格化 |
 | pdf-layout.ts | 有限页面窗口及从左到右的空间布局 |
 | pdf-slice.ts | 薄玻璃载体、真实页面、紧固件与小型竖排标识 |
@@ -120,6 +121,23 @@
 本轮 `tsc --noEmit` 与直接 Vite 构建通过，保留既有主包大于 500 kB 提示。未新增或运行测试，未进行浏览器视觉复核。
 
 待视觉复核：从档案库抬升进入详情后继续 READ DOCUMENT，对比模型居中与归位的起步、减速节奏；同角度比较 360° 与 PDF 的拆组及落稳；检查减少等待后的连续衔接、黄线、各阶段中途退出、重复进入与减少动态效果。未把旧截图作为本次视觉证据。
+
+## 2026-09-29 固定显影视角与返回盖板黑闪
+
+用户截图的 HUD 为 `CLOSING`，对应拆解模型淡入阶段。旧 `setSourceOpacity()` 在淡入值小于 0.999 时把所有内构设为 `transparent=true`；Three.js `WebGLRenderLists` 将它们放入 transparent 列表，`renderTransmissionPass` 只捕获 opaque 列表。此时外盖透射 0.985 却采不到后方内构，暗色只剩背景，超过阈值后部件才重新进入捕获。同时原 0.95 处深度写入切换会突然挡住最终画布后绘制的透明内构。这是代码中与黑闪截图吻合的路径，尚未在 GPU 中截帧确认。
+
+修订：
+
+- 删除 `substrateCamera` 与 `dollyStart`。投影和显影始终使用原拆解观察相机，切片移入导航时直接从该构图衔接阅读相机；`frameSliceStack` 的起点同步改为 projectionCamera，避免保留旧近景投影导致跳位。
+- `DocumentSourceFade` 保留源模型各材质的 transparent、opacity 与透射参数。普通不透明材质使用项目已有内构采用的 CustomBlending 标准 alpha 混合，保留 opaque 列表资格并避免 Three 的 OPAQUE shader 强制 alpha=1。已有透明标签、CustomBlending 内构与 transmissive 盖板继续各自原队列。
+- 在原 shader 的 opaque_fragment 之后乘模型输出 alpha，不覆盖已有玻璃／主题 shader；原生折射预渲染的乘数为 1，最终画布为当前淡入值。深度使用原值，显影盖板只在最终画布禁写深度；不再在 0.95／0.999 阈值切换。未增加副本模型、纹理或额外离屏目标。
+- 此实现与原主题背景平面一样，依赖文档查看器直接输出画布，以当前 render target 区分原生折射捕获；未来加入 composer 或额外模型渲染 pass 时必须重新检查。
+
+针对性回归命令：`node --experimental-strip-types scripts/check-document-source-fade.mjs`。使用当前安装的 Three.js 真实渲染列表，覆盖 0、0.1、0.5、0.94、0.96、0.998、1 淡入值及显影开关，检查队列稳定、折射完整度乘数、最终 alpha、深度、原材质值与 shader 扩展保留。该检查不创建 WebGL 上下文，不代表 GPU 像素已验收。
+
+本轮上述针对性回归、`tsc --noEmit` 和直接 Vite 构建通过；沿用既有主包大于 500 kB 提示。
+
+本次尝试打开本地浏览器复核，但 Browser Use 无法校验保存的浏览器权限，访问被阻挡；未改用其他通道绕过。待权限恢复后复核浅／暗主题进出、中途退出、重复打开、清晰盖板后环组是否持续可见，以及显影视角与抽片起点是否稳定。
 
 ## 实际验证（2026-09-27）
 

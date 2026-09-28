@@ -99,6 +99,8 @@
 - 详情与 PDF 使用各自 WebGL 上下文，阅读全过程共用一个 DocumentViewer renderer、相机、灯光，暂停主场景；环境贴图不能跨 renderer 复用。分辨率、材质和纹理预算沿用画质设置；文档场景使用原生 MSAA，避免全帧 OutputPass 再次映射 PDF 颜色，保持正文对比度及反相。PDF.js 与 worker 按需加载；字体、CMap、WASM 同源版本化，随现有 PWA 发行包缓存。
 - 2026-09-29 模型交接：DocumentViewer 首个有效模型帧完成后，`ArchiveScene.handoffDocumentModel()` 隐藏主场景原模型并重绘背景、阴影；冻结背景只保留阵列，不能让原模型与移动中的副本同时显现。退出在隐藏文档画布前同步恢复主模型及清晰材质并重绘；载入失败、中途关闭和销毁也须归还模型显示权。
 - 2026-09-29：PDF 进出拆解／重组的源盖板继续共用 `CardAppearance` 的完全清晰材质。透明画布会触发 Three.js 折射缓冲的半透明白底回退；`DocumentViewer` 用仅在原生折射预渲染写入颜色的背景平面提供当前主题的线性背景色，最终画布仍透明。不要通过降低盖板 opacity 或另换白色材质处理。此背景判断依赖查看器直接输出画布，升级 Three.js 或增加后处理时须复核；详见 `verification/PDF-READER.md`。
+- 用户随后要求投影／切片显影阶段固定拆解视角：已移除基板近景相机与先拉近再拉远的轨迹。显影完成、切片移入导航时才单向衔接阅读构图，切片路径必须以固定投影相机为起点，不能残留旧近景相机导致跳位。
+- 同日盖板瞬间变黑修订：源模型淡入淡出不能将原不透明内构改成 `transparent=true`，否则 Three.js 折射捕获漏掉内构。`DocumentSourceFade` 保持原渲染队列，沿用内构的显式 alpha 混合做最终画布淡入；折射预渲染使用完整材质，原透射、主题和粗糙度保留。取消 0.95／0.999 处透明队列与深度跳变；仅显影时关闭最终画布盖板的深度写入。针对性检查为 `scripts/check-document-source-fade.mjs`，该检查不等于 GPU 视觉验收。
 - 第三方测试 PDF、从视频提取的帧均保存在 Git 忽略的 `verification/fixtures/`；不发布原片或压力样例。架构、测试步骤和实际验证边界见 `verification/PDF-READER.md`。
 
 ## 循环档案阵列

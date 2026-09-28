@@ -9,6 +9,7 @@ import { fullMotion, type MotionPreferences } from "./motion-preferences";
 import { themeEnvironment } from "./theme-material";
 import { damp, smooth, type Spring } from "./motion";
 import { DOCUMENT_MOTION as TIMING, advanceArchiveTravel, frameArchiveCamera, frameSliceStack } from "./document-motion";
+import { DocumentSourceFade } from "./document-source-fade";
 import { PdfSliceFactory, type PdfSlice } from "./pdf-slice";
 import { pdfSlicePosition, pdfWindow } from "./pdf-layout";
 import { pdfPageMaterial } from "./pdf-material";
@@ -34,7 +35,6 @@ export class DocumentViewer {
   private scene = new THREE.Scene();
   private camera = new THREE.PerspectiveCamera(34, 16 / 9, .1, 300);
   private projectionCamera = new THREE.PerspectiveCamera(34, 16 / 9, .1, 300);
-  private substrateCamera = new THREE.PerspectiveCamera(34, 16 / 9, .1, 300);
   private readingCamera = new THREE.PerspectiveCamera(34, 16 / 9, .1, 300);
   private readClip = [new THREE.Plane(), new THREE.Plane(), new THREE.Plane(), new THREE.Plane()];
   private identity = new THREE.Quaternion();
@@ -98,7 +98,7 @@ export class DocumentViewer {
   private projection = new THREE.Group();
   private projectionPage?: THREE.Mesh<THREE.PlaneGeometry, THREE.MeshBasicMaterial>;
   private projectionDark?: { value: number };
-  private sourceMaterials = new Map<THREE.Material, { opacity: number; transparent: boolean; depthWrite: boolean; opticalCover: boolean }>();
+  private sourceFade?: DocumentSourceFade;
   private raycaster = new THREE.Raycaster();
   private navHit: HTMLElement;
   private readHit: HTMLElement;
@@ -169,8 +169,6 @@ export class DocumentViewer {
     this.scene.add(this.transmissionBackdrop, this.sourcePivot, this.stack, this.projection);
     this.projectionCamera.position.set(7.2, 3.8, 12);
     this.projectionCamera.lookAt(0, 0, 0);
-    this.substrateCamera.position.set(1.2, .6, 8);
-    this.substrateCamera.lookAt(0, 0, -1.1);
     this.readingCamera.position.set(0, 0, 17);
     this.controls = new OrbitControls(this.controlCamera, this.readHit);
     this.controls.enableDamping = false;
@@ -275,10 +273,7 @@ export class DocumentViewer {
         const source = await this.provider!();
         if (job.signal.aborted || generation !== this.generation) { source.dispose(); return; }
         this.source = source; source.setClarity?.(1);
-        source.model.traverse(object => {
-          if (object instanceof THREE.Mesh) for (const material of [object.material].flat())
-            this.sourceMaterials.set(material, { opacity: material.opacity, transparent: material.transparent, depthWrite: material.depthWrite, opticalCover: object.userData.surface === "Frosted_Polymer" });
-        });
+        this.sourceFade = new DocumentSourceFade(source.model);
         this.factory = new PdfSliceFactory(source.model);
         this.parts = groupArchiveParts(source.model);
         source.model.position.y = -1.85;
@@ -599,14 +594,7 @@ export class DocumentViewer {
 
   private setSourceOpacity(opacity: number, developing = false) {
     this.sourcePivot.visible = opacity > .001;
-    for (const [material, original] of this.sourceMaterials) {
-      material.opacity = original.opacity * opacity;
-      const transparent = original.transparent || opacity < .999;
-      if (material.transparent !== transparent) { material.transparent = transparent; material.needsUpdate = true; }
-      // Developing paper is absent from the transmission prepass. Its fragments
-      // must not be rejected by the clear cover's depth during projection.
-      material.depthWrite = opacity > .95 && original.depthWrite && !(original.opticalCover && developing);
-    }
+    this.sourceFade?.set(opacity, developing);
   }
 
   private beginDismissal() {
@@ -772,9 +760,9 @@ export class DocumentViewer {
     advanceArchiveAssembly(this.spread, targetSpread, dt, this.motion.viewerModelTransition);
     if (this.source) spreadArchiveParts(this.parts, this.spread.value);
     frameArchiveCamera(this.camera, this.pose!.camera, this.projectionCamera, center);
-    const dolly = smooth((progress - TIMING.dollyStart) / (TIMING.transportStart - TIMING.dollyStart));
-    if (dolly > 0) frameArchiveCamera(this.camera, this.projectionCamera, this.substrateCamera, dolly);
-    if (transport > 0) frameArchiveCamera(this.camera, this.substrateCamera, this.readingCamera, transport);
+    // Keep the disassembly view fixed while the core projects and pages develop.
+    // Only the later transport into the reader changes the camera framing.
+    if (transport > 0) frameArchiveCamera(this.camera, this.projectionCamera, this.readingCamera, transport);
     this.sourcePivot.quaternion.copy(this.pose!.rotation).slerp(this.identity, center);
     this.camera.updateProjectionMatrix();
     this.sourcePivot.scale.setScalar(1);
@@ -805,7 +793,7 @@ export class DocumentViewer {
     const develop = smooth((progress - TIMING.developStart) / (TIMING.developed - TIMING.developStart));
     this.stack.visible = Boolean(this.pdf) && progress > TIMING.developStart;
     const substrate = new THREE.Vector3(0, 0, -1.1 * this.spread.value + .04).applyQuaternion(this.sourcePivot.quaternion);
-    if (transport > 0) frameSliceStack(this.stack, this.camera, this.substrateCamera, this.readingCamera,
+    if (transport > 0) frameSliceStack(this.stack, this.camera, this.projectionCamera, this.readingCamera,
       substrate, this.navPosition, .74, this.navScale, transport);
     else { this.stack.position.copy(substrate); this.stack.scale.setScalar(.74); }
     this.stack.quaternion.slerpQuaternions(this.sourcePivot.quaternion, this.navQuaternion, transport);
@@ -892,7 +880,7 @@ export class DocumentViewer {
     this.clearDocument(); this.disposeProjection();
     this.factory?.dispose(); this.factory = undefined;
     this.source?.model.removeFromParent(); this.source?.dispose(); this.source = undefined; this.parts.clear();
-    this.sourceMaterials.clear();
+    this.sourceFade = undefined;
     this.renderer.renderLists.dispose();
     this.setState("CLOSED"); this.root.hidden = true;
     this.root.dataset.stats = JSON.stringify({ state: "CLOSED", pages: 0, slices: 0, thumbnails: 0, thumbnailJobs: 0, highResolutionPages: 0, highResolutionPixels: 0, textures: this.renderer.info.memory.textures });

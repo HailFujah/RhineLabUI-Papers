@@ -18,7 +18,6 @@ export const DOCUMENT_MOTION = {
   projectionPageStart: .42,
   developStart: .46,
   developed: .67,
-  dollyStart: .48,
   transportStart: .68,
 } as const;
 
