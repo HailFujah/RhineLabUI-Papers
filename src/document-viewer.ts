@@ -24,6 +24,14 @@ const cancellation = (error: unknown) => error instanceof Error && ["AbortError"
 const readerStates = new Set<State>(["PDF_OVERVIEW", "SELECTING", "PDF_READING", "RETURNING_PAGE"]);
 const closingStates = new Set<State>(["RETRACTING", "REASSEMBLING", "RETURNING_ARCHIVE"]);
 
+// The archive is centered at the origin. Describe its framing independently
+// of the very different lens distances used by the detail and PDF scenes.
+const archiveFraming = (camera: THREE.PerspectiveCamera) => {
+  const center = camera.position.clone().negate().applyQuaternion(camera.quaternion.clone().invert());
+  const halfHeight = -center.z * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) / camera.zoom;
+  return { x: center.x / halfHeight, y: center.y / halfHeight, halfHeight };
+};
+
 /** Detail -> physical disassembly -> optical projection -> slice archive.
  * A single renderer and explicit state own all transitions and asynchronous work. */
 export class DocumentViewer {
@@ -64,6 +72,7 @@ export class DocumentViewer {
   private attachment?: ArchiveDocument;
   private provider?: () => Promise<ArchiveModelSource>;
   private pose?: ArchiveDocumentPose;
+  private archiveReturn?: { camera: THREE.PerspectiveCamera; rotation: THREE.Quaternion; intro: number };
   private page = 1;
   private hover: number | null = null;
   private displayedPage = 0;
@@ -222,6 +231,7 @@ export class DocumentViewer {
     this.root.hidden = false;
     this.root.parentElement!.dataset.documentActive = "true";
     this.intro = 0; this.lastTime = 0; this.spread = { value: 0, velocity: 0 };
+    this.archiveReturn = undefined;
     this.el("#document-title").textContent = attachment?.title ?? title;
     this.el(".document-file").textContent = `FILE ${id} / ${attachment?.sample ? "技术样例 · arXiv:1706.03762" : "DOCUMENT ARCHIVE"}`;
     this.el(".document-back").focus({ preventScroll: true });
@@ -555,6 +565,25 @@ export class DocumentViewer {
     this.readClip[3].setComponents(0, -1, -top / 17, top).normalize();
   }
 
+  private updateArchiveReturn() {
+    const from = this.archiveReturn!, to = this.pose!;
+    const amount = smooth(1 - this.intro / from.intro);
+    const start = archiveFraming(from.camera), end = archiveFraming(to.camera);
+    const halfHeight = THREE.MathUtils.lerp(start.halfHeight, end.halfHeight, amount);
+    this.camera.fov = THREE.MathUtils.lerp(from.camera.fov, to.camera.fov, amount);
+    this.camera.zoom = THREE.MathUtils.lerp(from.camera.zoom, to.camera.zoom, amount);
+    this.camera.quaternion.slerpQuaternions(from.camera.quaternion, to.camera.quaternion, amount);
+    // Move the projected center straight to its detail position while changing
+    // framing smoothly. A world-position lerp plus lens/orientation changes
+    // makes the archive swing to the right before returning to the left.
+    this.camera.position.set(
+      -THREE.MathUtils.lerp(start.x, end.x, amount) * halfHeight,
+      -THREE.MathUtils.lerp(start.y, end.y, amount) * halfHeight,
+      halfHeight * this.camera.zoom / Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2)),
+    ).applyQuaternion(this.camera.quaternion);
+    this.sourcePivot.quaternion.slerpQuaternions(from.rotation, to.rotation, amount);
+  }
+
   update(time: number) {
     if (!this.isOpen) return;
     const dt = Math.max(0, Math.min(this.lastTime ? time - this.lastTime : 1 / 60, .05)); this.lastTime = time;
@@ -571,7 +600,11 @@ export class DocumentViewer {
       this.intro = Math.max(.30, this.intro - dt / 1.8);
       if (this.intro <= .30) { this.setState("REASSEMBLING"); this.sound("assemble"); }
     }
-    if (this.state === "REASSEMBLING" && this.spread.value < .001 && Math.abs(this.spread.velocity) < .01) this.setState("RETURNING_ARCHIVE");
+    if (this.state === "REASSEMBLING" && this.spread.value < .001 && Math.abs(this.spread.velocity) < .01) {
+      // Capture the displayed pose, including an interrupted opening animation.
+      this.archiveReturn = { camera: this.camera.clone(), rotation: this.sourcePivot.quaternion.clone(), intro: this.intro };
+      this.setState("RETURNING_ARCHIVE");
+    }
     if (this.state === "RETURNING_ARCHIVE") {
       this.intro = this.motion.viewerModelTransition ? Math.max(0, this.intro - dt / 1.9) : 0;
       if (this.intro === 0) { this.finishClose(); return; }
@@ -594,8 +627,9 @@ export class DocumentViewer {
     this.camera.quaternion.slerp(this.substrateCamera.quaternion, dolly);
     this.camera.position.lerp(this.readingCameraPosition, enter);
     this.camera.quaternion.slerp(this.identity, enter);
-    this.camera.updateProjectionMatrix();
     this.sourcePivot.quaternion.copy(this.pose!.rotation).slerp(this.identity, expand);
+    if (this.state === "RETURNING_ARCHIVE") this.updateArchiveReturn();
+    this.camera.updateProjectionMatrix();
     this.sourcePivot.scale.setScalar(1);
     this.sourcePivot.position.copy(this.origin);
     this.sourcePivot.visible = progress < .97;
@@ -707,6 +741,7 @@ export class DocumentViewer {
     this.pendingPage = null;
   }
   private finishClose() {
+    this.archiveReturn = undefined;
     this.clearDocument(); this.disposeProjection();
     this.factory?.dispose(); this.factory = undefined;
     this.source?.model.removeFromParent(); this.source?.dispose(); this.source = undefined; this.parts.clear();

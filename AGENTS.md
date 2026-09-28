@@ -78,6 +78,7 @@
 - 用户进一步要求 PDF 字符框在切片组后面：背景、字符框、透明 WebGL 切片、HUD 按此顺序合成。悬停仅上提，前方页面继续遮挡被提起页；不能将选中页强制置顶或沿 Z 轴越过相邻页。深度约束见 `scripts/check-pdf-layout.mjs`。
 - `DocumentViewer` 统一控制 `LOADING → EXPLODING → PROJECTING → ENTERING → PDF_OVERVIEW → SELECTING → PDF_READING`。返回阅读堆叠用 `RETURNING_PAGE`；退出用 `RETRACTING → REASSEMBLING → RETURNING_ARCHIVE → CLOSED`。后续操作替换待选目标，保留当前位姿；异步加载按 generation 与 AbortController 取消。
 - 拆解共享 `archive-assembly.ts` 的六组部件、深度及 5.5 阻尼；源档案投影从 `ArchiveScene.documentPose()` 接续。PDF 切片必须先在信息基板上渐显，再沿实体路径抽出并移入左侧位置。退出先将切片归入基板，再实际重组六组部件，完成后镜头返回详情；不能用隐藏模型代替重组。
+- 2026-09-28：用户要求重组后直接回到左侧档案预览，保留重组速度及返回时长。`RETURNING_ARCHIVE` 从当前画面捕获姿态，按模型的屏幕位置与取景尺寸插值后还原相机；禁止混用世界位置、朝向和焦距的独立插值造成先向右再折返。
 - 左侧最多七个可见真实页面，缓存围绕当前页的十三页窗口加投影／抽出页（上限十五张 thumbnail），最多两个 thumbnail 渲染任务。右侧只保留当前高清页，正常上限 400 万像素／4096 边长，超级性能模式 200 万像素。关闭释放 PDF worker、页面资源，避免整份高分辨率 GPU 常驻。
 - 详情与 PDF 使用各自 WebGL 上下文，阅读全过程共用一个 DocumentViewer renderer、相机、灯光，暂停主场景；环境贴图不能跨 renderer 复用。分辨率、材质和纹理预算沿用画质设置；文档场景使用原生 MSAA，避免全帧 OutputPass 再次映射 PDF 颜色，保持正文对比度及反相。PDF.js 与 worker 按需加载；字体、CMap、WASM 同源版本化，随现有 PWA 发行包缓存。
 - 第三方测试 PDF、从视频提取的帧均保存在 Git 忽略的 `verification/fixtures/`；不发布原片或压力样例。架构、测试步骤和实际验证边界见 `verification/PDF-READER.md`。
