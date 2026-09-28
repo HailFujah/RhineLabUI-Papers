@@ -933,7 +933,8 @@ document.addEventListener("click", (e) => {
     documentViewer ??= new DocumentViewer($("#stage"), () => {
       audio.setScene(mode); audio.play("page-close");
       if (mode === "detail" && activeTab === "history") setTab("history", false);
-    }, sound => audio.play(sound === "tick" ? "ui-tick" : sound), (page, pages) => recordReading(records[selected].id, page, pages));
+    }, sound => audio.play(sound === "tick" ? "ui-tick" : sound), (page, pages) => recordReading(records[selected].id, page, pages),
+    () => scene?.handoffDocumentModel() ?? (() => {}));
     documentViewer.setSuperPerformance(superPerformanceEnabled());
     documentViewer.setQuality(effectiveRenderQuality());
     documentViewer.setMotion(prefs.motion);

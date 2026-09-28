@@ -495,6 +495,31 @@ export class ArchiveScene {
   }
 
   private assemblyTemplate?: Promise<THREE.Group>;
+  handoffDocumentModel() {
+    const visible = this.model.visible;
+    const redraw = () => {
+      if (!this.loaded) return;
+      this.renderState.invalidate();
+      this.scene.updateMatrixWorld();
+      this.renderer.info.reset();
+      this.renderer.shadowMap.needsUpdate = true;
+      this.renderedFrames++;
+      if (this.superPerformance) this.renderer.render(this.scene, this.camera);
+      else this.composer.render();
+    };
+    // The PDF renderer now owns this archive. Keep the frozen array backdrop,
+    // but remove the original model and its shadow from that cached image.
+    this.model.visible = false;
+    redraw();
+    let released = false;
+    return () => {
+      if (released) return;
+      released = true;
+      this.model.visible = visible;
+      if (this.loaded) this.appearance.setClarity(this.model, this.modelClarity());
+      redraw();
+    };
+  }
   documentPose() {
     // Keep the exact detail projection at handoff, including user inspection.
     this.model.updateMatrixWorld(true);

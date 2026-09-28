@@ -54,6 +54,7 @@ export class DocumentViewer {
   private superPerformance = false;
   private theme = 0;
   private source?: ArchiveModelSource;
+  private releaseArchive?: () => void;
   private sourcePivot = new THREE.Group();
   private parts = new Map<string, THREE.Group>();
   private factory?: PdfSliceFactory;
@@ -111,7 +112,7 @@ export class DocumentViewer {
   private get browsing() { return readerStates.has(this.state); }
 
   constructor(parent: HTMLElement, private onClose: () => void, private sound: (sound: "explode" | "assemble" | "tick") => void,
-    private onRead?: (page: number, pages: number) => void) {
+    private onRead?: (page: number, pages: number) => void, private handoffArchive?: () => () => void) {
     this.root.className = "document-viewer";
     this.root.hidden = true;
     this.root.setAttribute("role", "dialog");
@@ -645,7 +646,7 @@ export class DocumentViewer {
     this.dismissal = { elapsed: 0, camera, rotation: this.sourcePivot.quaternion.clone(), slices,
       sourceOpacity: 1 - smooth((this.intro - .82) / .17),
       entry: smooth((this.intro - TIMING.transportStart) / (1 - TIMING.transportStart)),
-      background: smooth(this.intro / .18), restoreDelay: hasReading ? TIMING.dismissSeconds : slices.length ? .8 : 0 };
+      background: smooth(this.intro / .18), restoreDelay: hasReading ? TIMING.dismissSeconds : slices.length ? TIMING.restoreDelay : 0 };
     this.projection.visible = false;
     this.stack.visible = false;
     this.setState("DISMISSING");
@@ -715,6 +716,9 @@ export class DocumentViewer {
     this.renderer.setClearColor(background, 0);
     try {
       this.renderer.render(this.scene, this.camera);
+      // Exchange model ownership only once this renderer has a complete frame.
+      // Both canvases change before browser paint, so the archive never doubles.
+      if (this.source && !this.releaseArchive && this.handoffArchive) this.releaseArchive = this.handoffArchive();
     } finally {
       this.scene.background = background;
     }
@@ -730,7 +734,7 @@ export class DocumentViewer {
     if (closingStates.has(this.state)) { this.updateClosing(dt); return; }
     if (["CENTERING", "EXPLODING", "PROJECTING", "ENTERING"].includes(this.state)) {
       this.intro = this.motion.viewerModelTransition ? Math.min(1, this.intro + dt / TIMING.openingSeconds) : 1;
-      const next: State = this.intro < TIMING.centered ? "CENTERING" : this.intro < TIMING.exploded ? "EXPLODING"
+      const next: State = this.intro < TIMING.centered ? "CENTERING" : this.intro < TIMING.projectionStart ? "EXPLODING"
         : this.intro < TIMING.transportStart ? "PROJECTING" : this.intro < 1 ? "ENTERING" : "PDF_OVERVIEW";
       if (next !== this.state) {
         this.setState(next);
@@ -756,17 +760,22 @@ export class DocumentViewer {
     this.sourcePivot.scale.setScalar(1);
     this.sourcePivot.position.copy(this.origin);
     const sourceOpacity = 1 - smooth((progress - .82) / .17);
-    this.setSourceOpacity(sourceOpacity, progress > TIMING.exploded);
+    this.setSourceOpacity(sourceOpacity, progress > TIMING.projectionPageStart);
     this.projection.position.copy(this.sourcePivot.position); this.projection.quaternion.copy(this.sourcePivot.quaternion); this.projection.scale.copy(this.sourcePivot.scale);
-    this.projection.visible = progress > TIMING.exploded && progress < .78;
+    // Let the beams pick up the final part of disassembly, following its depth.
+    this.projection.scale.z *= this.spread.value;
+    this.projection.visible = progress > TIMING.projectionStart && progress < .78;
     if (this.projectionDark) this.projectionDark.value = this.theme;
     for (const object of this.projection.children) {
       if (object instanceof THREE.Mesh || object instanceof THREE.LineSegments) {
-        (object.material as THREE.MeshBasicMaterial).opacity = smooth((progress - TIMING.exploded) / .12) * (1 - smooth((progress - .63) / .15)) * (object instanceof THREE.LineSegments ? .55 : .75);
+        const beam = object instanceof THREE.LineSegments;
+        const start = beam ? TIMING.projectionStart : TIMING.projectionPageStart;
+        const rise = beam ? TIMING.beamRise : .12;
+        (object.material as THREE.MeshBasicMaterial).opacity = smooth((progress - start) / rise) * (1 - smooth((progress - .63) / .15)) * (beam ? .55 : .75);
       }
     }
-    // The background fades over the frozen detail canvas beneath the transparent
-    // WebGL canvas, keeping the model visible throughout the archive handoff.
+    // The frozen detail canvas retains the array, while this renderer owns the
+    // source archive; fading the wash cannot expose a second copy of the model.
     const background = this.scene.background as THREE.Color;
     this.el(".document-wash").style.backgroundColor = `#${background.getHexString()}`;
     this.root.style.setProperty("--document-entry", String(enter));
@@ -794,7 +803,7 @@ export class DocumentViewer {
     }
     this.controls.update(); this.cameraMotion.update(this.controlCamera, this.controls.target, dt, !this.motion.viewerNavigation);
     const reading = ["SELECTING", "PDF_READING"].includes(this.state);
-    if (this.motion.viewerNavigation) damp(this.extraction, reading ? 1 : 0, reading ? 9.4 : 15, dt);
+    if (this.motion.viewerNavigation) damp(this.extraction, reading ? 1 : 0, reading ? TIMING.pageExtractRate : 15, dt);
     else this.extraction = { value: reading ? 1 : 0, velocity: 0 };
     if (this.state === "SELECTING" && this.extraction.value > .995) this.setState("PDF_READING");
     if (this.state === "RETURNING_PAGE" && this.extraction.value < .005) {
@@ -859,6 +868,7 @@ export class DocumentViewer {
   private finishClose() {
     this.archiveReturn = undefined;
     this.dismissal = undefined;
+    this.releaseArchive?.(); this.releaseArchive = undefined;
     this.clearDocument(); this.disposeProjection();
     this.factory?.dispose(); this.factory = undefined;
     this.source?.model.removeFromParent(); this.source?.dispose(); this.source = undefined; this.parts.clear();
