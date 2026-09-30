@@ -14,5 +14,39 @@
     "abstractLabel": "原文摘要",
     "url": "https://arxiv.org/abs/1706.03762",
     "publicationUrl": "https://papers.nips.cc/paper_files/paper/2017/hash/3f5ee243547dee91fbd053c1c4a845aa-Abstract.html"
+  },
+  "bert": {
+    "title": "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+    "translatedTitle": "BERT：面向语言理解的深度双向 Transformer 预训练",
+    "authors": ["Jacob Devlin", "Ming-Wei Chang", "Kenton Lee", "Kristina Toutanova"],
+    "institutions": ["Google AI Language"],
+    "published": "2019-06", "venue": "NAACL-HLT",
+    "fields": ["自然语言处理"], "keywords": ["BERT", "预训练", "双向 Transformer"],
+    "doi": "10.18653/v1/N19-1423", "abstract": "", "abstractLabel": "原文摘要",
+    "url": "https://aclanthology.org/N19-1423/"
+  },
+  "resnet": {
+    "title": "Deep Residual Learning for Image Recognition", "translatedTitle": "用于图像识别的深度残差学习",
+    "authors": ["Kaiming He", "Xiangyu Zhang", "Shaoqing Ren", "Jian Sun"],
+    "institutions": ["Microsoft Research"], "published": "2016-06", "venue": "CVPR",
+    "fields": ["计算机视觉"], "keywords": ["ResNet", "残差学习", "图像识别"],
+    "doi": "10.1109/CVPR.2016.90", "abstract": "", "abstractLabel": "原文摘要",
+    "url": "https://openaccess.thecvf.com/content_cvpr_2016/html/He_Deep_Residual_Learning_CVPR_2016_paper.html"
+  },
+  "gan": {
+    "title": "Generative Adversarial Nets", "translatedTitle": "生成对抗网络",
+    "authors": ["Ian J. Goodfellow", "Jean Pouget-Abadie", "Mehdi Mirza", "Bing Xu", "David Warde-Farley", "Sherjil Ozair", "Aaron Courville", "Yoshua Bengio"],
+    "institutions": ["Université de Montréal"], "published": "2014", "venue": "Advances in Neural Information Processing Systems",
+    "fields": ["生成模型", "机器学习"], "keywords": ["GAN", "对抗训练", "生成模型"],
+    "doi": "10.48550/arXiv.1406.2661", "doiKind": "预印本", "abstract": "", "abstractLabel": "原文摘要",
+    "url": "https://papers.nips.cc/paper_files/paper/2014/hash/f033ed80deb0234979a61f95710dbe25-Abstract.html"
+  },
+  "ddpm": {
+    "title": "Denoising Diffusion Probabilistic Models", "translatedTitle": "去噪扩散概率模型",
+    "authors": ["Jonathan Ho", "Ajay Jain", "Pieter Abbeel"],
+    "institutions": ["University of California, Berkeley"], "published": "2020", "venue": "Advances in Neural Information Processing Systems",
+    "fields": ["生成模型", "计算机视觉"], "keywords": ["DDPM", "扩散模型", "去噪"],
+    "doi": "10.48550/arXiv.2006.11239", "doiKind": "预印本", "abstract": "", "abstractLabel": "原文摘要",
+    "url": "https://papers.nips.cc/paper_files/paper/2020/hash/4c5bcfec8584af0d967f1ab10179ca4b-Abstract.html"
   }
 }

@@ -33,7 +33,8 @@ export async function inspectPaper(source: string | Uint8Array, filename: string
         }
         for (const line of text.split(/\r?\n/)) {
           if (/^\s*(?:\d+[.\s]*)?(?:References|Bibliography|参考文献)\s*$/i.test(line)) { collecting = true; finished = false; continue; }
-          if (collecting && /^\s*(?:[A-Z][.\s]+)?(?:Appendix|Appendices|Supplementary|Attention Visualizations|附录)\b/i.test(line)) { collecting = false; finished = true; }
+          if (collecting && (/^\s*(?:[A-Z][.\s]+)?(?:Appendix|Appendices|Supplementary|Attention Visualizations|附录)\b/i.test(line)
+            || /^\s*[A-Z][.\s]+Additional Details\b/.test(line))) { collecting = false; finished = true; }
           if (collecting && bibliography.length < 250_000) bibliography += `${line}\n`;
         }
         progress?.(pageNumber, document.pageCount);
@@ -73,11 +74,14 @@ export async function inspectPaper(source: string | Uint8Array, filename: string
 
 function splitReferences(text: string) {
   const lines = text.split(/\r?\n/).map(line => line.trim()).filter(line => line && !/^\d+$/.test(line));
-  const numbered = lines.some(line => /^(?:\[\d+\]|\d+[.)])\s*/.test(line));
+  // Four-digit publication years can begin wrapped lines in author/year styles.
+  // They are not numbered references (e.g. the BERT bibliography).
+  const marker = /^(?:\[\d{1,3}\]|\d{1,3}[.)])\s*/;
+  const numbered = lines.some(line => marker.test(line));
   const references: string[] = [];
   for (const line of lines) {
-    const starts = numbered ? /^(?:\[\d+\]|\d+[.)])\s*/.test(line) : /^(?:[A-ZÀ-Ž][\wÀ-ž'-]+,|[\u4e00-\u9fff]{2,4}[，,])/.test(line);
-    if (starts || !references.length) references.push(line.replace(/^(?:\[\d+\]|\d+[.)])\s*/, ""));
+    const starts = numbered ? marker.test(line) : /^(?:\p{Lu}[\p{L}'’.-]+,|\p{Lu}[\p{L}'’.-]+(?:\s+\p{Lu}[\p{L}'’.-]+){1,5}(?:,| and )|[\u4e00-\u9fff]{2,4}[，,])/u.test(line);
+    if (starts || !references.length) references.push(line.replace(marker, ""));
     else references[references.length - 1] += ` ${line}`;
   }
   return references.map(line => line.replace(/\s+/g, " ").trim()).filter(line => line.length > 12).slice(0, 500);

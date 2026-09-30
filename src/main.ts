@@ -18,10 +18,11 @@ import { createRollingNumber, createRollingText } from "@kitlangton/rolling-numb
 import { ArchiveScene } from "./scene";
 import { ModelViewer } from "./model-viewer";
 import { DocumentViewer } from "./document-viewer";
-import { archiveDocument, setLibraryDocuments } from "./archive-documents";
+import { archiveDocument, setLibraryDocuments, documentFile } from "./archive-documents";
 import { PaperLibraryPanel } from "./paper-library-panel";
 import { inspectPaper } from "./paper-import";
-import { readingVisits, recordReading, saveExtractedAbstract, type StoredPaper } from "./paper-library";
+import { readingVisits, recordReading, saveExtractedText, storedPapers, requestPaperPersistence, type StoredPaper } from "./paper-library";
+import { catalogPapers } from "./paper-catalog";
 import { paperUrl, type PaperMetadata } from "./paper-metadata";
 import "./paper-library.css";
 import { ContentTransition, SurfaceTransition } from "./ui-transitions";
@@ -517,6 +518,7 @@ function changeLibrary(papers?: StoredPaper[], id?: string) {
   if (papers?.length) { usePaperLibrary(papers); setLibraryDocuments(papers); }
   else { useArchiveLibrary(); setLibraryDocuments([]); }
   $("#stage").dataset.library = libraryKind;
+  try { localStorage.setItem("rhine-library-kind", libraryKind); } catch { /* Session switching remains available. */ }
   columnMemory.splice(0, columnMemory.length, ...archiveColumns.map((_, group) => columnFiles(group)[0]));
   selected = Math.max(0, records.findIndex(record => record.id === id));
   columnMemory[catalogGroup(selected)] = selected;
@@ -532,7 +534,6 @@ function replayBoot(forcePreview = false) {
   closeModal(() => replayBootAfterModal(forcePreview));
 }
 function replayBootAfterModal(forcePreview: boolean) {
-  if (libraryKind === "papers") changeLibrary();
   bootStart = performance.now() / 1000 - 1.76;
   frozenTime = null;
   lastStep = "";
@@ -545,6 +546,7 @@ function replayBootAfterModal(forcePreview: boolean) {
 }
 function openFile() {
   if (!ready) return;
+  if (records[selected].paper) void requestPaperPersistence();
   closeModal(() => {
     setMode("detail");
     audio.play("open");
@@ -611,11 +613,14 @@ function overview() {
   const abstract = paper ? needsOriginal
     ? paperTextErrors.get(r.id) || (paperTextLoaded.has(paper) ? "未识别到原文 Abstract，可在 PDF 中查看。" : archiveDocument(r.id) ? "正在读取原文 Abstract…" : "摘要未录入。")
     : paper.abstract : r.abstract;
-  return `<div class="panel-label">ABSTRACT / ${paper ? "原文摘要" : "摘要"}</div><p>${escapeHtml(abstract)}</p>`;
+  return `<div class="panel-label">ABSTRACT / ${paper ? "原文摘要" : "摘要"}</div><p>${escapeHtml(abstract)}</p>${paperRetryMarkup(r.id)}`;
+}
+function paperRetryMarkup(id: string) {
+  return paperTextErrors.has(id) ? '<button type="button" data-action="retry-paper-text">重试读取 PDF ↻</button>' : "";
 }
 function referencesMarkup() {
   const r = records[selected], references = r.paper?.references;
-  return `<div class="panel-label">REFERENCES / 论文末尾参考文献</div>${references?.length ? `<ol class="paper-references">${references.map(reference => `<li>${escapeHtml(reference)}</li>`).join("")}</ol>` : `<p>${escapeHtml(paperTextErrors.get(r.id) || (!r.paper ? "尚未关联论文。" : references ? "尚无可识别的参考文献，可在 PDF 中查看，或通过 UPLOAD ARCHIVE 编辑补录。" : "正在读取论文参考文献…"))}</p>`}`;
+  return `<div class="panel-label">REFERENCES / 论文末尾参考文献</div>${references?.length ? `<ol class="paper-references">${references.map(reference => `<li>${escapeHtml(reference)}</li>`).join("")}</ol>` : `<p>${escapeHtml(paperTextErrors.get(r.id) || (!r.paper ? "尚未关联论文。" : references ? "尚无可识别的参考文献，可在 PDF 中查看，或通过 UPLOAD ARCHIVE 编辑补录。" : "正在读取论文参考文献…"))}</p>`}${paperRetryMarkup(r.id)}`;
 }
 async function ensurePaperText() {
   const r = records[selected], paper = r.paper, attachment = archiveDocument(r.id);
@@ -625,16 +630,18 @@ async function ensurePaperText() {
   if (!attachment) { paperTextLoaded.add(paper); paper.references ??= []; return; }
   const job = paperTextJob = new AbortController();
   try {
-    const result = (await inspectPaper(attachment.url, attachment.title, job.signal)).paper;
+    const file = await documentFile(attachment, job.signal);
+    const inspected = await inspectPaper(new Uint8Array(await file.arrayBuffer()), attachment.title, job.signal);
+    const result = inspected.paper;
     if (job.signal.aborted) return;
     if (needsAbstract) {
       paper.abstract = result.abstract; paper.abstractLabel = "原文摘要";
-      void saveExtractedAbstract(r.id, result.abstract).catch(() => { /* The extracted text remains readable for this session. */ });
     }
     paper.references ??= result.references ?? [];
+    await saveExtractedText(r.id, result, inspected.pages);
     paperTextLoaded.add(paper);
   }
-  catch { if (!job.signal.aborted) paperTextErrors.set(r.id, "无法读取论文文字，请检查 PDF 是否可用。可在阅读器中查看原文。"); }
+  catch (error) { if (!job.signal.aborted) paperTextErrors.set(r.id, error instanceof Error ? error.message : "无法读取论文文字，请检查 PDF 是否可用。"); }
   finally {
     if (paperTextJob === job) paperTextJob = undefined;
     if (!job.signal.aborted && records[selected].id === r.id && mode === "detail" && ["overview", "notes"].includes(activeTab)) {
@@ -677,15 +684,12 @@ async function downloadPaper(button: HTMLButtonElement) {
   if (!attachment || downloading) return;
   downloading = true; button.disabled = true;
   try {
-    const response = await fetch(attachment.url, { signal: AbortSignal.timeout(60_000) });
-    if (!response.ok) throw new Error("PDF 下载失败");
-    const blob = await response.blob();
-    if (!(await blob.slice(0, 1024).text()).includes("%PDF-")) throw new Error("地址未返回 PDF 文件");
+    const blob = await documentFile(attachment, AbortSignal.timeout(120_000));
     const url = URL.createObjectURL(blob), link = document.createElement("a");
     link.href = url; link.download = `${attachment.title.replace(/[<>:"/\\|?*\u0000-\u001f]/g, "_").slice(0, 160)}.pdf`;
     document.body.append(link); link.click(); link.remove();
     setTimeout(() => URL.revokeObjectURL(url), 30_000);
-  } catch { notify("无法下载 PDF，请检查网络，或通过论文页面获取原文。"); }
+  } catch (error) { notify(error instanceof Error ? error.message : "无法下载 PDF，请检查网络，或通过论文页面获取原文。"); }
   finally { downloading = false; if (button.isConnected) button.disabled = false; }
 }
 function notify(message: string) {
@@ -912,6 +916,12 @@ document.addEventListener("click", (e) => {
     return;
   }
   const action = el.dataset.action;
+  if (action === "retry-paper-text") {
+    paperTextErrors.delete(records[selected].id);
+    void ensurePaperText();
+    el.textContent = "正在重试…";
+    return;
+  }
   if (action === "toggle-three") { void toggleThree(); return; }
   if (action === "sound-preview") audio.play("confirm");
   if (action === "skip") {
@@ -928,6 +938,7 @@ document.addEventListener("click", (e) => {
   if (action === "pdf-viewer" && mode === "detail") {
     if (!scene) { notify("请先开启左下角的 3D 档案系统"); return; }
     const activeScene = scene;
+    void requestPaperPersistence();
     el.focus({ preventScroll: true });
     scene.finishDecryption();
     documentViewer ??= new DocumentViewer($("#stage"), () => {
@@ -1291,6 +1302,16 @@ async function toggleThree() {
 async function start() {
   try {
     if (isWallpaper) await window.rhineWallpaperPropertiesReady;
+    const original = isWallpaper || reviewParams.has("time") || reviewParams.get("review") === "1" || reviewParams.get("library") === "archives"
+      || readLocal<string>("rhine-library-kind", "papers") === "archives";
+    if (!original) {
+      let papers: StoredPaper[];
+      try { papers = await storedPapers(); }
+      catch { papers = catalogPapers(); notify("本地论文存储暂不可用，目录仍可浏览；请检查存储权限后重试。"); }
+      usePaperLibrary(papers); setLibraryDocuments(papers);
+      columnMemory.splice(0, columnMemory.length, ...archiveColumns.map((_, group) => columnFiles(group)[0]));
+      $("#stage").dataset.library = "papers";
+    }
     if (!isWallpaper || wallpaperHost()?.properties.load3donstartup?.value !== false) {
       scene = new ArchiveScene($("#three-scene"));
       scene.setTheme(prefs.colorTheme === "dark", true);

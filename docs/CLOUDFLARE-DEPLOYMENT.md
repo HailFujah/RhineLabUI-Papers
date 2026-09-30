@@ -1,5 +1,11 @@
 # Cloudflare Pages 部署
 
+## 2026-09-29 论文首次下载入口
+
+根目录新增 `functions/api/papers/[slug].ts`，与 Vite 共用固定官方 PDF 白名单下载实现。Git 构建须一起部署 Functions；静态包新增 `_routes.json`，仅 `/api/papers/*` 触发函数。用户导入不上传服务，下载成功后 PDF 保存在浏览器，重复打开不调用函数。应用资产仍静态托管，PWA 不预缓存论文原文。
+
+本地五篇源 PDF 已 HTTP 200 验证；函数实际线上部署需独立复核。仅上传静态目录不能代替 Functions 部署。架构与测试边界见 [论文缓存](../verification/PAPER-CACHE.md)。下文“未启用 Functions”为 2026-09-26 的历史状态。
+
 ## 2026-09-26 首页 ERR_FAILED 修复
 
 线上首页、JS 和 CSS 均返回 HTTP 200；Pages 生产部署成功，自定义域名处于 active 状态，未启用 Functions。Edge 在 Service Worker 控制下报 ERR_FAILED，临时绕过 Service Worker 即恢复。

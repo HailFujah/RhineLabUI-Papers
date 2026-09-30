@@ -1,6 +1,23 @@
 import { defineConfig } from "vite";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { createHash } from "node:crypto";
+import { servePaper } from "./server/paper-source";
+import { Readable } from "node:stream";
+import { pipeline } from "node:stream/promises";
+
+const paperMiddleware = (server: { middlewares: { use: Function } }) => {
+  server.middlewares.use(async (request: import("node:http").IncomingMessage, response: import("node:http").ServerResponse, next: () => void) => {
+    const match = request.url?.split("?")[0].match(/^\/api\/papers\/([a-z0-9-]+)$/);
+    if (!match) { next(); return; }
+    if (request.method !== "GET") { response.writeHead(405); response.end(); return; }
+    const controller = new AbortController();
+    response.on("close", () => controller.abort());
+    const result = await servePaper(match[1], controller.signal);
+    response.writeHead(result.status, Object.fromEntries(result.headers));
+    try { if (result.body) await pipeline(Readable.fromWeb(result.body as never), response); else response.end(); }
+    catch { response.destroy(); }
+  });
+};
 
 // Keep Blender's stable source/export paths, while production URLs identify
 // exact bytes and can be cached without revalidation across deployments.
@@ -27,7 +44,7 @@ export default defineConfig(({ mode, command }) => ({
     __RHINE_MODELS__: JSON.stringify(Object.fromEntries(models.map(model => [model.key,model.fileName]))),
     __RHINE_NOVECENTO__: JSON.stringify(hasNovecento),
   },
-  plugins: [{
+  plugins: [{ name: "paper-download", configureServer: paperMiddleware, configurePreviewServer: paperMiddleware }, {
     name: "versioned-model-assets", apply: "build",
     buildStart() { for (const model of models) this.emitFile({type:"asset",fileName:model.fileName,source:model.source}); },
   }, {

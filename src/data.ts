@@ -1,5 +1,5 @@
 import content from "../content/archives.json" with { type: "json" };
-import { samplePapers, type PaperMetadata } from "./paper-metadata.ts";
+import type { PaperMetadata } from "./paper-metadata.ts";
 import type { StoredPaper } from "./paper-library";
 
 export interface ArchiveRecord {
@@ -18,10 +18,7 @@ export interface ArchiveRecord {
   displayId?: string;
 }
 
-const originalRecords: ArchiveRecord[] = content.records.map(record => {
-  const paper = samplePapers[record.id];
-  return { ...record, paper };
-});
+const originalRecords: ArchiveRecord[] = content.records.map(record => ({ ...record }));
 export let records = originalRecords;
 export let categories = ["全部档案", ...content.categories];
 export let archiveColumns = [...content.columns];
@@ -32,14 +29,17 @@ export const catalogGroup = (index: number) => archiveColumns.indexOf(records[in
 export function useArchiveLibrary() {
   libraryKind = "archives"; records = originalRecords;
   archiveColumns = [...content.columns]; categories = ["全部档案", ...content.categories];
+  indexGroups();
 }
 
 export function usePaperLibrary(papers: StoredPaper[]) {
   if (!papers.length) return false;
   const groups = new Map<string, StoredPaper[]>();
+  const names = new Map<string, string>();
   for (const item of papers) {
     const venue = item.paper.venue.trim().replace(/\s+/g, " ") || "未录入期刊";
-    const key = [...groups.keys()].find(name => name.toLocaleLowerCase() === venue.toLocaleLowerCase()) ?? venue;
+    const normalized = venue.toLocaleLowerCase();
+    const key = names.get(normalized) ?? venue; names.set(normalized, key);
     const group = groups.get(key) ?? []; group.push(item); groups.set(key, group);
   }
   archiveColumns = [...groups.keys()].sort((a, b) => a.localeCompare(b, "zh-CN"));
@@ -53,18 +53,21 @@ export function usePaperLibrary(papers: StoredPaper[]) {
     .map((item, index): ArchiveRecord => ({ id: item.id, displayId: `X-${String(index + 1).padStart(3, "0")}`,
       paper: item.paper, title: item.paper.translatedTitle || item.paper.title, en: item.paper.title,
       department: item.paper.institutions.join(" / "), category: venue, date: item.paper.published,
-      lead: item.paper.authors.join(", "), clearance: "PERSONAL LIBRARY", abstract: item.paper.abstract,
+      lead: item.paper.authors.join(", "), clearance: item.paper.published || "PAPER LIBRARY", abstract: item.paper.abstract,
       findings: [], source: item.paper.url })));
   libraryKind = "papers"; categories = ["全部档案", ...archiveColumns];
+  indexGroups();
   return true;
 }
 
-export function columnFiles(lane: number) {
-  return records
-    .map((record, index) => ({ record, index }))
-    .filter(({ record }) => record.category === archiveColumns[lane])
-    .map(({ index }) => index);
+let groupedFiles: number[][] = [];
+function indexGroups() {
+  const groups = new Map(archiveColumns.map((name, index) => [name, index]));
+  groupedFiles = archiveColumns.map(() => []);
+  records.forEach((record, index) => groupedFiles[groups.get(record.category)!].push(index));
 }
+indexGroups();
+export function columnFiles(lane: number) { return groupedFiles[lane] ?? []; }
 export function fileLocation(index: number) {
   const group = catalogGroup(index);
   const ordinal = columnFiles(group).indexOf(index);

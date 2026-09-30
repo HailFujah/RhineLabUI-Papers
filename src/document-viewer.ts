@@ -14,7 +14,7 @@ import { PdfSliceFactory, type PdfSlice } from "./pdf-slice";
 import { pdfSlicePosition, pdfWindow } from "./pdf-layout";
 import { pdfPageMaterial } from "./pdf-material";
 import { brandHeading } from "./brand";
-import type { ArchiveDocument } from "./archive-documents";
+import { documentFile, type ArchiveDocument } from "./archive-documents";
 import type { PdfDocument, PdfRaster } from "./pdf-document";
 import "./document-viewer.css";
 
@@ -282,6 +282,13 @@ export class DocumentViewer {
         applyTextureQuality(source.model, this.renderer, this.quality);
       }
       if (!input) return;
+      if (typeof input === "string" && this.attachment?.paper) {
+        this.message("正在读取本地 PDF；首次打开需下载并保存…", false);
+        const file = await documentFile(this.attachment, job.signal);
+        if (job.signal.aborted || generation !== this.generation) return;
+        input = new Uint8Array(await file.arrayBuffer());
+        this.el(".document-file").textContent = `PAPER LIBRARY / PDF 已存本地`;
+      }
       const { PdfDocument } = await import("./pdf-document");
       if (job.signal.aborted) return;
       const pdf = await PdfDocument.load(input, job.signal);
@@ -306,7 +313,7 @@ export class DocumentViewer {
       if (job.signal.aborted || generation !== this.generation || cancellation(error)) return;
       this.setState("ERROR");
       const name = error instanceof Error ? error.name : "";
-      this.message(name === "PasswordException" ? "此 PDF 需要密码。请载入已解锁的副本。" : "PDF 载入失败。可以重试，或选择本地 PDF 文件。", Boolean(this.attachment?.url));
+      this.message(name === "PasswordException" ? "此 PDF 需要密码。请载入已解锁的副本。" : error instanceof Error ? error.message : "PDF 载入失败。可以重试，或选择本地 PDF 文件。", Boolean(this.attachment?.url));
       console.warn("Document projection load failed", error);
     }
   }

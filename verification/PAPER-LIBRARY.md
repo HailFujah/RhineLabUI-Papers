@@ -2,6 +2,8 @@
 
 更新：2026-09-28。
 
+**2026-09-29 更新：**默认论文库、五篇独立示例与原文件持久缓存见 [PAPER-CACHE.md](PAPER-CACHE.md)。下文原轮次的检查记录保留；当前不再把 Attention 绑定游戏 X-001，也不从目录读取全部 Blob。
+
 ## 本轮用户确认
 
 1. 标题为论文原名，下一行为中文译名；四个主要信息格为作者、机构、发表时间、期刊／会议；研究领域、关键词为次要信息；后续要求移除详情中单列的 DOI。
@@ -15,19 +17,19 @@
 | 数据／模块 | 职责 |
 | --- | --- |
 | `content/archives.json` | 原五类、40 份设定档案；保持稳定原编号与原排序 |
-| `content/papers.json` | Attention Is All You Need 的已核对示例元数据；仅元数据，不包含 PDF 全文 |
+| `content/papers.json` / `paper-catalog.json` | 五篇已核对示例字段与固定官方 PDF 来源；不包含全文 |
 | `src/paper-metadata.ts` | 明确的论文字段类型；HTTP(S) 论文链接过滤 |
 | `src/paper-import.ts` | 按需加载 PDF.js，提取元信息、正文摘要和末尾参考文献 |
-| `src/paper-library.ts` | IndexedDB `rhine-paper-library` / `papers` 保存 PDF Blob、字段、哈希、页数和导入时间 |
+| `src/paper-library.ts` | IndexedDB v2：`papers` 保存目录，`files` 单独保存 PDF；自动迁移旧记录 |
 | `src/paper-library-panel.ts` | 选择文件、识别进度、字段确认／编辑、浏览两个库 |
 | `src/data.ts` | 两套数据源映射、期刊分组、时间排序、显示编号 |
 | `src/archive-loop.ts` | 期刊对应物理 row、时间序号对应 lane；原阵列映射继续独立保留 |
-| `src/archive-documents.ts` | PDF 附件路由；已导入 PDF 按需生成 Blob URL，切库释放旧 URL |
+| `src/archive-documents.ts` / `paper-files.ts` | 按稳定 ID 读取单篇本地 PDF；首次缺失下载、原子保存 |
 | `src/document-viewer.ts` | 沿用光学切片状态机；实际进入 PDF_READING 时上报阅读页码 |
 
 导入文件不会改写源码 JSON，也不会上传服务器。元数据和原 PDF 保存在同源浏览器存储中；清除站点数据会清除个人论文库。原档案的 TXT 导出流程继续存在，详情的 DOWNLOAD 改为实际 PDF 下载；没有附件时禁用。
 
-原库的 X-001 保留原数据，并关联示例论文元数据与既有测试附件；不将其余原档案的相关人物伪装成作者。新导入的论文不替换原库条目。
+原库 X-001 保留原数据，不再关联示例论文。示例与新导入论文均有独立身份，不替换原库条目。
 
 ## 身份与排序
 

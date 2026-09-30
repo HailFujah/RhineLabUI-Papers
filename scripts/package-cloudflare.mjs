@@ -27,9 +27,9 @@ for (const path of files) {
   if (bytes.length > 25 * 1024 * 1024) throw Error(`Cloudflare file exceeds 25 MiB: ${path}`);
   entries.push({ path, bytes });
 }
-if (files.length + 2 > 20000) throw Error('Cloudflare free plan file count exceeded.');
+if (files.length + 3 > 20000) throw Error('Cloudflare free plan file count exceeded.');
 await mkdir(output, { recursive: true });
-const allowed = new Set([...files, '_headers', '404.html']);
+const allowed = new Set([...files, '_headers', '_routes.json', '404.html']);
 for (const path of await readdir(output, { recursive: true })) {
   if ((await stat(resolve(output, path))).isFile() && !allowed.has(path.replaceAll('\\', '/')))
     throw Error(`Unexpected existing file in package: ${path}`);
@@ -47,11 +47,13 @@ const headers = [
   ...['/manifest.webmanifest', '/pwa-build.json'].map(path => `${path}\n  Cache-Control: no-cache, must-revalidate`),
 ];
 await writeFile(resolve(output, '_headers'), headers.join('\n\n') + '\n');
+// Only first-time official PDF downloads invoke Pages Functions; UI assets stay static.
+await writeFile(resolve(output, '_routes.json'), JSON.stringify({ version: 1, include: ['/api/papers/*'], exclude: [] }));
 // Missing assets must return 404 instead of being mistaken for successful HTML.
 await writeFile(resolve(output, '404.html'), '<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>页面不存在 · Rhine Lab</title><h1>页面不存在</h1><p><a href="/">返回首页</a></p></html>');
 await writeFile('release/cloudflare/latest.json', JSON.stringify({
-  version: metadata.version, directory: output, files: files.length + 2,
+  version: metadata.version, directory: output, files: files.length + 3,
   bytes: entries.reduce((total, entry) => total + entry.bytes.length, 0),
   largestFileBytes: Math.max(...entries.map(entry => entry.bytes.length)),
 }, null, 2));
-console.log(`Cloudflare package ready: ${output}\n${files.length + 2} files; licensed fonts verified.`);
+console.log(`Cloudflare package ready: ${output}\n${files.length + 3} files; licensed fonts verified.`);

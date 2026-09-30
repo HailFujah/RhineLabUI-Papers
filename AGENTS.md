@@ -1,5 +1,16 @@
 # Rhine Lab UI
 
+## 论文优先与首次下载缓存（2026-09-29）
+
+- 网页首次默认论文库，之后记忆切库选择；原 40 份游戏档案保留，壁纸及原片 time/review 对照仍使用原库。游戏 X-001 不再挂接 Attention 示例，论文使用独立稳定 `paper:UUID`。开场重播保留当前库。
+- `content/paper-catalog.json` 保存五篇示例的 ID、元数据键、官方 PDF 地址与修订号；`content/papers.json` 保存已核对字段。示例为 Attention、BERT、ResNet、GAN、DDPM。NeurIPS 三篇按 2014/2017/2020 同行排列。不能将游戏角色、科室或权限当作论文字段。
+- `rhine-paper-library` IndexedDB v2：`papers` 仅目录和文字，`files` 仅单篇原 PDF Blob/哈希/修订号。v1 原子迁移，保留 ID、编辑、收藏与阅读记录。禁止目录 getAll 带出全部 PDF 或预生成全库 Blob URL。
+- 正式论文读取统一经过 `documentFile → paperFile`：先查单篇本地文件，修订相同直接返回，不发送网络请求；缺失才下载，完整响应检查 PDF 首尾标记、计算 SHA-256 后原子入库。事务成功才称已存本地。摘要、阅读器、DOWNLOAD 共用链路；失败可重试，启动不下载整库，不做每次联网探测或过期刷新。
+- 首次下载经同源 `/api/papers/:slug`；Vite 与 Cloudflare Pages Function 共用 `server/paper-source.ts`。只接受目录固定官方地址，不接受任意 URL，不抓论文网页。流式传输，100 MiB 上限与超时；用户导入不经过服务。Cloudflare Git 发布须包含根目录 `functions/`，仅静态上传不能提供首次下载接口。
+- 同页按 ID/修订共享在途任务，最后一个使用者取消才中断；支持 Web Locks 时跨标签协调、再次查库。完成后释放在途 Blob。目录分组预索引，导入管理每批 30 条；元数据仍整体载入，不能声称已实现无限规模数据库分页。
+- 请求持久存储尽力而为：本地文件属于当前浏览器、当前站点，不是指定磁盘文件夹或云同步；清站点数据、隐私模式、换域名/端口可能使文件不可用。PWA 包含 PDF.js 字体/CMap/WASM/回退解码器，不预缓存论文全文。
+- `npm run check:paper-cache` 检查缓存；`node scripts/check-paper-samples.mjs` 检查忽略目录中的官方 PDF。详见 `verification/PAPER-CACHE.md`。本轮 Browser Use 新会话仍被权限服务阻挡，不得将 Node 模拟 IndexedDB 检查写成浏览器/GPU 验收通过。
+
 ## 个人论文库与期刊阵列（2026-09-28）
 
 - 用户确认上传 PDF 进入独立论文库，保留原 40 份档案；原档案仍来自 `content/archives.json`，五列八份约束只适用于原档案库。UPLOAD ARCHIVE 位于 SAVED 与设置之间，并提供进入论文库／返回原档案库的入口。

@@ -1,6 +1,6 @@
 import { escapeHtml as html } from "./html";
 import { inspectPaper } from "./paper-import";
-import { fileHash, storedPapers, storePaper, type StoredPaper } from "./paper-library";
+import { fileHash, storedPapers, storePaper, requestPaperPersistence, type StoredPaper } from "./paper-library";
 import { paperUrl, type PaperMetadata } from "./paper-metadata";
 
 const fields: { key: keyof PaperMetadata; label: string; multiline?: boolean }[] = [
@@ -21,10 +21,11 @@ export class PaperLibraryPanel {
   private job?: AbortController;
   private alive = true;
   private busy = false;
+  private page = 0;
   constructor(private root: HTMLElement, private onOpen: (papers: StoredPaper[], id?: string) => void,
     private onOriginal: () => void) {
     root.innerHTML = `<h2>UPLOAD ARCHIVE<small>个人论文库</small></h2>
-      <p class="paper-import-note">选择 PDF 后核对识别结果，再保存。每行一个期刊／会议，同一行从左到右按发表时间由早到晚排列。文件保存在本浏览器；原有档案独立保留。</p>
+      <p class="paper-import-note">每行一个期刊／会议，从左到右按发表时间排列。示例论文首次打开时下载原 PDF 并保存到本浏览器，以后自动读取本地副本。导入文件可核对和编辑信息；清除本站数据会删除本地论文。</p>
       <div class="paper-library-actions"><label class="paper-file-pick">选择 PDF <span>↑</span><input type="file" accept="application/pdf,.pdf" aria-label="选择论文 PDF"/></label><button type="button" data-library="browse">进入论文库 ↗</button><button type="button" data-library="original">原档案库 ↗</button></div>
       <p class="paper-import-status" role="status" aria-live="polite"></p>
       <form class="paper-edit-form" hidden>${fields.map(field => `<label class="${field.multiline ? "paper-field-wide" : ""}"><span>${field.label}</span>${field.multiline ? `<textarea name="${field.key}" rows="${field.key === "references" ? 6 : 3}"></textarea>` : `<input name="${field.key}" ${field.key === "title" ? "required" : ""} ${field.key === "url" ? 'type="url"' : 'type="text"'}/>`}</label>`).join("")}
@@ -38,6 +39,8 @@ export class PaperLibraryPanel {
     root.addEventListener("click", event => {
       const button = (event.target as Element).closest<HTMLButtonElement>("button");
       if (!button || this.busy) return;
+      if (button.dataset.library === "previous") { this.page = Math.max(0, this.page - 1); this.list(); }
+      if (button.dataset.library === "next") { this.page++; this.list(); }
       if (button.dataset.library === "original") this.onOriginal();
       if (button.dataset.library === "browse" && this.papers.length) this.onOpen(this.papers);
       if (button.dataset.library === "cancel") { this.draft = undefined; this.form.hidden = true; this.status(""); }
@@ -62,7 +65,10 @@ export class PaperLibraryPanel {
     catch { this.status("无法打开本地论文库，请检查浏览器存储权限后重新打开此窗口。"); }
   }
   private list() {
-    this.root.querySelector(".paper-library-list")!.innerHTML = `<div class="panel-label">PAPER LIBRARY / ${this.papers.length} 篇</div>${this.papers.length ? this.papers.map(p => `<div class="paper-library-item"><button type="button" data-paper="${html(p.id)}"><strong>${html(p.paper.title)}</strong><small>${html(p.paper.venue || "未录入期刊")} · ${html(p.paper.published || "日期未录入")}</small></button><button type="button" data-paper="${html(p.id)}" data-edit="true">编辑信息</button></div>`).join("") : '<p class="paper-import-note">还没有导入论文。</p>'}`;
+    const count = Math.ceil(this.papers.length / 30);
+    this.page = Math.min(this.page, Math.max(0, count - 1));
+    const visible = this.papers.slice(this.page * 30, (this.page + 1) * 30);
+    this.root.querySelector(".paper-library-list")!.innerHTML = `<div class="panel-label">PAPER LIBRARY / ${this.papers.length} 篇</div>${visible.map(p => `<div class="paper-library-item"><button type="button" data-paper="${html(p.id)}"><strong>${html(p.paper.title)}</strong><small>${html(p.paper.venue || "未录入期刊")} · ${html(p.paper.published || "日期未录入")} · ${p.cached ? "PDF 已存本地" : "首次打开下载"}</small></button><button type="button" data-paper="${html(p.id)}" data-edit="true">编辑信息</button></div>`).join("")}${count > 1 ? `<div class="paper-library-actions"><button data-library="previous" ${this.page === 0 ? "disabled" : ""}>上一批</button><span>${this.page + 1} / ${count}</span><button data-library="next" ${this.page + 1 === count ? "disabled" : ""}>下一批</button></div>` : ""}`;
     this.root.querySelector<HTMLButtonElement>('[data-library="browse"]')!.disabled = this.busy || !this.papers.length;
   }
   private edit(item: StoredPaper) {
@@ -72,7 +78,7 @@ export class PaperLibraryPanel {
       (this.form.elements.namedItem(field.key) as HTMLInputElement).value = Array.isArray(value) ? value.join(field.multiline ? "\n" : ", ") : value ?? "";
     }
     this.form.hidden = false;
-    this.status(`${item.filename} · ${item.pages} 页 · 请核对论文信息`);
+    this.status(`${item.filename} · ${item.pages || "未知"} 页 · ${item.cached || item.file ? "PDF 已存本地" : "首次打开下载"} · 请核对论文信息`);
     this.form.querySelector<HTMLInputElement>("input")!.focus();
   }
   private async import(file: File) {
@@ -117,6 +123,7 @@ export class PaperLibraryPanel {
     this.setBusy(true); this.status("正在保存论文…");
     try {
       const item = { ...this.draft, paper }; await storePaper(item);
+      void requestPaperPersistence();
       const papers = await storedPapers();
       if (this.alive) { this.papers = papers; this.list(); this.onOpen(papers, item.id); }
     } catch { this.status("保存失败，可能是浏览器存储空间或权限不足。已识别的信息保留在此处，请稍后重试。"); }
