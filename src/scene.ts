@@ -19,11 +19,12 @@ import { applyTextureQuality, resizeQuality } from "./quality-renderer";
 import { CardAppearance } from "./appearance";
 import { configureInternalOptics } from "./internal-optics";
 import { DecryptionController } from "./decryption";
-import { fileLocation, records, recordLabel } from "./data";
+import { fileLocation, records, recordLabel, libraryKind } from "./data";
 import {
   cellKey,
   sameCell,
   selectionCell,
+  rebaseShift,
   fileAtCell,
   poolCell,
   LOOP_COLUMNS,
@@ -699,16 +700,7 @@ export class ArchiveScene {
   private rebaseCoordinates() {
     // Periodically reduce the logical coordinates while preserving every
     // relative position, spring velocity, ripple and idle phase.
-    const shift = {
-      lane:
-        Math.abs(this.selectedCell.lane) > 2048
-          ? Math.round((this.selectedCell.lane - 2) / 5) * 5
-          : 0,
-      row:
-        Math.abs(this.selectedCell.row) > 2048
-          ? Math.floor((this.selectedCell.row - 12) / 8) * 8
-          : 0,
-    };
+    const shift = rebaseShift(this.selectedCell);
     if (!shift.lane && !shift.row) return;
     this.setHover(null);
     this.hoverLifts.clear();
@@ -1200,7 +1192,7 @@ export class ArchiveScene {
         wheelTotal -= direction * steps * 100;
         this.navigatingDrag = true;
         try {
-          for (let i = 0; i < steps; i++) this.onNavigate?.("row", direction);
+          for (let i = 0; i < steps; i++) this.onNavigate?.(libraryKind === "papers" ? "lane" : "row", direction);
         } finally {
           this.navigatingDrag = false;
         }

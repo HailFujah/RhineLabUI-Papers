@@ -11,7 +11,7 @@ Object.assign(globalThis, { indexedDB, IDBKeyRange });
 const directory = resolve("verification/fixtures/paper-cache-check");
 await mkdir(directory, { recursive: true });
 const source = name => JSON.stringify(resolve(`src/${name}.ts`).replaceAll("\\", "/"));
-await writeFile(`${directory}/entry.ts`, ["paper-library", "paper-files", "paper-catalog", "data", "archive-documents"].map((name, i) => `export * as m${i} from ${source(name)};`).join("\n"));
+await writeFile(`${directory}/entry.ts`, ["paper-library", "paper-files", "paper-catalog", "data", "archive-documents", "archive-loop"].map((name, i) => `export * as m${i} from ${source(name)};`).join("\n"));
 await build({ configFile: false, logLevel: "error", define: { __RHINE_MODELS__: "{}" },
   build: { lib: { entry: `${directory}/entry.ts`, formats: ["es"], fileName: () => "check.mjs" }, outDir: directory, emptyOutDir: false, minify: false } });
 const entry = pathToFileURL(`${directory}/check.mjs`).href;
@@ -25,7 +25,7 @@ const v1 = await new Promise((resolve, reject) => {
   request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error);
 });
 v1.close();
-const { m0: library, m1: files, m2: catalog, m3: data, m4: attachments } = await import(entry);
+const { m0: library, m1: files, m2: catalog, m3: data, m4: attachments, m5: loop } = await import(entry);
 const signal = () => new AbortController().signal;
 
 test("v1 migration preserves identity and bytes; directory excludes every Blob", async () => {
@@ -37,16 +37,45 @@ test("v1 migration preserves identity and bytes; directory excludes every Blob",
   assert.equal(await cached.file.text(), await fixture.text());
   assert.equal(cached.revision, "local");
 });
-test("catalog uses stable paper IDs; venue rows and chronological columns preserve originals", async () => {
+test("three paper rows keep chronological horizontal cells and independent vertical navigation", async () => {
   const seeds = await catalog.catalogPapers();
   assert.equal(seeds.length, 1000); assert.equal(new Set(seeds.map(item => item.id)).size, 1000);
   data.usePaperLibrary(seeds);
-  const group = data.records.filter(record => record.category === "Advances in Neural Information Processing Systems");
-  assert.deepEqual(group.map(item => item.date), ["2014", "2017", "2020"]);
-  assert.deepEqual(group.map(item => item.displayId), ["X-001", "X-002", "X-003"]);
-  const cells = group.map(item => data.fileLocation(data.records.indexOf(item)));
-  assert.equal(new Set(cells.map(item => item.row)).size, 1);
-  assert.deepEqual(cells.map(item => item.lane), [0, 1, 2]);
+  assert.deepEqual(data.archiveColumns, ["代表论文", "ACL／ICML 会议论文", "近期 arXiv 论文"]);
+  assert.deepEqual(data.archiveColumns.map((_, i) => data.columnFiles(i).length), [100, 400, 500]);
+  const dateKey = value => { const [y, m = "00", d = "00"] = value.split("-"); return `${y}-${m}-${d}`; };
+  for (let group = 0; group < 3; group++) {
+    const indices = data.columnFiles(group);
+    assert.deepEqual(indices.map(i => dateKey(data.records[i].date)), indices.map(i => dateKey(data.records[i].date)).sort());
+    for (const direction of [-1, 1]) {
+      let index = indices[0], cell = data.fileLocation(index);
+      for (let step = 0; step < 3200; step++) {
+        index = indices[loop.wrap(indices.indexOf(index) + direction, indices.length)];
+        const next = loop.selectionCell(index, cell, { axis: "lane", direction });
+        assert.equal(next.row, cell.row, "Horizontal movement must never choose another row");
+        assert.equal(next.lane, cell.lane + direction);
+        assert.equal(loop.fileAtCell(next), index);
+        const shift = loop.rebaseShift(next);
+        const rebased = { lane: next.lane - shift.lane, row: next.row - shift.row };
+        for (let offset = -3; offset <= 3; offset++) {
+          assert.equal(loop.fileAtCell({ ...next, row: next.row + offset }), loop.fileAtCell({ ...rebased, row: rebased.row + offset }));
+        }
+        cell = rebased;
+      }
+    }
+    assert.equal(data.records[indices[0]].displayId, "X-001");
+  }
+  let cell = data.fileLocation(data.columnFiles(0)[17]);
+  const memory = [data.columnFiles(0)[17], data.columnFiles(1)[123], data.columnFiles(2)[456]];
+  for (let step = 1; step < 10; step++) {
+    const index = memory[step % 3];
+    const next = loop.selectionCell(index, cell, { axis: "row", direction: 1 });
+    assert.equal(next.row, cell.row + 1); assert.equal(loop.fileAtCell(next), index); cell = next;
+  }
+  // Old cached directories receive the catalogue's grouping without losing edits.
+  await library.storePaper({ ...seeds[0], collection: undefined, paper: { ...seeds[0].paper, title: "My edited title" } });
+  const restored = (await library.storedPapers()).find(item => item.id === seeds[0].id);
+  assert.equal(restored.collection, "classic"); assert.equal(restored.paper.title, "My edited title");
   attachments.setLibraryDocuments(seeds);
   assert.equal(attachments.archiveDocument("X-001"), undefined);
   assert.ok(attachments.archiveDocument(seeds[0].id).paper);

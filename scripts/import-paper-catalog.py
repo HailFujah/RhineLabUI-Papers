@@ -98,7 +98,7 @@ def main():
     CACHE.mkdir(parents=True, exist_ok=True)
     seeds = json.loads((ROOT / "content/paper-seeds.json").read_text(encoding="utf8"))
     seed_metadata = json.loads((ROOT / "content/papers.json").read_text(encoding="utf8"))
-    catalog, papers, counts, duplicates = seeds.copy(), {}, Counter({"classic": len(seeds)}), []
+    catalog, papers, counts, duplicates = [dict(e, collection="classic") for e in seeds], {}, Counter({"classic": len(seeds)}), []
     seen_titles = {title_key(p["title"]): e["id"] for e in seeds for p in [seed_metadata[e["metadata"]]]}
     seed_arxiv = ["1706.03762", "1810.04805", "1512.03385", "1406.2661", "2006.11239"]
     seen_ids = {f"arxiv:{a}": e["id"] for a, e in zip(seed_arxiv, seeds)}
@@ -116,7 +116,7 @@ def main():
             return False
         identity = "paper:" + str(uuid.uuid5(uuid.NAMESPACE_URL, "https://github.com/LBEILC/RhineLabUI/papers/" + canonical))
         slug = re.sub(r"[^a-z0-9]+", "-", canonical).strip("-")
-        entry = {"id": identity, "metadata": slug, "slug": slug, "revision": revision, "pdf": pdf}
+        entry = {"id": identity, "metadata": slug, "slug": slug, "revision": revision, "pdf": pdf, "collection": group}
         catalog.append(entry); papers[slug] = p
         seen_ids[canonical] = identity; seen_titles[key] = identity
         if doi: seen_doi[doi] = identity

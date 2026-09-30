@@ -1,5 +1,9 @@
 # 修改档案内容
 
+## 最新三行编排（2026-09-30）
+
+内置目录按 `collection` 分三行：classic（代表论文100）、conference（ACL／ICML会议400）、recent（近期arXiv500）。`paper-catalog.json` 的分组由 `import-paper-catalog.py` 输出，不能从当前数组位置猜测；元数据的 venue 仍是实际期刊。每行日期升序、X-NNN 重新计数，真实 ID 和 PDF 修订不变。此规则覆盖下文历史期刊分行说明；手动导入保留独立个人导入行。
+
 ## 论文目录（2026-09-30）
 
 网页默认读取独立论文库，目前 1,000 篇。`paper-catalog.json` 保存稳定 ID、元数据键、官方 PDF 地址与修订号；`paper-index.json` 保存新增 995 篇字段，`papers.json` 保存五篇人工核对字段，`paper-seeds.json` 固定五篇身份。`paper-selection.json` 和 `paper-provenance.json` 分别保存选取配置和实际来源记录。运行 `python scripts/import-paper-catalog.py --fetch` 仅拉取缺失元数据，输出前检查目标数量；无参数从忽略目录的缓存重现。它不下载 PDF，也不是每日同步服务。详见 [首批目录](../verification/PAPER-CATALOG.md)。

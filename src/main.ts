@@ -429,30 +429,22 @@ function select(index: number, navigation?: ArchiveNavigation) {
   activeTab = "overview";
   scene?.select(selected, navigation);
   updateSelection(navigation);
-  const columnMove = navigation && "axis" in navigation && navigation.axis === "lane";
+  const columnMove = navigation && "axis" in navigation && navigation.axis === (libraryKind === "papers" ? "row" : "lane");
   audio.play(columnMove ? "column" : "tick", columnMove ? navigation.direction * .45 : 0);
 }
 function stepFile(direction: number) {
-  if (libraryKind === "papers") {
-    if (archiveColumns.length > 1) select(columnMemory[wrap(catalogGroup(selected) + direction, archiveColumns.length)], { axis: "row", direction });
-    return;
-  }
   const files = columnFiles(catalogGroup(selected));
   if (files.length < 2) return;
   select(
     files[(files.indexOf(selected) + direction + files.length) % files.length],
-    { axis: "row", direction },
+    { axis: libraryKind === "papers" ? "lane" : "row", direction },
   );
 }
 function stepColumn(direction: number) {
   const lane = catalogGroup(selected);
-  if (libraryKind === "papers") {
-    const files = columnFiles(lane);
-    if (files.length > 1) select(files[wrap(files.indexOf(selected) + direction, files.length)], { axis: "lane", direction });
-    return;
-  }
+  if (archiveColumns.length < 2) return;
   const next = wrap(lane + direction, archiveColumns.length);
-  select(columnMemory[next], { axis: "lane", direction });
+  select(columnMemory[next], { axis: libraryKind === "papers" ? "row" : "lane", direction });
 }
 function updateSelection(navigation?: ArchiveNavigation) {
   const r = records[selected];
@@ -492,13 +484,14 @@ function updateSelection(navigation?: ArchiveNavigation) {
   columnTitle.update({ text: archiveColumns[lane], animated: motionActive("rollingText") && mode === "archive" });
   $("#column-name").title = archiveColumns[lane];
   const papers = libraryKind === "papers";
-  $("#column-axis").textContent = papers ? "JOURNAL" : "COLUMN";
+  $("#column-axis").textContent = papers ? "ROW" : "COLUMN";
   $("#column-total").textContent = String(archiveColumns.length).padStart(2, "0");
-  $(".archive-hint").innerHTML = papers ? '<kbd>←</kbd> <kbd>→</kbd> 发表时间 <span>／</span> <kbd>↑</kbd> <kbd>↓</kbd> 切换期刊 <span>／</span> <kbd>ENTER</kbd> 读取' : '<kbd>←</kbd> <kbd>→</kbd> 切换列 <span>／</span> <kbd>↑</kbd> <kbd>↓</kbd> 前后档案 <span>／</span> <kbd>ENTER</kbd> 读取';
-  for (const [action, label] of [["column-prev", papers ? "较早论文" : "上一列"], ["column-next", papers ? "较晚论文" : "下一列"], ["prev", papers ? "上一个期刊" : "上一个档案"], ["next", papers ? "下一个期刊" : "下一个档案"]]) {
+  $(".archive-hint").innerHTML = papers ? '<kbd>←</kbd> <kbd>→</kbd> 同行论文 <span>／</span> <kbd>↑</kbd> <kbd>↓</kbd> 切换分类行 <span>／</span> <kbd>ENTER</kbd> 读取' : '<kbd>←</kbd> <kbd>→</kbd> 切换列 <span>／</span> <kbd>↑</kbd> <kbd>↓</kbd> 前后档案 <span>／</span> <kbd>ENTER</kbd> 读取';
+  for (const [action, label, arrow] of [["column-prev", papers ? "上一分类行" : "上一列", papers ? "↑" : "←"], ["column-next", papers ? "下一分类行" : "下一列", papers ? "↓" : "→"], ["prev", papers ? "同一行上一篇论文" : "上一个档案", papers ? "←" : "↑"], ["next", papers ? "同一行下一篇论文" : "下一个档案", papers ? "→" : "↓"]]) {
     const button = $<HTMLButtonElement>(`[data-action="${action}"]`);
     button.setAttribute("aria-label", label);
-    button.disabled = action.startsWith("column") ? (papers ? files.length < 2 : archiveColumns.length < 2) : (papers ? archiveColumns.length < 2 : files.length < 2);
+    button.textContent = arrow;
+    button.disabled = action.startsWith("column") ? archiveColumns.length < 2 : files.length < 2;
   }
   const tickStart = Math.max(0, Math.min(files.indexOf(selected) - 3, files.length - fileTicks.length));
   fileTicks.forEach((button, slot) => {
@@ -780,7 +773,7 @@ function renderResults(page = 0) {
       ({ r }) =>
         (modal !== "saved" || saved.has(r.id)) &&
         (filter === "全部档案" || r.category === filter) &&
-        `${recordLabel(r)} ${r.title} ${r.en} ${r.department} ${r.lead} ${r.category} ${r.paper?.title ?? ""} ${r.paper?.authors.join(" ") ?? ""} ${r.paper?.doi ?? ""} ${r.paper?.arxivId ?? ""} ${r.paper?.fields.join(" ") ?? ""} ${r.paper?.keywords.join(" ") ?? ""}`
+        `${recordLabel(r)} ${r.title} ${r.en} ${r.department} ${r.lead} ${r.category} ${r.paper?.title ?? ""} ${r.paper?.authors.join(" ") ?? ""} ${r.paper?.venue ?? ""} ${r.paper?.doi ?? ""} ${r.paper?.arxivId ?? ""} ${r.paper?.fields.join(" ") ?? ""} ${r.paper?.keywords.join(" ") ?? ""}`
           .toLowerCase()
           .includes(searchQuery.toLowerCase()),
     );
@@ -790,7 +783,7 @@ function renderResults(page = 0) {
     ? results.slice(page * pageSize, (page + 1) * pageSize)
         .map(
           ({ r, i }) =>
-            `<button class="result-row" data-result="${i}"><span class="result-name"><b>${escapeHtml(recordLabel(r))}</b><span>${escapeHtml(r.title)}${r.en !== r.title ? `<small>${escapeHtml(r.en)}</small>` : ""}</span>${saved.has(r.id) ? "<i>＋</i>" : ""}</span><span>${escapeHtml(libraryKind === "papers" ? `${r.category} · ${r.date || "日期未录入"}` : r.department)}</span><span>${r.clearance === "RESTRICTED" ? "CATALOG ONLY" : "AUTHORIZED"} <i>↗</i></span></button>`,
+            `<button class="result-row" data-result="${i}"><span class="result-name"><b>${escapeHtml(recordLabel(r))}</b><span>${escapeHtml(r.title)}${r.en !== r.title ? `<small>${escapeHtml(r.en)}</small>` : ""}</span>${saved.has(r.id) ? "<i>＋</i>" : ""}</span><span>${escapeHtml(libraryKind === "papers" ? `${r.paper?.venue || "期刊未录入"} · ${r.date || "日期未录入"}` : r.department)}</span><span>${r.clearance === "RESTRICTED" ? "CATALOG ONLY" : "AUTHORIZED"} <i>↗</i></span></button>`,
         )
         .join("")
     : `<div class="empty-results"><span>∅</span><strong>${modal === "saved" && !searchQuery ? "尚无收藏档案" : "没有匹配的档案"}</strong><p>${modal === "saved" && !searchQuery ? "读取档案时，选择 SAVE ARCHIVE 将其保存在此处。" : "尝试其他名称、档案编号，或切换科室分类。"}</p><button data-action="reset-search">${modal === "saved" ? "查看全部档案 →" : "重置检索 →"}</button></div>`;
@@ -1084,15 +1077,16 @@ document.addEventListener("keydown", (e) => {
   }
   if (e.key === "ArrowLeft" && mode !== "boot") {
     e.preventDefault();
-    stepColumn(-1);
+    if (libraryKind === "papers") stepFile(-1); else stepColumn(-1);
   }
   if (e.key === "ArrowRight" && mode !== "boot") {
     e.preventDefault();
-    stepColumn(1);
+    if (libraryKind === "papers") stepFile(1); else stepColumn(1);
   }
   if (["ArrowUp", "ArrowDown"].includes(e.key) && mode !== "boot") {
     e.preventDefault();
-    stepFile(e.key === "ArrowUp" ? -1 : 1);
+    const direction = e.key === "ArrowUp" ? -1 : 1;
+    if (libraryKind === "papers") stepColumn(direction); else stepFile(direction);
   }
   if (
     e.key === "Enter" &&
@@ -1230,8 +1224,8 @@ function bindScene(scene: ArchiveScene, cell?: { lane: number; row: number }) {
     };
     scene.onNavigate = (axis, direction) => {
       if (mode !== "archive" || modal || viewer?.isOpen) return;
-      if (axis === "lane") stepColumn(direction);
-      else stepFile(direction);
+      if (axis === (libraryKind === "papers" ? "lane" : "row")) stepFile(direction);
+      else stepColumn(direction);
     };
     scene.onHover = (i) => {
       const label = $("#hover-label");

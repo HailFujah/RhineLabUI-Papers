@@ -8,10 +8,11 @@ const [catalog, index, seeds, samples, provenance] = await Promise.all([
 const papers = { ...samples, ...index };
 assert.equal(catalog.length, 1000);
 assert.equal(Object.keys(index).length, 995);
-assert.deepEqual(catalog.slice(0, 5), seeds, "Original IDs, PDFs and revisions must survive expansion");
+assert.deepEqual(catalog.slice(0, 5).map(({ collection, ...entry }) => entry), seeds, "Original IDs, PDFs and revisions must survive expansion");
 assert.equal(new Set(catalog.map(p => p.id)).size, catalog.length);
 assert.equal(new Set(catalog.map(p => p.slug)).size, catalog.length);
 assert.equal(new Set(catalog.map(p => p.metadata)).size, catalog.length);
+assert.deepEqual(["classic", "conference", "recent"].map(group => catalog.filter(item => item.collection === group).length), [100, 400, 500]);
 const titles = new Set(), identifiers = new Set(), dois = new Set(), venues = {};
 const hosts = new Set(["arxiv.org", "papers.nips.cc", "aclanthology.org", "openaccess.thecvf.com", "raw.githubusercontent.com"]);
 for (const entry of catalog) {

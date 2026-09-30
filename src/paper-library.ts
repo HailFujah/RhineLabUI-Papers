@@ -1,5 +1,6 @@
 import type { PaperMetadata } from "./paper-metadata";
 import { catalogPapers } from "./paper-catalog";
+import type { PaperCollection } from "./paper-collections";
 
 export interface StoredPaper {
   id: string;
@@ -13,6 +14,7 @@ export interface StoredPaper {
   pdfUrl?: string;
   pdfRevision?: string;
   cached?: boolean;
+  collection?: PaperCollection;
 }
 
 export interface PaperFile { id: string; file: Blob; hash: string; revision: string; savedAt: string }
@@ -63,7 +65,7 @@ export async function storedPapers(): Promise<StoredPaper[]> {
       const records = new Map(seeds.map(paper => [paper.id, paper]));
       for (const paper of request.result as StoredPaper[]) {
         const seed = records.get(paper.id);
-        records.set(paper.id, seed ? { ...paper, pdfUrl: seed.pdfUrl, pdfRevision: seed.pdfRevision } : paper);
+        records.set(paper.id, seed ? { ...paper, collection: seed.collection, pdfUrl: seed.pdfUrl, pdfRevision: seed.pdfRevision } : paper);
       }
       resolve([...records.values()].sort((a, b) => a.importedAt.localeCompare(b.importedAt)));
     };

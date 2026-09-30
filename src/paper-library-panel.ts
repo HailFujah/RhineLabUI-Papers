@@ -8,7 +8,7 @@ const fields: { key: keyof PaperMetadata; label: string; multiline?: boolean }[]
   { key: "authors", label: "作者 · 每行一位", multiline: true },
   { key: "institutions", label: "机构 · 每行一家", multiline: true },
   { key: "published", label: "发表时间 · YYYY / YYYY-MM / YYYY-MM-DD" },
-  { key: "venue", label: "期刊／会议 · 同名归入同一行" },
+  { key: "venue", label: "期刊／会议" },
   { key: "fields", label: "研究领域 · 逗号分隔" }, { key: "keywords", label: "关键词 · 逗号分隔" },
   { key: "doi", label: "DOI" }, { key: "url", label: "论文页面 · https://…" },
   { key: "abstract", label: "摘要", multiline: true },
@@ -25,11 +25,11 @@ export class PaperLibraryPanel {
   constructor(private root: HTMLElement, private onOpen: (papers: StoredPaper[], id?: string) => void,
     private onOriginal: () => void) {
     root.innerHTML = `<h2>UPLOAD ARCHIVE<small>个人论文库</small></h2>
-      <p class="paper-import-note">每行一个期刊／会议，从左到右按发表时间排列。示例论文首次打开时下载原 PDF 并保存到本浏览器，以后自动读取本地副本。导入文件可核对和编辑信息；清除本站数据会删除本地论文。</p>
+      <p class="paper-import-note">内置论文分为代表论文、ACL／ICML 会议论文、近期 arXiv 论文三行，各行从左到右按发表时间排列。个人导入单独归组。PDF 首次阅读后保存到本浏览器，以后读取本地副本；清除本站数据会删除本地论文。</p>
       <div class="paper-library-actions"><label class="paper-file-pick">选择 PDF <span>↑</span><input type="file" accept="application/pdf,.pdf" aria-label="选择论文 PDF"/></label><button type="button" data-library="browse">进入论文库 ↗</button><button type="button" data-library="original">原档案库 ↗</button></div>
       <p class="paper-import-status" role="status" aria-live="polite"></p>
       <form class="paper-edit-form" hidden>${fields.map(field => `<label class="${field.multiline ? "paper-field-wide" : ""}"><span>${field.label}</span>${field.multiline ? `<textarea name="${field.key}" rows="${field.key === "references" ? 6 : 3}"></textarea>` : `<input name="${field.key}" ${field.key === "title" ? "required" : ""} ${field.key === "url" ? 'type="url"' : 'type="text"'}/>`}</label>`).join("")}
-      <p class="paper-field-wide paper-import-note">无法识别的字段留空，译名请手动填写。未录入期刊的论文单独归组，缺少日期的论文排在该组末尾。扫描版 PDF 需要手动录入。</p><div class="paper-field-wide paper-library-actions"><button type="submit">保存并打开论文 ↗</button><button type="button" data-library="cancel">取消编辑</button></div></form>
+      <p class="paper-field-wide paper-import-note">无法识别的字段留空，译名请手动填写。期刊信息保留在详情中，缺少日期的论文排在所属行末尾。扫描版 PDF 需要手动录入。</p><div class="paper-field-wide paper-library-actions"><button type="submit">保存并打开论文 ↗</button><button type="button" data-library="cancel">取消编辑</button></div></form>
       <div class="paper-library-list"></div>`;
     root.querySelector<HTMLInputElement>('input[type="file"]')!.addEventListener("change", event => {
       const input = event.target as HTMLInputElement, file = input.files?.[0];

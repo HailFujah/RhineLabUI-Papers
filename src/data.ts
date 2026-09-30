@@ -1,6 +1,7 @@
 import content from "../content/archives.json" with { type: "json" };
 import type { PaperMetadata } from "./paper-metadata.ts";
 import type { StoredPaper } from "./paper-library";
+import { paperCollections, paperCollectionLabel } from "./paper-collections.ts";
 
 export interface ArchiveRecord {
   id: string;
@@ -35,14 +36,11 @@ export function useArchiveLibrary() {
 export function usePaperLibrary(papers: StoredPaper[]) {
   if (!papers.length) return false;
   const groups = new Map<string, StoredPaper[]>();
-  const names = new Map<string, string>();
   for (const item of papers) {
-    const venue = item.paper.venue.trim().replace(/\s+/g, " ") || "未录入期刊";
-    const normalized = venue.toLocaleLowerCase();
-    const key = names.get(normalized) ?? venue; names.set(normalized, key);
+    const key = paperCollectionLabel(item.collection);
     const group = groups.get(key) ?? []; group.push(item); groups.set(key, group);
   }
-  archiveColumns = [...groups.keys()].sort((a, b) => a.localeCompare(b, "zh-CN"));
+  archiveColumns = [...paperCollections.map(item => item.label), "个人导入"].filter(name => groups.has(name));
   const date = (paper: StoredPaper) => {
     if (!/^\d{4}(?:-\d{2}(?:-\d{2})?)?$/.test(paper.paper.published)) return "9999-99-99";
     const [year, month = "00", day = "00"] = paper.paper.published.split("-");
