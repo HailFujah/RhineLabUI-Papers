@@ -20,7 +20,7 @@ await build({ configFile: false, logLevel: "error", plugins: [{ name: "node-pdf-
 const { inspectPaper } = await import(pathToFileURL(`${directory}/inspect.mjs`).href);
 const catalog = JSON.parse(await readFile("content/paper-catalog.json", "utf8"));
 const counts = { "attention-2017": [11, 32], "bert-2019": [16, 64], "resnet-2016": [9, 49], "gan-2014": [9, 29], "ddpm-2020": [12, 72] };
-for (const entry of catalog) {
+for (const entry of catalog.filter(entry => Object.hasOwn(counts, entry.slug))) {
   const bytes = new Uint8Array(await readFile(`verification/fixtures/${entry.slug}.pdf`));
   const { paper, pages } = await inspectPaper(bytes, `${entry.slug}.pdf`, new AbortController().signal);
   await writeFile(`${directory}/${entry.slug}.json`, JSON.stringify({ paper, pages }, null, 2));

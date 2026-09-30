@@ -13,6 +13,7 @@
     "check:viewport": "node --experimental-strip-types scripts/check-viewport.mjs",
     "check:pdf": "node --experimental-strip-types scripts/check-pdf-layout.mjs",
     "check:paper-cache": "node --experimental-strip-types --test scripts/check-paper-cache.mjs scripts/check-paper-source.mjs",
+    "check:paper-catalog": "node scripts/check-paper-catalog.mjs",
     "review:mobile": "node scripts/serve-mobile-review.mjs",
     "export:archives": "node scripts/export-records.mjs",
     "build": "tsc && tsc -p tsconfig.functions.json && vite build && node scripts/build-pwa.mjs",

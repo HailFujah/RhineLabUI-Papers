@@ -586,7 +586,7 @@ function renderDetail() {
   <h2>${escapeHtml(paper?.title || r.en)}</h2><div class="detail-title-cn">${escapeHtml(paper ? paper.translatedTitle || "中文译名未录入" : r.title)}</div>
   <div class="detail-rule"></div>
   </header><div class="detail-metadata-scroll" role="region" aria-label="作者、机构与论文特征">
-  <dl class="metadata"><div><dt>AUTHORS / 作者</dt><dd>${text(paper?.authors.join(", "))}</dd></div><div><dt>INSTITUTIONS / 机构</dt><dd>${text(paper?.institutions.join(" / "))}</dd></div><div><dt>PUBLISHED / 发表时间</dt><dd>${text(paper?.published)}</dd></div><div><dt>VENUE / 期刊／会议</dt><dd>${text(paper?.venue)}</dd></div></dl>
+  <dl class="metadata"><div><dt>AUTHORS / 作者</dt><dd>${text(paper?.authors.join(", "))}</dd></div><div><dt>INSTITUTIONS / 机构</dt><dd>${text(paper?.institutions.join(" / "))}</dd></div><div><dt>PUBLISHED / 发表时间</dt><dd>${text(paper?.published)}${paper?.dateKind === "first-submitted" ? " · 首次提交" : ""}</dd></div><div><dt>VENUE / 期刊／会议</dt><dd>${text(paper?.venue)}</dd></div></dl>
   <dl class="paper-secondary"><div><dt>FIELDS / 研究领域</dt><dd>${text(paper?.fields.join(" · "))}</dd></div><div><dt>KEYWORDS / 关键词</dt><dd>${text(paper?.keywords.join(" · "))}</dd></div></dl>
   </div></section>
   <section class="detail-reading-window" aria-label="论文内容">
@@ -773,27 +773,39 @@ function renderModal() {
       if (e.target === e.currentTarget) closeModal();
     });
 }
-function renderResults() {
+function renderResults(page = 0) {
   const results = records
     .map((r, i) => ({ r, i }))
     .filter(
       ({ r }) =>
         (modal !== "saved" || saved.has(r.id)) &&
         (filter === "全部档案" || r.category === filter) &&
-        `${recordLabel(r)} ${r.title} ${r.en} ${r.department} ${r.lead} ${r.category} ${r.paper?.title ?? ""} ${r.paper?.authors.join(" ") ?? ""} ${r.paper?.doi ?? ""} ${r.paper?.keywords.join(" ") ?? ""}`
+        `${recordLabel(r)} ${r.title} ${r.en} ${r.department} ${r.lead} ${r.category} ${r.paper?.title ?? ""} ${r.paper?.authors.join(" ") ?? ""} ${r.paper?.doi ?? ""} ${r.paper?.arxivId ?? ""} ${r.paper?.fields.join(" ") ?? ""} ${r.paper?.keywords.join(" ") ?? ""}`
           .toLowerCase()
           .includes(searchQuery.toLowerCase()),
     );
+  const pageSize = 40, pages = Math.max(1, Math.ceil(results.length / pageSize));
+  page = Math.max(0, Math.min(pages - 1, page));
   $("#search-results").innerHTML = results.length
-    ? results
+    ? results.slice(page * pageSize, (page + 1) * pageSize)
         .map(
           ({ r, i }) =>
-            `<button class="result-row" data-result="${i}"><span class="result-name"><b>${escapeHtml(recordLabel(r))}</b><span>${escapeHtml(r.title)}<small>${escapeHtml(r.en)}</small></span>${saved.has(r.id) ? "<i>＋</i>" : ""}</span><span>${escapeHtml(libraryKind === "papers" ? `${r.category} · ${r.date || "日期未录入"}` : r.department)}</span><span>${r.clearance === "RESTRICTED" ? "CATALOG ONLY" : "AUTHORIZED"} <i>↗</i></span></button>`,
+            `<button class="result-row" data-result="${i}"><span class="result-name"><b>${escapeHtml(recordLabel(r))}</b><span>${escapeHtml(r.title)}${r.en !== r.title ? `<small>${escapeHtml(r.en)}</small>` : ""}</span>${saved.has(r.id) ? "<i>＋</i>" : ""}</span><span>${escapeHtml(libraryKind === "papers" ? `${r.category} · ${r.date || "日期未录入"}` : r.department)}</span><span>${r.clearance === "RESTRICTED" ? "CATALOG ONLY" : "AUTHORIZED"} <i>↗</i></span></button>`,
         )
         .join("")
     : `<div class="empty-results"><span>∅</span><strong>${modal === "saved" && !searchQuery ? "尚无收藏档案" : "没有匹配的档案"}</strong><p>${modal === "saved" && !searchQuery ? "读取档案时，选择 SAVE ARCHIVE 将其保存在此处。" : "尝试其他名称、档案编号，或切换科室分类。"}</p><button data-action="reset-search">${modal === "saved" ? "查看全部档案 →" : "重置检索 →"}</button></div>`;
   $("#result-count").textContent =
     `${String(results.length).padStart(2, "0")} RECORDS FOUND`;
+  let pagination = document.getElementById("search-pagination");
+  if (!pagination) {
+    pagination = document.createElement("nav"); pagination.id = "search-pagination";
+    pagination.setAttribute("aria-label", "检索结果分页");
+    $("#search-results").after(pagination);
+  }
+  pagination.hidden = pages === 1;
+  $(".terminal-modal").classList.toggle("has-result-pages", pages > 1);
+  pagination.innerHTML = `<button data-page-direction="previous" data-result-page="${page - 1}" ${page === 0 ? "disabled" : ""}>← 上一页</button><span aria-live="polite">${page + 1} / ${pages}</span><button data-page-direction="next" data-result-page="${page + 1}" ${page + 1 === pages ? "disabled" : ""}>下一页 →</button>`;
+  $("#search-results").scrollTop = 0;
   if (!results.length) $(".empty-results p").textContent = modal === "saved" && !searchQuery
     ? "在详情页选择 SAVE，将当前库中的文档保存在此处。"
     : libraryKind === "papers" ? "尝试论文名称、作者、期刊、DOI 或关键词。" : "尝试其他名称、档案编号，或切换分类。";
@@ -888,6 +900,13 @@ document.addEventListener("click", (e) => {
   }
   if (el.dataset.select) {
     select(Number(el.dataset.select));
+    return;
+  }
+  if (el.dataset.resultPage !== undefined) {
+    const direction = el.dataset.pageDirection === "previous" ? "previous" : "next";
+    renderResults(Number(el.dataset.resultPage));
+    (document.querySelector<HTMLButtonElement>(`#search-pagination [data-page-direction="${direction}"]:not(:disabled)`)
+      ?? document.querySelector<HTMLButtonElement>("#search-pagination button:not(:disabled)"))?.focus({ preventScroll: true });
     return;
   }
   if (el.dataset.result) {
@@ -1307,7 +1326,7 @@ async function start() {
     if (!original) {
       let papers: StoredPaper[];
       try { papers = await storedPapers(); }
-      catch { papers = catalogPapers(); notify("本地论文存储暂不可用，目录仍可浏览；请检查存储权限后重试。"); }
+      catch { papers = await catalogPapers(); notify("本地论文存储暂不可用，目录仍可浏览；请检查存储权限后重试。"); }
       usePaperLibrary(papers); setLibraryDocuments(papers);
       columnMemory.splice(0, columnMemory.length, ...archiveColumns.map((_, group) => columnFiles(group)[0]));
       $("#stage").dataset.library = "papers";

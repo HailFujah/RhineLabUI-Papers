@@ -1,5 +1,15 @@
 # Rhine Lab UI
 
+## AI 首批千篇目录（2026-09-30）
+
+- 首批共 1,000 篇（含原五篇），新增 995 篇；100 篇代表论文、ACL 2025 / ICML 2025 各 200、近期 arXiv 500。这是固定选集，不是全量数据库或引用排行榜；没有每日自动爬取任务。
+- `paper-selection.json` 固定选取规则，`paper-seeds.json` 保留原五篇描述，`papers.json` 保留五篇核对字段，`paper-index.json` 为新增元数据，`paper-catalog.json` 为合并下载白名单；`paper-provenance.json` 记录真实来源、响应哈希和去重。维护脚本 `scripts/import-paper-catalog.py` 默认离线，只有 `--fetch` 补齐缺失元数据，绝不下载整库 PDF。
+- 新 ID 按来源稳定键生成 UUID v5，已有五篇 ID、PDF 和修订不变。来源 ID／规范化标题／DOI 去重，arXiv PDF 固定版本；不把 X-NNN 当主键。真实日期排序和每期刊重编显示序号沿用原规则。
+- 当前六行：ACL 200、ICML 200、NeurIPS 3、NAACL-HLT 1、CVPR 1、预印本／待确认 595。待确认表示正式发表去向未完成核对，不等于论文未发表。arXiv `journalReference` 留作核对，不用自由文本生成大量期刊行；首次提交日期必须标注，不冒充正式出版日期。
+- ACL 姓名只取 first/last，affiliation 单独作为机构。分类映射研究领域，缺失机构、关键词、译名留空。已有原文摘要直接预览，只有阅读、下载或提取参考文献才需要全文。
+- `catalogPapers()` 现在异步按需加载独立元数据模块；不在游戏库／启动代码中静态导入千篇摘要。检索／收藏最多 40 行一页，管理列表仍每批 30，Three.js 可见窗口与纹理预算不变。元数据仍整体载入，不声称服务端游标分页。
+- `npm run check:paper-catalog`、缓存回归及源数据重现见 `verification/PAPER-CATALOG.md`。浏览器新会话仍受 Browser Use 权限服务阻挡，不能声称视觉或真实离线验收通过。
+
 ## 论文优先与首次下载缓存（2026-09-29）
 
 - 网页首次默认论文库，之后记忆切库选择；原 40 份游戏档案保留，壁纸及原片 time/review 对照仍使用原库。游戏 X-001 不再挂接 Attention 示例，论文使用独立稳定 `paper:UUID`。开场重播保留当前库。

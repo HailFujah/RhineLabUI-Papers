@@ -1111,8 +1111,11 @@ button {
   display: flex;
   gap: 27px;
   padding: 25px 0 24px;
+  overflow-x: auto;
+  scrollbar-width: thin;
 }
 .category-filters button {
+  flex-shrink: 0;
   font-size: 12px;
   color: #8c8373;
   transition: color 0.2s;
@@ -1159,6 +1162,15 @@ button {
   scrollbar-width: thin;
   scrollbar-color: #bbb4a6 transparent;
 }
+#search-pagination:not([hidden]) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  font-size: 11px;
+}
+#search-pagination button:disabled { opacity: .35; cursor: default; }
+[data-layout="desktop"] .has-result-pages .search-results { height: 347px; }
 .result-row {
   width: 100%;
   align-items: center;

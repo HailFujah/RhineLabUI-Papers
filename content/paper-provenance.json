@@ -1,0 +1,688 @@
+{
+  "batch": "ai-starter-2026-09-30",
+  "cutoff": "2026-09-29",
+  "total": 1000,
+  "selectionCounts": {
+    "classic": 100,
+    "conference": 400,
+    "recent": 500
+  },
+  "providerCounts": {
+    "arXiv": 595,
+    "ACL Anthology": 200,
+    "PMLR": 200
+  },
+  "venues": {
+    "Advances in Neural Information Processing Systems": 3,
+    "NAACL-HLT": 1,
+    "CVPR": 1,
+    "预印本／待确认": 595,
+    "ACL": 200,
+    "ICML": 200
+  },
+  "duplicatesSkipped": [
+    {
+      "source": "arxiv:1706.03762",
+      "kept": "paper:79ce7f1e-7dd4-4f06-b36f-a253d610baf1"
+    },
+    {
+      "source": "arxiv:1810.04805",
+      "kept": "paper:6eeaa254-03cf-4769-8309-25c6a0c01bd2"
+    },
+    {
+      "source": "arxiv:1512.03385",
+      "kept": "paper:9dbe1157-d073-480d-9ac4-b33db945c9d3"
+    },
+    {
+      "source": "arxiv:1406.2661",
+      "kept": "paper:cd129235-5301-4fc0-8614-60aeb0deabd4"
+    },
+    {
+      "source": "arxiv:2006.11239",
+      "kept": "paper:129562e2-6a43-4200-8dfe-d0b9afacbed5"
+    },
+    {
+      "source": "arxiv:2609.38178",
+      "kept": "paper:78c740d7-be5a-539f-9941-1b381a999aef"
+    },
+    {
+      "source": "arxiv:2609.38178",
+      "kept": "paper:78c740d7-be5a-539f-9941-1b381a999aef"
+    },
+    {
+      "source": "arxiv:2609.38169",
+      "kept": "paper:61b4bbf9-fe3f-542d-abf6-486665c29485"
+    },
+    {
+      "source": "arxiv:2609.38177",
+      "kept": "paper:19ecacad-df6d-54f3-9410-a17d9dbb933f"
+    },
+    {
+      "source": "arxiv:2609.38169",
+      "kept": "paper:61b4bbf9-fe3f-542d-abf6-486665c29485"
+    },
+    {
+      "source": "arxiv:2609.38172",
+      "kept": "paper:a42b3965-0feb-593c-98c8-d98d8181b998"
+    },
+    {
+      "source": "arxiv:2609.38155",
+      "kept": "paper:82777c52-c51e-50d7-8f2a-6c60321f33d5"
+    },
+    {
+      "source": "arxiv:2609.38166",
+      "kept": "paper:c6c5ee98-310f-5758-8082-1bb33271b809"
+    },
+    {
+      "source": "arxiv:2609.38165",
+      "kept": "paper:5465e762-2104-5684-bfd9-8e589282a63d"
+    },
+    {
+      "source": "arxiv:2609.38143",
+      "kept": "paper:c6f21f20-b7e2-5ad2-875f-257cb5e98d2c"
+    },
+    {
+      "source": "arxiv:2609.38163",
+      "kept": "paper:8f11f66b-a324-5c5d-855b-b466fdd58075"
+    },
+    {
+      "source": "arxiv:2609.38142",
+      "kept": "paper:59e0f205-f0af-5274-8b3c-21ac06f7cc09"
+    },
+    {
+      "source": "arxiv:2609.38155",
+      "kept": "paper:82777c52-c51e-50d7-8f2a-6c60321f33d5"
+    },
+    {
+      "source": "arxiv:2609.38155",
+      "kept": "paper:82777c52-c51e-50d7-8f2a-6c60321f33d5"
+    },
+    {
+      "source": "arxiv:2609.38143",
+      "kept": "paper:c6f21f20-b7e2-5ad2-875f-257cb5e98d2c"
+    },
+    {
+      "source": "arxiv:2609.38142",
+      "kept": "paper:59e0f205-f0af-5274-8b3c-21ac06f7cc09"
+    },
+    {
+      "source": "arxiv:2609.38109",
+      "kept": "paper:02f194ec-a361-5cd5-8772-c376576ecf38"
+    },
+    {
+      "source": "arxiv:2609.38133",
+      "kept": "paper:ea92e04a-0c69-50cb-9c49-70cbb3a1527c"
+    },
+    {
+      "source": "arxiv:2609.38107",
+      "kept": "paper:ff768425-5bdd-5d48-af95-bfc464dcc47a"
+    },
+    {
+      "source": "arxiv:2609.38140",
+      "kept": "paper:070b8844-ab88-5558-915d-2a04f6013419"
+    },
+    {
+      "source": "arxiv:2609.38109",
+      "kept": "paper:02f194ec-a361-5cd5-8772-c376576ecf38"
+    },
+    {
+      "source": "arxiv:2609.38108",
+      "kept": "paper:c08a2897-16f7-5a58-844f-817ff9e5f9f1"
+    },
+    {
+      "source": "arxiv:2609.38036",
+      "kept": "paper:67498be1-3e9f-551d-922f-df3bca7aa8ba"
+    },
+    {
+      "source": "arxiv:2609.38111",
+      "kept": "paper:5ffcba8b-b390-5714-91f0-4eec987c6dc4"
+    },
+    {
+      "source": "arxiv:2609.38028",
+      "kept": "paper:008efc2d-6453-52a5-b8f1-65c23ea1b3e9"
+    },
+    {
+      "source": "arxiv:2609.38025",
+      "kept": "paper:2b2f0e63-66d8-5b40-b94f-44791bb4aafa"
+    },
+    {
+      "source": "arxiv:2609.38089",
+      "kept": "paper:761ea578-76bb-5ff0-b1ee-332034db3ba1"
+    },
+    {
+      "source": "arxiv:2609.38021",
+      "kept": "paper:37c21b7a-202f-5174-a836-49189451f85c"
+    },
+    {
+      "source": "arxiv:2609.38059",
+      "kept": "paper:6814cf82-d741-51ee-a8d6-452884286a0f"
+    },
+    {
+      "source": "arxiv:2609.38016",
+      "kept": "paper:93673291-6225-51c1-bb55-ce67eadbc052"
+    },
+    {
+      "source": "arxiv:2609.38057",
+      "kept": "paper:0c35ab3b-ae4e-5f78-a4f8-98f0101cd06c"
+    },
+    {
+      "source": "arxiv:2609.38054",
+      "kept": "paper:c67418b9-df0e-53ad-9b61-a1b446f7ba11"
+    },
+    {
+      "source": "arxiv:2609.38065",
+      "kept": "paper:4ab890f5-7a1e-5a04-aafc-a460538db483"
+    },
+    {
+      "source": "arxiv:2609.38028",
+      "kept": "paper:008efc2d-6453-52a5-b8f1-65c23ea1b3e9"
+    },
+    {
+      "source": "arxiv:2609.38016",
+      "kept": "paper:93673291-6225-51c1-bb55-ce67eadbc052"
+    },
+    {
+      "source": "arxiv:2609.37993",
+      "kept": "paper:9bce5e37-609f-5e9d-88d0-ea267a365d11"
+    },
+    {
+      "source": "arxiv:2609.38010",
+      "kept": "paper:ae0baa03-db53-588e-835e-eb07512e346b"
+    },
+    {
+      "source": "arxiv:2609.38028",
+      "kept": "paper:008efc2d-6453-52a5-b8f1-65c23ea1b3e9"
+    },
+    {
+      "source": "arxiv:2609.38025",
+      "kept": "paper:2b2f0e63-66d8-5b40-b94f-44791bb4aafa"
+    },
+    {
+      "source": "arxiv:2609.37976",
+      "kept": "paper:4b6cbd20-6e0f-5e0f-9be2-605607625eef"
+    },
+    {
+      "source": "arxiv:2609.37976",
+      "kept": "paper:4b6cbd20-6e0f-5e0f-9be2-605607625eef"
+    },
+    {
+      "source": "arxiv:2609.37974",
+      "kept": "paper:2822b22c-5ec7-598f-84aa-eac8de32c978"
+    },
+    {
+      "source": "arxiv:2609.37970",
+      "kept": "paper:9d129283-09b4-5b79-a2eb-f68418d3e760"
+    },
+    {
+      "source": "arxiv:2609.38004",
+      "kept": "paper:58241427-c414-5baa-9ad8-567aaaabd3ce"
+    },
+    {
+      "source": "arxiv:2609.37968",
+      "kept": "paper:d1f78c3c-c46b-598a-a899-87eb8bfa2518"
+    },
+    {
+      "source": "arxiv:2609.37938",
+      "kept": "paper:87899169-8b89-5b7e-a74e-cef3e019efef"
+    },
+    {
+      "source": "arxiv:2609.37976",
+      "kept": "paper:4b6cbd20-6e0f-5e0f-9be2-605607625eef"
+    },
+    {
+      "source": "arxiv:2609.37974",
+      "kept": "paper:2822b22c-5ec7-598f-84aa-eac8de32c978"
+    },
+    {
+      "source": "arxiv:2609.37950",
+      "kept": "paper:09caaa40-f3c5-5db4-8a24-182ced19ef4f"
+    },
+    {
+      "source": "arxiv:2609.37972",
+      "kept": "paper:7ce1a09d-ee69-5632-9d54-a1fa958d341c"
+    },
+    {
+      "source": "arxiv:2609.37938",
+      "kept": "paper:87899169-8b89-5b7e-a74e-cef3e019efef"
+    },
+    {
+      "source": "arxiv:2609.37968",
+      "kept": "paper:d1f78c3c-c46b-598a-a899-87eb8bfa2518"
+    },
+    {
+      "source": "arxiv:2609.37925",
+      "kept": "paper:f2b9164f-6634-5a58-a5e5-023b29426dbc"
+    },
+    {
+      "source": "arxiv:2609.37914",
+      "kept": "paper:75516f4b-1781-5835-b19b-ba22aecd568f"
+    },
+    {
+      "source": "arxiv:2609.37907",
+      "kept": "paper:d98e9613-a9db-5d3c-97fa-5c62ee0d627b"
+    },
+    {
+      "source": "arxiv:2609.37863",
+      "kept": "paper:bc42c36c-5a24-5521-9083-7ee9261992a6"
+    },
+    {
+      "source": "arxiv:2609.37930",
+      "kept": "paper:444bcb6d-d787-5dde-9c46-7d7873f08e41"
+    },
+    {
+      "source": "arxiv:2609.37924",
+      "kept": "paper:9b2a2412-0803-5b8a-9eb4-6db91099be3d"
+    },
+    {
+      "source": "arxiv:2609.37918",
+      "kept": "paper:95fa6815-c58f-5806-be43-605db3d1ad2f"
+    },
+    {
+      "source": "arxiv:2609.37871",
+      "kept": "paper:ecb26bbc-1b18-5bc7-9540-8149df2a3321"
+    },
+    {
+      "source": "arxiv:2609.37868",
+      "kept": "paper:ac121431-5d0e-570b-a52d-844c1e043ee9"
+    },
+    {
+      "source": "arxiv:2609.37915",
+      "kept": "paper:f5a3e89c-3b3a-5e34-904a-0f9bb82db823"
+    },
+    {
+      "source": "arxiv:2609.37905",
+      "kept": "paper:049567f7-7f45-5b2e-8e8b-f1c3d8cc5e3f"
+    },
+    {
+      "source": "arxiv:2609.37863",
+      "kept": "paper:bc42c36c-5a24-5521-9083-7ee9261992a6"
+    },
+    {
+      "source": "arxiv:2609.37891",
+      "kept": "paper:a0dc46f6-43be-5627-bb1d-75a696658fff"
+    },
+    {
+      "source": "arxiv:2609.37855",
+      "kept": "paper:6610b767-4aff-54e6-8f17-bdb916355836"
+    },
+    {
+      "source": "arxiv:2609.37889",
+      "kept": "paper:702c0a3a-b949-545e-ad08-b648bc17f140"
+    },
+    {
+      "source": "arxiv:2609.37888",
+      "kept": "paper:5f09e1f8-de8e-5660-89b4-8f0485659f1b"
+    },
+    {
+      "source": "arxiv:2609.37832",
+      "kept": "paper:080cb7dd-61bb-5aee-84fc-15ea9b2edcfa"
+    },
+    {
+      "source": "arxiv:2609.37882",
+      "kept": "paper:c552ac82-16e6-55c3-9d29-3a269a1890de"
+    },
+    {
+      "source": "arxiv:2609.37879",
+      "kept": "paper:8a9efbbd-7aea-5968-a574-44ac94cea2a4"
+    },
+    {
+      "source": "arxiv:2609.37868",
+      "kept": "paper:ac121431-5d0e-570b-a52d-844c1e043ee9"
+    },
+    {
+      "source": "arxiv:2609.37721",
+      "kept": "paper:d724700d-440e-57d5-91c8-affc63114bbb"
+    },
+    {
+      "source": "arxiv:2609.37818",
+      "kept": "paper:161f98c1-206b-50e8-949c-ebbf0041b999"
+    },
+    {
+      "source": "arxiv:2609.37861",
+      "kept": "paper:f0061bde-ef0b-5445-9d61-9ee584badd08"
+    },
+    {
+      "source": "arxiv:2609.37810",
+      "kept": "paper:6c8e332e-0d34-5057-98c5-25a5e531e05a"
+    },
+    {
+      "source": "arxiv:2609.37858",
+      "kept": "paper:0e01c93d-730c-5561-83ce-dd0e98124362"
+    },
+    {
+      "source": "arxiv:2609.37809",
+      "kept": "paper:202ed2a3-067e-5f04-b59b-25ab6f5d6874"
+    },
+    {
+      "source": "arxiv:2609.37851",
+      "kept": "paper:43771d8c-e543-5cb3-94f6-e94807e37b61"
+    },
+    {
+      "source": "arxiv:2609.37848",
+      "kept": "paper:58961e00-9205-5285-b2d9-da1fea097137"
+    },
+    {
+      "source": "arxiv:2609.37842",
+      "kept": "paper:23a4808b-d23b-5296-a0a3-cf483f79ecab"
+    },
+    {
+      "source": "arxiv:2609.37788",
+      "kept": "paper:9ebd8a65-2c52-5e0b-8d9e-c8b6c4587520"
+    },
+    {
+      "source": "arxiv:2609.37832",
+      "kept": "paper:080cb7dd-61bb-5aee-84fc-15ea9b2edcfa"
+    },
+    {
+      "source": "arxiv:2609.37783",
+      "kept": "paper:f4b7859d-80b8-59d3-b91e-44f32a64bcc4"
+    },
+    {
+      "source": "arxiv:2609.37825",
+      "kept": "paper:ec11c415-9992-523b-9e0c-782f45b728f7"
+    },
+    {
+      "source": "arxiv:2609.37775",
+      "kept": "paper:61fba92b-c5c5-52bc-a6e3-7bddd77f2ada"
+    },
+    {
+      "source": "arxiv:2609.37824",
+      "kept": "paper:587fde1d-233a-5b13-a8a3-c6c4031f46c5"
+    },
+    {
+      "source": "arxiv:2609.37807",
+      "kept": "paper:a960e5ad-a756-5e2a-a19a-d28d91c34916"
+    },
+    {
+      "source": "arxiv:2609.37750",
+      "kept": "paper:96d502e4-dff7-53d4-9567-2ea3d1b258e7"
+    },
+    {
+      "source": "arxiv:2609.37800",
+      "kept": "paper:dc366027-64f8-5f55-b85f-9a63b5b36d2d"
+    },
+    {
+      "source": "arxiv:2609.37602",
+      "kept": "paper:85c60d05-2142-5083-9100-64e170a05de0"
+    },
+    {
+      "source": "arxiv:2609.37798",
+      "kept": "paper:60c3dded-f1c0-5356-8025-a8449f7e4ad2"
+    },
+    {
+      "source": "arxiv:2609.37789",
+      "kept": "paper:6d9c3175-c699-5866-84bb-038c519e4467"
+    },
+    {
+      "source": "arxiv:2609.37725",
+      "kept": "paper:1344dbe1-559b-5fc8-bae2-42c914decc24"
+    },
+    {
+      "source": "arxiv:2609.37784",
+      "kept": "paper:daadffd6-711d-5dd6-8d4b-596f2cb3c2c6"
+    },
+    {
+      "source": "arxiv:2609.37712",
+      "kept": "paper:b22c09cd-34fb-52dd-8062-1134f8a9f900"
+    },
+    {
+      "source": "arxiv:2609.37709",
+      "kept": "paper:dc67e5eb-f0ee-53ff-906d-311ee084d424"
+    },
+    {
+      "source": "arxiv:2609.37732",
+      "kept": "paper:83ddabc9-abd6-5658-b43a-55f15c0213f9"
+    },
+    {
+      "source": "arxiv:2609.37530",
+      "kept": "paper:64e3e2ea-e7ca-5c79-90e6-782655990131"
+    },
+    {
+      "source": "arxiv:2609.37725",
+      "kept": "paper:1344dbe1-559b-5fc8-bae2-42c914decc24"
+    },
+    {
+      "source": "arxiv:2609.37515",
+      "kept": "paper:1215f2c2-a67a-544c-aeba-8d71ac53af68"
+    },
+    {
+      "source": "arxiv:2609.37717",
+      "kept": "paper:e8f2f534-6b52-57ea-8a67-b780bf46e66e"
+    },
+    {
+      "source": "arxiv:2609.37686",
+      "kept": "paper:50ff3413-f29e-50d2-bc15-1f992a981f03"
+    },
+    {
+      "source": "arxiv:2609.37684",
+      "kept": "paper:47d0e7be-52e3-5b39-9955-6c4b70fc8800"
+    },
+    {
+      "source": "arxiv:2609.37708",
+      "kept": "paper:90be2f91-184b-5a9a-9c74-22b7b10fff02"
+    },
+    {
+      "source": "arxiv:2609.37680",
+      "kept": "paper:4b4d65f8-ed8d-52b5-87f7-78b6117be307"
+    },
+    {
+      "source": "arxiv:2609.37702",
+      "kept": "paper:a301a48d-e569-5227-8ca4-8ac693b6a30a"
+    },
+    {
+      "source": "arxiv:2609.37673",
+      "kept": "paper:7691d9b8-19cf-5c23-9382-dafeb450155c"
+    },
+    {
+      "source": "arxiv:2609.37694",
+      "kept": "paper:bfe62576-44e4-53cf-8013-1a8393b36ddd"
+    },
+    {
+      "source": "arxiv:2609.37670",
+      "kept": "paper:6c529ba0-c25a-5485-9311-7d0ea56b0ba5"
+    },
+    {
+      "source": "arxiv:2609.37684",
+      "kept": "paper:47d0e7be-52e3-5b39-9955-6c4b70fc8800"
+    },
+    {
+      "source": "arxiv:2609.37680",
+      "kept": "paper:4b4d65f8-ed8d-52b5-87f7-78b6117be307"
+    },
+    {
+      "source": "arxiv:2609.37666",
+      "kept": "paper:0627096d-f119-5d5b-aaa9-dcb47f7ee89d"
+    },
+    {
+      "source": "arxiv:2609.37677",
+      "kept": "paper:f77b625f-c912-56c1-8d66-8cba3c56bdb9"
+    },
+    {
+      "source": "arxiv:2609.37647",
+      "kept": "paper:8267869b-cdbf-5c65-b15a-0aeace9afcfc"
+    },
+    {
+      "source": "arxiv:2609.37359",
+      "kept": "paper:d4e2bf6e-abe0-56b5-baca-030e3f989e8d"
+    },
+    {
+      "source": "arxiv:2609.37633",
+      "kept": "paper:c5d3d077-d25b-5121-83f6-b5a16e73b845"
+    },
+    {
+      "source": "arxiv:2609.37659",
+      "kept": "paper:61729742-1203-5012-bcab-3dda3530eae8"
+    },
+    {
+      "source": "arxiv:2609.37624",
+      "kept": "paper:fa4cffa5-506e-590d-a97d-3b51232ebf99"
+    },
+    {
+      "source": "arxiv:2609.37642",
+      "kept": "paper:2792eebe-095d-5121-80ac-d93d3e5524fd"
+    },
+    {
+      "source": "arxiv:2609.37633",
+      "kept": "paper:c5d3d077-d25b-5121-83f6-b5a16e73b845"
+    },
+    {
+      "source": "arxiv:2609.37632",
+      "kept": "paper:458527aa-4169-50aa-9cc7-1db138984357"
+    },
+    {
+      "source": "arxiv:2609.37631",
+      "kept": "paper:6adabdef-9eac-5c8f-902b-023d67194b3c"
+    },
+    {
+      "source": "arxiv:2609.37591",
+      "kept": "paper:85391607-b47d-5eb5-992b-16478553fb12"
+    },
+    {
+      "source": "arxiv:2609.37624",
+      "kept": "paper:fa4cffa5-506e-590d-a97d-3b51232ebf99"
+    },
+    {
+      "source": "arxiv:2609.37590",
+      "kept": "paper:aee287da-97ba-55e3-a526-7f98ea899be3"
+    },
+    {
+      "source": "arxiv:2609.37616",
+      "kept": "paper:bab779df-1647-5fd2-b3e8-802c72ff4e3c"
+    },
+    {
+      "source": "arxiv:2609.37588",
+      "kept": "paper:7cbd0590-0089-5f38-a7ae-8892026a0c86"
+    },
+    {
+      "source": "arxiv:2609.37297",
+      "kept": "paper:9e0ad800-b2f0-5da8-8fcd-87b6f1e7b894"
+    },
+    {
+      "source": "arxiv:2609.37605",
+      "kept": "paper:8d0e0b44-ca91-5a89-81d4-6aa2663f103a"
+    },
+    {
+      "source": "arxiv:2609.37582",
+      "kept": "paper:50c0b45e-3b55-50b4-aafc-86efc434e47d"
+    },
+    {
+      "source": "arxiv:2609.37599",
+      "kept": "paper:65ec8627-364d-55af-ba96-5fb6dc36b418"
+    },
+    {
+      "source": "arxiv:2609.37581",
+      "kept": "paper:52944c0d-314a-51cf-bdc0-ae0d9ccd1673"
+    },
+    {
+      "source": "arxiv:2609.37587",
+      "kept": "paper:b0dcbf5e-46ce-580f-8042-67b46be8e438"
+    },
+    {
+      "source": "arxiv:2609.37554",
+      "kept": "paper:3a0b9125-536c-5359-a3f0-fc1ad0cfa490"
+    },
+    {
+      "source": "arxiv:2609.37250",
+      "kept": "paper:5524ce36-9e38-575e-b5bf-69f2ca0828bd"
+    },
+    {
+      "source": "arxiv:2609.37519",
+      "kept": "paper:ae33cbe0-19f3-556b-ac90-4dd9da7e7a72"
+    },
+    {
+      "source": "arxiv:2609.37515",
+      "kept": "paper:1215f2c2-a67a-544c-aeba-8d71ac53af68"
+    },
+    {
+      "source": "arxiv:2609.37529",
+      "kept": "paper:337d1f60-8963-5408-a37c-e17fe0a7ff87"
+    },
+    {
+      "source": "arxiv:2609.37443",
+      "kept": "paper:26f2da96-9167-5895-af43-651f0f11c679"
+    },
+    {
+      "source": "arxiv:2609.37426",
+      "kept": "paper:91fb3dfe-2eda-5ec0-a024-3a7945a42a99"
+    },
+    {
+      "source": "arxiv:2609.37515",
+      "kept": "paper:1215f2c2-a67a-544c-aeba-8d71ac53af68"
+    },
+    {
+      "source": "arxiv:2609.37187",
+      "kept": "paper:f7e3e22d-adec-5153-8eab-a2343003e277"
+    },
+    {
+      "source": "arxiv:2609.37510",
+      "kept": "paper:aa72dcf6-6d1d-5a01-a88f-94519528e991"
+    },
+    {
+      "source": "arxiv:2609.37446",
+      "kept": "paper:beff373e-865f-5e99-a682-ea5c3db402bb"
+    },
+    {
+      "source": "arxiv:2609.37398",
+      "kept": "paper:8e95b094-8a53-51ef-a349-cbbe626c3712"
+    },
+    {
+      "source": "arxiv:2609.37148",
+      "kept": "paper:015e54d5-c70b-5b3c-8311-9bff0d4da87d"
+    },
+    {
+      "source": "arxiv:2609.37378",
+      "kept": "paper:51fe2823-56b6-5e88-b4f5-b455625bf712"
+    },
+    {
+      "source": "arxiv:2609.37424",
+      "kept": "paper:2da593e9-e978-52bc-962d-cd50697dbbd2"
+    },
+    {
+      "source": "arxiv:2609.37371",
+      "kept": "paper:69aaf6fc-341b-55e3-ac09-1829e2cd9002"
+    }
+  ],
+  "responses": [
+    {
+      "url": "https://export.arxiv.org/api/query?id_list=1706.03762%2C1810.04805%2C1512.03385%2C1406.2661%2C2006.11239%2C1301.3781%2C1310.4546%2C1409.0473%2C1409.3215%2C1409.1556%2C1312.6114%2C1312.5602%2C1502.03167%2C1512.00567%2C1607.06450%2C1506.02640%2C1608.06993%2C1611.07004%2C1704.04861%2C1703.06870%2C1406.1078%2C1506.02025%2C1506.01497%2C1512.02325%2C1612.03144%2C1611.05431%2C1706.05587%2C1807.06521%2C1905.11946%2C2010.11929%2C2103.14030%2C2103.00020%2C2005.14165%2C2012.12877%2C2005.12872%2C1810.04826%2C1907.11692%2C1906.08237%2C1910.10683%2C1910.01108%2C1910.13461%2C2003.10555%2C1911.02116%2C2005.11401%2C2004.05150%2C2106.09685%2C2203.02155%2C2201.11903%2C2205.11916%2C2210.03629%2C2203.11171%2C2204.02311%2C2302.13971%2C2307.09288%2C2305.18290%2C2309.06180%2C2309.16609%2C2312.11805%2C2401.04088%2C2403.05527%2C2305.10403%2C2307.08691%2C2205.14135%2C2112.10752%2C2105.05233%2C2102.09672%2C2010.02502%2C2106.01345%2C2106.01342%2C2010.15980%2C1905.08233%2C1803.09010%2C1801.01290%2C1812.05905%2C1912.04958%2C2002.05709%2C2006.07733%2C2006.09882%2C1706.03741%2C1807.03748%2C1812.04948%2C1906.00910%2C2002.04745%2C1906.02629%2C2010.11934%2C2104.14294%2C2111.06377%2C2212.09748%2C2304.02643%2C2304.07193%2C2003.08934%2C2201.05989%2C1509.02971%2C1602.01783%2C1707.06347%2C1802.09477%2C1911.08265%2C1912.01603%2C2301.04104%2C2303.08774%2C2006.10739%2C2006.04779%2C1606.04474%2C1609.02907%2C1606.00709%2C1412.6980%2C1503.02531%2C1606.08415&max_results=108",
+      "fetchedAt": "2026-09-30T10:28:38.484629+00:00",
+      "sha256": "a85a816e1cfe64d29a05f321b30954c09f25379423f380af82a6a3f274f6e4da"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/acl-org/acl-anthology/master/data/xml/2025.acl.xml",
+      "fetchedAt": "2026-09-30T10:26:54.081642+00:00",
+      "sha256": "a6606ce8a8d5e3d42e962a138aa331dd943a046cac5a5d481d1b48b88eeda97a"
+    },
+    {
+      "url": "https://proceedings.mlr.press/v267/assets/bib/citeproc.yaml",
+      "fetchedAt": "2026-09-30T10:26:58.919039+00:00",
+      "sha256": "49bd512f14246b003525d35e81447f3ddb2b84e44aac8d91a80af5301eb567fa"
+    },
+    {
+      "url": "https://export.arxiv.org/api/query?search_query=cat%3Acs.AI+AND+submittedDate%3A%5B202501010000+TO+202609292359%5D&start=0&max_results=180&sortBy=submittedDate&sortOrder=descending",
+      "fetchedAt": "2026-09-30T10:27:10.867154+00:00",
+      "sha256": "d49487d796f815c376103a16deca50b3517a6db7655ce7cc5deb79dedace72e1"
+    },
+    {
+      "url": "https://export.arxiv.org/api/query?search_query=cat%3Acs.CL+AND+submittedDate%3A%5B202501010000+TO+202609292359%5D&start=0&max_results=180&sortBy=submittedDate&sortOrder=descending",
+      "fetchedAt": "2026-09-30T10:27:14.162811+00:00",
+      "sha256": "6f07c33cd420bda056c53cacc881daedd78ee37e95063dfad5977f7f805e6bad"
+    },
+    {
+      "url": "https://export.arxiv.org/api/query?search_query=cat%3Acs.CV+AND+submittedDate%3A%5B202501010000+TO+202609292359%5D&start=0&max_results=180&sortBy=submittedDate&sortOrder=descending",
+      "fetchedAt": "2026-09-30T10:27:17.402532+00:00",
+      "sha256": "13e1198ab8742e8c258a809952496e18e9bc6ac8fcb12aa05a4d857a1618046c"
+    },
+    {
+      "url": "https://export.arxiv.org/api/query?search_query=cat%3Acs.LG+AND+submittedDate%3A%5B202501010000+TO+202609292359%5D&start=0&max_results=180&sortBy=submittedDate&sortOrder=descending",
+      "fetchedAt": "2026-09-30T10:27:20.556107+00:00",
+      "sha256": "d0ea93cbed0d2f7028d6f0cf6c99e6b1cc6db354e9a53205e9b2284dc891be6c"
+    },
+    {
+      "url": "https://export.arxiv.org/api/query?search_query=cat%3Acs.RO+AND+submittedDate%3A%5B202501010000+TO+202609292359%5D&start=0&max_results=180&sortBy=submittedDate&sortOrder=descending",
+      "fetchedAt": "2026-09-30T10:27:24.022162+00:00",
+      "sha256": "6db322fd6cde40a99626dcb3dd3032a67ca959a9bd18a42dd2433600b5e057ba"
+    }
+  ],
+  "selection": "100 representative papers including five preserved seeds; 200 evenly spaced ACL 2025 long papers; 200 evenly spaced ICML 2025 papers; 500 recent arXiv papers interleaved across five categories. Not exhaustive or citation-ranked."
+}

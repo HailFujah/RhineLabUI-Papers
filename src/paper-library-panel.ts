@@ -75,7 +75,7 @@ export class PaperLibraryPanel {
     this.draft = item;
     for (const field of fields) {
       const value = item.paper[field.key];
-      (this.form.elements.namedItem(field.key) as HTMLInputElement).value = Array.isArray(value) ? value.join(field.multiline ? "\n" : ", ") : value ?? "";
+      (this.form.elements.namedItem(field.key) as HTMLInputElement).value = Array.isArray(value) ? value.join(field.multiline ? "\n" : ", ") : typeof value === "string" ? value : "";
     }
     this.form.hidden = false;
     this.status(`${item.filename} · ${item.pages || "未知"} 页 · ${item.cached || item.file ? "PDF 已存本地" : "首次打开下载"} · 请核对论文信息`);
@@ -117,9 +117,10 @@ export class PaperLibraryPanel {
     const split = (name: string, pattern = /\r?\n/) => value(name).split(pattern).map(v => v.trim()).filter(Boolean);
     const paper: PaperMetadata = { ...this.draft.paper, title: value("title"), translatedTitle: value("translatedTitle"),
       authors: split("authors"), institutions: split("institutions"), published, venue: value("venue"),
+      dateKind: published === this.draft.paper.published ? this.draft.paper.dateKind : "user-entered",
       fields: split("fields", /[,，;；]/), keywords: split("keywords", /[,，;；]/), doi: value("doi"),
       url: paperUrl(value("url") || (value("doi") ? `https://doi.org/${value("doi")}` : "")),
-      abstract: value("abstract"), references: split("references") };
+      abstract: value("abstract"), references: value("references") || this.draft.paper.references !== undefined ? split("references") : undefined };
     this.setBusy(true); this.status("正在保存论文…");
     try {
       const item = { ...this.draft, paper }; await storePaper(item);

@@ -2,51 +2,162 @@
   "X-001": {
     "title": "Attention Is All You Need",
     "translatedTitle": "注意力机制就是你所需的一切",
-    "authors": ["Ashish Vaswani", "Noam Shazeer", "Niki Parmar", "Jakob Uszkoreit", "Llion Jones", "Aidan N. Gomez", "Łukasz Kaiser", "Illia Polosukhin"],
-    "institutions": ["Google Brain", "Google Research", "University of Toronto"],
+    "authors": [
+      "Ashish Vaswani",
+      "Noam Shazeer",
+      "Niki Parmar",
+      "Jakob Uszkoreit",
+      "Llion Jones",
+      "Aidan N. Gomez",
+      "Łukasz Kaiser",
+      "Illia Polosukhin"
+    ],
+    "institutions": [
+      "Google Brain",
+      "Google Research",
+      "University of Toronto"
+    ],
     "published": "2017",
     "venue": "Advances in Neural Information Processing Systems",
-    "fields": ["自然语言处理", "机器学习"],
-    "keywords": ["Transformer", "自注意力", "机器翻译"],
+    "fields": [
+      "自然语言处理",
+      "机器学习"
+    ],
+    "keywords": [
+      "Transformer",
+      "自注意力",
+      "机器翻译"
+    ],
     "doi": "10.48550/arXiv.1706.03762",
     "doiKind": "预印本",
-    "abstract": "",
+    "abstract": "The dominant sequence transduction models are based on complex recurrent or\nconvolutional neural networks that include an encoder and a decoder. The best\nperforming models also connect the encoder and decoder through an attention\nmechanism. We propose a new simple network architecture, the Transformer,\nbased solely on attention mechanisms, dispensing with recurrence and convolutions\nentirely.   Experiments on two machine translation tasks show these models to\nbe superior in quality while being more parallelizable and requiring significantly\nless time to train. Our model achieves 28.4 BLEU on the WMT 2014 English-\nto-German translation task, improving over the existing best results, including\nensembles, by over 2 BLEU. On the WMT 2014 English-to-French translation task,\nour model establishes a new single-model state-of-the-art BLEU score of 41.0 after\ntraining for 3.5 days on eight GPUs, a small fraction of the training costs of the\nbest models from the literature.",
     "abstractLabel": "原文摘要",
     "url": "https://arxiv.org/abs/1706.03762",
-    "publicationUrl": "https://papers.nips.cc/paper_files/paper/2017/hash/3f5ee243547dee91fbd053c1c4a845aa-Abstract.html"
+    "publicationUrl": "https://papers.nips.cc/paper_files/paper/2017/hash/3f5ee243547dee91fbd053c1c4a845aa-Abstract.html",
+    "arxivId": "1706.03762",
+    "dateKind": "published"
   },
   "bert": {
     "title": "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
     "translatedTitle": "BERT：面向语言理解的深度双向 Transformer 预训练",
-    "authors": ["Jacob Devlin", "Ming-Wei Chang", "Kenton Lee", "Kristina Toutanova"],
-    "institutions": ["Google AI Language"],
-    "published": "2019-06", "venue": "NAACL-HLT",
-    "fields": ["自然语言处理"], "keywords": ["BERT", "预训练", "双向 Transformer"],
-    "doi": "10.18653/v1/N19-1423", "abstract": "", "abstractLabel": "原文摘要",
-    "url": "https://aclanthology.org/N19-1423/"
+    "authors": [
+      "Jacob Devlin",
+      "Ming-Wei Chang",
+      "Kenton Lee",
+      "Kristina Toutanova"
+    ],
+    "institutions": [
+      "Google AI Language"
+    ],
+    "published": "2019-06",
+    "venue": "NAACL-HLT",
+    "fields": [
+      "自然语言处理"
+    ],
+    "keywords": [
+      "BERT",
+      "预训练",
+      "双向 Transformer"
+    ],
+    "doi": "10.18653/v1/N19-1423",
+    "abstract": "We   introduce   a   new   language   representa-\ntion model called   BERT , which stands for \nB idirectional   E ncoder   R epresentations from \nT ransformers.   Unlike recent language repre-\nsentation models (Peters et al., 2018a; Rad-\nford et al., 2018), BERT is designed to pre-\ntrain deep bidirectional representations from\nunlabeled text by jointly conditioning on both\nleft and right context in all layers.   As a re-\nsult, the pre-trained BERT model can be fine-\ntuned with just one additional output layer\nto create state-of-the-art models for a wide\nrange of tasks, such as question answering and\nlanguage inference, without substantial task-\nspecific architecture modifications.\nBERT is conceptually simple and empirically\npowerful.   It obtains new state-of-the-art re-\nsults on eleven natural language processing\ntasks, including pushing the GLUE score to\n80.5% (7.7% point absolute improvement),\nMultiNLI accuracy to 86.7% (4.6% absolute\nimprovement), SQuAD v1.1 question answer-\ning Test F1 to 93.2 (1.5 point absolute im-\nprovement) and SQuAD v2.0 Test F1 to 83.1\n(5.1 point absolute improvement).",
+    "abstractLabel": "原文摘要",
+    "url": "https://aclanthology.org/N19-1423/",
+    "arxivId": "1810.04805",
+    "dateKind": "published"
   },
   "resnet": {
-    "title": "Deep Residual Learning for Image Recognition", "translatedTitle": "用于图像识别的深度残差学习",
-    "authors": ["Kaiming He", "Xiangyu Zhang", "Shaoqing Ren", "Jian Sun"],
-    "institutions": ["Microsoft Research"], "published": "2016-06", "venue": "CVPR",
-    "fields": ["计算机视觉"], "keywords": ["ResNet", "残差学习", "图像识别"],
-    "doi": "10.1109/CVPR.2016.90", "abstract": "", "abstractLabel": "原文摘要",
-    "url": "https://openaccess.thecvf.com/content_cvpr_2016/html/He_Deep_Residual_Learning_CVPR_2016_paper.html"
+    "title": "Deep Residual Learning for Image Recognition",
+    "translatedTitle": "用于图像识别的深度残差学习",
+    "authors": [
+      "Kaiming He",
+      "Xiangyu Zhang",
+      "Shaoqing Ren",
+      "Jian Sun"
+    ],
+    "institutions": [
+      "Microsoft Research"
+    ],
+    "published": "2016-06",
+    "venue": "CVPR",
+    "fields": [
+      "计算机视觉"
+    ],
+    "keywords": [
+      "ResNet",
+      "残差学习",
+      "图像识别"
+    ],
+    "doi": "10.1109/CVPR.2016.90",
+    "abstract": "Deeper neural networks are more difficult to train. We\npresent a residual learning framework to ease the training\nof networks that are substantially deeper than those used\npreviously.   We explicitly reformulate the layers as learn-\ning residual functions with reference to the layer inputs, in-\nstead of learning unreferenced functions. We provide com-\nprehensive empirical evidence showing that these residual\nnetworks are easier to optimize, and can gain accuracy from\nconsiderably increased depth. On the ImageNet dataset we\nevaluate residual nets with a depth of up to 152 layers—8 × \ndeeper than VGG nets [40] but still having lower complex-\nity. An ensemble of these residual nets achieves 3.57% error\non the ImageNet   test   set. This result won the 1st place on the\nILSVRC 2015 classification task. We also present analysis\non CIFAR-10 with 100 and 1000 layers.\nThe depth of representations is of central importance\nfor many visual recognition tasks.   Solely due to our ex-\ntremely deep representations, we obtain a 28% relative im-\nprovement on the COCO object detection dataset.   Deep\nresidual nets are foundations of our submissions to ILSVRC\n& COCO 2015 competitions 1 , where we also won the 1st\nplaces on the tasks of ImageNet detection, ImageNet local-\nization, COCO detection, and COCO segmentation.",
+    "abstractLabel": "原文摘要",
+    "url": "https://openaccess.thecvf.com/content_cvpr_2016/html/He_Deep_Residual_Learning_CVPR_2016_paper.html",
+    "arxivId": "1512.03385",
+    "dateKind": "published"
   },
   "gan": {
-    "title": "Generative Adversarial Nets", "translatedTitle": "生成对抗网络",
-    "authors": ["Ian J. Goodfellow", "Jean Pouget-Abadie", "Mehdi Mirza", "Bing Xu", "David Warde-Farley", "Sherjil Ozair", "Aaron Courville", "Yoshua Bengio"],
-    "institutions": ["Université de Montréal"], "published": "2014", "venue": "Advances in Neural Information Processing Systems",
-    "fields": ["生成模型", "机器学习"], "keywords": ["GAN", "对抗训练", "生成模型"],
-    "doi": "10.48550/arXiv.1406.2661", "doiKind": "预印本", "abstract": "", "abstractLabel": "原文摘要",
-    "url": "https://papers.nips.cc/paper_files/paper/2014/hash/f033ed80deb0234979a61f95710dbe25-Abstract.html"
+    "title": "Generative Adversarial Nets",
+    "translatedTitle": "生成对抗网络",
+    "authors": [
+      "Ian J. Goodfellow",
+      "Jean Pouget-Abadie",
+      "Mehdi Mirza",
+      "Bing Xu",
+      "David Warde-Farley",
+      "Sherjil Ozair",
+      "Aaron Courville",
+      "Yoshua Bengio"
+    ],
+    "institutions": [
+      "Université de Montréal"
+    ],
+    "published": "2014",
+    "venue": "Advances in Neural Information Processing Systems",
+    "fields": [
+      "生成模型",
+      "机器学习"
+    ],
+    "keywords": [
+      "GAN",
+      "对抗训练",
+      "生成模型"
+    ],
+    "doi": "10.48550/arXiv.1406.2661",
+    "doiKind": "预印本",
+    "abstract": "We propose a new framework for estimating generative models via an adversar-\nial process, in which we simultaneously train two models: a generative model   G \nthat captures the data distribution, and a discriminative model   D   that estimates\nthe probability that a sample came from the training data rather than   G . The train-\ning procedure for   G   is to maximize the probability of   D   making a mistake. This\nframework corresponds to a minimax two-player game. In the space of arbitrary\nfunctions   G   and   D , a unique solution exists, with   G   recovering the training data\ndistribution and   D   equal to   1\n2   everywhere. In the case where   G   and   D   are defined\nby multilayer perceptrons, the entire system can be trained with backpropagation.\nThere is no need for any Markov chains or unrolled approximate inference net-\nworks during either training or generation of samples. Experiments demonstrate\nthe potential of the framework through qualitative and quantitative evaluation of\nthe generated samples.",
+    "abstractLabel": "原文摘要",
+    "url": "https://papers.nips.cc/paper_files/paper/2014/hash/f033ed80deb0234979a61f95710dbe25-Abstract.html",
+    "arxivId": "1406.2661",
+    "dateKind": "published"
   },
   "ddpm": {
-    "title": "Denoising Diffusion Probabilistic Models", "translatedTitle": "去噪扩散概率模型",
-    "authors": ["Jonathan Ho", "Ajay Jain", "Pieter Abbeel"],
-    "institutions": ["University of California, Berkeley"], "published": "2020", "venue": "Advances in Neural Information Processing Systems",
-    "fields": ["生成模型", "计算机视觉"], "keywords": ["DDPM", "扩散模型", "去噪"],
-    "doi": "10.48550/arXiv.2006.11239", "doiKind": "预印本", "abstract": "", "abstractLabel": "原文摘要",
-    "url": "https://papers.nips.cc/paper_files/paper/2020/hash/4c5bcfec8584af0d967f1ab10179ca4b-Abstract.html"
+    "title": "Denoising Diffusion Probabilistic Models",
+    "translatedTitle": "去噪扩散概率模型",
+    "authors": [
+      "Jonathan Ho",
+      "Ajay Jain",
+      "Pieter Abbeel"
+    ],
+    "institutions": [
+      "University of California, Berkeley"
+    ],
+    "published": "2020",
+    "venue": "Advances in Neural Information Processing Systems",
+    "fields": [
+      "生成模型",
+      "计算机视觉"
+    ],
+    "keywords": [
+      "DDPM",
+      "扩散模型",
+      "去噪"
+    ],
+    "doi": "10.48550/arXiv.2006.11239",
+    "doiKind": "预印本",
+    "abstract": "We present high quality image synthesis results using diffusion probabilistic models,\na class of latent variable models inspired by considerations from nonequilibrium\nthermodynamics. Our best results are obtained by training on a weighted variational\nbound designed according to a novel connection between diffusion probabilistic\nmodels and denoising score matching with Langevin dynamics, and our models nat-\nurally admit a progressive lossy decompression scheme that can be interpreted as a\ngeneralization of autoregressive decoding. On the unconditional CIFAR10 dataset,\nwe obtain an Inception score of 9.46 and a state-of-the-art FID score of 3.17. On\n256x256 LSUN, we obtain sample quality similar to ProgressiveGAN. Our imple-\nmentation is available at   https://github.com/hojonathanho/diffusion .",
+    "abstractLabel": "原文摘要",
+    "url": "https://papers.nips.cc/paper_files/paper/2020/hash/4c5bcfec8584af0d967f1ab10179ca4b-Abstract.html",
+    "arxivId": "2006.11239",
+    "dateKind": "published"
   }
 }

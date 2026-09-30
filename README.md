@@ -189,7 +189,7 @@ npm run preview
 
 ### 个人论文库
 
-网页首次默认进入论文库，之后记住上次选用的库。已内置 **Attention Is All You Need、BERT、ResNet、GAN、DDPM** 五篇论文目录。首次打开时下载官方 PDF 并保存原文件；后续阅读、摘要提取和 DOWNLOAD 直接使用本地副本，不再访问论文网站。
+网页首次默认进入论文库，之后记住上次选用的库。已内置 **1,000 篇 AI 论文目录**（含 Attention、BERT、ResNet、GAN、DDPM 等原五篇）：100 篇代表论文、400 篇 ACL／ICML 会议论文、500 篇近期 arXiv 论文。先浏览标题、作者与原文摘要；首次阅读／下载 PDF 或提取参考文献时取得官方原文件并保存，后续直接使用本地副本。范围、来源和维护命令见 [首批目录记录](verification/PAPER-CATALOG.md)。
 
 目录与 PDF 分开存储，启动只读目录，不下载整库。文件保存在**当前浏览器、当前站点的 IndexedDB**，不是磁盘上的自选文件夹；清除本站数据或换浏览器会失去本地副本。应用离线资源准备好后，已保存论文可离线阅读。实现与检查说明见 [论文缓存记录](verification/PAPER-CACHE.md)。
 

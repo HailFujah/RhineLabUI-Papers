@@ -16,6 +16,11 @@ export interface PaperMetadata {
   url: string;
   publicationUrl?: string;
   references?: string[];
+  arxivId?: string;
+  /** A preprint submission date must not be presented as conference acceptance. */
+  dateKind?: string;
+  journalReference?: string;
+  source?: { provider: string; id: string; url: string };
 }
 
 export const samplePapers: Readonly<Record<string, PaperMetadata>> = samples;

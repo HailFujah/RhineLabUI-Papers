@@ -54,12 +54,13 @@ function openDatabase() {
 }
 
 export async function storedPapers(): Promise<StoredPaper[]> {
+  const seeds = await catalogPapers();
   const db = await openDatabase();
   return new Promise((resolve, reject) => {
     const transaction = db.transaction("papers", "readonly");
     const request = transaction.objectStore("papers").getAll();
     transaction.oncomplete = () => {
-      const records = new Map(catalogPapers().map(paper => [paper.id, paper]));
+      const records = new Map(seeds.map(paper => [paper.id, paper]));
       for (const paper of request.result as StoredPaper[]) {
         const seed = records.get(paper.id);
         records.set(paper.id, seed ? { ...paper, pdfUrl: seed.pdfUrl, pdfRevision: seed.pdfRevision } : paper);

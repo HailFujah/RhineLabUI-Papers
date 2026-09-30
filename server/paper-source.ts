@@ -1,8 +1,9 @@
 import catalog from "../content/paper-catalog.json" with { type: "json" };
+const sources = new Map(catalog.map(paper => [paper.slug, paper]));
 
 /** Only catalogued official PDFs are reachable. No caller-supplied URL/proxy. */
 export async function servePaper(slug: string, signal?: AbortSignal): Promise<Response> {
-  const entry = catalog.find(paper => paper.slug === slug);
+  const entry = sources.get(slug);
   if (!entry) return new Response("Unknown paper", { status: 404 });
   try {
     const response = await fetch(entry.pdf, { signal: AbortSignal.any([...(signal ? [signal] : []), AbortSignal.timeout(90_000)]), redirect: "follow" });

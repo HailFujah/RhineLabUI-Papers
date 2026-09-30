@@ -1,0 +1,7 @@
+[
+  {"id":"paper:79ce7f1e-7dd4-4f06-b36f-a253d610baf1","metadata":"X-001","slug":"attention-2017","revision":"nips-2017","pdf":"https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf"},
+  {"id":"paper:6eeaa254-03cf-4769-8309-25c6a0c01bd2","metadata":"bert","slug":"bert-2019","revision":"naacl-2019","pdf":"https://aclanthology.org/N19-1423.pdf"},
+  {"id":"paper:9dbe1157-d073-480d-9ac4-b33db945c9d3","metadata":"resnet","slug":"resnet-2016","revision":"cvpr-2016","pdf":"https://openaccess.thecvf.com/content_cvpr_2016/papers/He_Deep_Residual_Learning_CVPR_2016_paper.pdf"},
+  {"id":"paper:cd129235-5301-4fc0-8614-60aeb0deabd4","metadata":"gan","slug":"gan-2014","revision":"nips-2014","pdf":"https://papers.nips.cc/paper_files/paper/2014/file/f033ed80deb0234979a61f95710dbe25-Paper.pdf"},
+  {"id":"paper:129562e2-6a43-4200-8dfe-d0b9afacbed5","metadata":"ddpm","slug":"ddpm-2020","revision":"neurips-2020","pdf":"https://papers.nips.cc/paper_files/paper/2020/file/4c5bcfec8584af0d967f1ab10179ca4b-Paper.pdf"}
+]

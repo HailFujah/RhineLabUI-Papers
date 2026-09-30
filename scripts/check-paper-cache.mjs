@@ -30,16 +30,16 @@ const signal = () => new AbortController().signal;
 
 test("v1 migration preserves identity and bytes; directory excludes every Blob", async () => {
   const records = await library.storedPapers();
-  assert.equal(records.length, 6);
+  assert.equal(records.length, (await catalog.catalogPapers()).length + 1);
   assert.ok(records.every(record => !Object.hasOwn(record, "file")));
   assert.equal(records.find(record => record.id === legacy.id).hash, legacy.hash);
   const cached = await library.storedPaperFile(legacy.id);
   assert.equal(await cached.file.text(), await fixture.text());
   assert.equal(cached.revision, "local");
 });
-test("catalog uses stable paper IDs; venue rows and chronological columns preserve originals", () => {
-  const seeds = catalog.catalogPapers();
-  assert.equal(seeds.length, 5); assert.equal(new Set(seeds.map(item => item.id)).size, 5);
+test("catalog uses stable paper IDs; venue rows and chronological columns preserve originals", async () => {
+  const seeds = await catalog.catalogPapers();
+  assert.equal(seeds.length, 1000); assert.equal(new Set(seeds.map(item => item.id)).size, 1000);
   data.usePaperLibrary(seeds);
   const group = data.records.filter(record => record.category === "Advances in Neural Information Processing Systems");
   assert.deepEqual(group.map(item => item.date), ["2014", "2017", "2020"]);

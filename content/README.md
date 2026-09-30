@@ -1,8 +1,10 @@
 # 修改档案内容
 
-## 论文目录（2026-09-29）
+## 论文目录（2026-09-30）
 
-网页默认读取独立论文库。`paper-catalog.json` 保存示例稳定 ID、元数据键、官方 PDF 地址与修订号；`papers.json` 保存对应论文字段。新增示例需同时填写两文件，沿用已有 UUID，不能拿 X-001 之类动态排序号当真实身份。仅原 PDF 内容改变时更新修订号；普通字段调整不应导致已保存 PDF 重新下载。
+网页默认读取独立论文库，目前 1,000 篇。`paper-catalog.json` 保存稳定 ID、元数据键、官方 PDF 地址与修订号；`paper-index.json` 保存新增 995 篇字段，`papers.json` 保存五篇人工核对字段，`paper-seeds.json` 固定五篇身份。`paper-selection.json` 和 `paper-provenance.json` 分别保存选取配置和实际来源记录。运行 `python scripts/import-paper-catalog.py --fetch` 仅拉取缺失元数据，输出前检查目标数量；无参数从忽略目录的缓存重现。它不下载 PDF，也不是每日同步服务。详见 [首批目录](../verification/PAPER-CATALOG.md)。
+
+新增内容沿用已有 UUID，不能拿 X-001 之类动态排序号当真实身份。仅原 PDF 内容改变时更新修订号；普通字段调整不应导致已保存 PDF 重新下载。
 
 启动仅载入目录；首次打开才经白名单下载入口取得 PDF 并存入 IndexedDB。个人导入及用户编辑保存在本地，不回写此目录。检查命令为 `npm run check:paper-cache`，详细流程见 [论文缓存](../verification/PAPER-CACHE.md)。以下五列八份约束只用于原游戏档案。
 
@@ -12,7 +14,7 @@
 
 新上传论文通过 UPLOAD ARCHIVE 进入浏览器 IndexedDB 的独立论文库，不写入 `archives.json`。论文详情使用独立的 PaperMetadata：原名、中文译名、作者数组、机构数组、发表时间、期刊／会议、研究领域、关键词、DOI、摘要、论文页面和参考文献数组。摘要直接使用 PDF 原文 Abstract，DOI 保留为导入和检索字段，详情不单独展示。论文引用指末尾参考文献，不是 BibTeX。阅读记录独立保存在本地。
 
-[`papers.json`](papers.json) 仅维护既有 X-001 附件的 Attention Is All You Need 示例元数据，不保存论文全文。原 40 份数据不重编号、不改分类；附带论文元数据的详情可以显示论文信息，其余原档案缺失的论文字段显示未录入，不将虚构人物当作者。
+[`papers.json`](papers.json) 维护原五篇真实论文元数据，不保存论文全文；历史键 X-001 只标识 Attention 的元数据条目，已不挂接游戏档案。原 40 份数据不重编号、不改分类，不将虚构人物当作者。
 
 个人论文库按期刊分行，同一行按发表日期升序，每个期刊内显示 X-001、X-002…；持久 ID 为 `paper:UUID`，不能拿显示序号作收藏／阅读记录键。缺日期置后，期刊别名需编辑统一。日期可填 YYYY、YYYY-MM、YYYY-MM-DD。原五类、每类八份的内容校验只应用于原档案库，不能套到新论文库上。详情 DOWNLOAD 下载 PDF；历史 TXT 仍由原导出脚本维护。架构及识别限制见 [PAPER-LIBRARY.md](../verification/PAPER-LIBRARY.md)。
 
