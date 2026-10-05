@@ -969,9 +969,9 @@ export class ArchiveScene {
       // Select physical cells along the travelled segment in one update per cell.
       // Column memory is updated by onSelect, but never pulls a held plane away.
       for (let i = 1; i <= steps; i++) {
-        if (axis === "row") {
+        if (axis === "lane") {
           // Category gestures use the same remembered selection as the buttons.
-          this.onNavigate?.("row", Math.sign(goal.row - from.row));
+          this.onNavigate?.("lane", Math.sign(goal.lane - from.lane));
           continue;
         }
         const cell = {

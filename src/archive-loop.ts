@@ -1,4 +1,4 @@
-import { archiveColumns, columnFiles, fileLocation, libraryKind, catalogGroup } from "./data.ts";
+import { archiveColumns, columnFiles, fileLocation } from "./data.ts";
 
 export type ArchiveCell = { lane: number; row: number };
 export type ArchiveNavigation =
@@ -14,7 +14,7 @@ export function wrap(value: number, count: number) {
   return ((value % count) + count) % count;
 }
 
-/** Rebase only by whole content periods, including differently sized paper rows. */
+/** Rebase only by whole content periods, including differently sized categories. */
 export function rebaseShift(cell: ArchiveCell) {
   if (Math.abs(cell.lane) <= 2048 && Math.abs(cell.row) <= 2048) return { lane: 0, row: 0 };
   const gcd = (a: number, b: number): number => b ? gcd(b, a % b) : a;
@@ -24,8 +24,8 @@ export function rebaseShift(cell: ArchiveCell) {
     const next = period / gcd(period, count) * count;
     return Number.isSafeInteger(next) && next <= 1_000_000 ? next : 0;
   }, 1);
-  const lanePeriod = libraryKind === "papers" ? itemPeriod : archiveColumns.length;
-  const rowPeriod = libraryKind === "papers" ? archiveColumns.length : itemPeriod;
+  const lanePeriod = archiveColumns.length;
+  const rowPeriod = itemPeriod;
   return {
     lane: lanePeriod && Math.abs(cell.lane) > 2048 ? Math.trunc(cell.lane / lanePeriod) * lanePeriod : 0,
     row: rowPeriod && Math.abs(cell.row) > 2048 ? Math.trunc((cell.row - 12) / rowPeriod) * rowPeriod : 0,
@@ -43,10 +43,6 @@ export function nearestOccurrence(
 }
 
 export function fileAtCell({ lane, row }: ArchiveCell) {
-  if (libraryKind === "papers") {
-    const files = columnFiles(wrap(row - 12, archiveColumns.length));
-    return files[wrap(lane, files.length)];
-  }
   const files = columnFiles(wrap(lane, archiveColumns.length));
   return files[wrap(row - 12, files.length)];
 }
@@ -58,13 +54,6 @@ export function selectionCell(
 ): ArchiveCell {
   if (navigation && "cell" in navigation) return { ...navigation.cell };
   const next = fileLocation(index);
-  if (libraryKind === "papers") {
-    const files = columnFiles(catalogGroup(index));
-    return {
-      lane: navigation?.axis === "lane" ? current.lane + navigation.direction : nearestOccurrence(next.lane, current.lane, files.length),
-      row: navigation?.axis === "lane" ? current.row : navigation?.axis === "row" ? current.row + navigation.direction : nearestOccurrence(next.row, current.row, archiveColumns.length),
-    };
-  }
   const row = nearestOccurrence(
     next.row,
     current.row,

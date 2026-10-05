@@ -37,7 +37,7 @@ test("v1 migration preserves identity and bytes; directory excludes every Blob",
   assert.equal(await cached.file.text(), await fixture.text());
   assert.equal(cached.revision, "local");
 });
-test("three paper rows keep chronological horizontal cells and independent vertical navigation", async () => {
+test("three paper columns keep chronological vertical cells and independent horizontal categories", async () => {
   const seeds = await catalog.catalogPapers();
   assert.equal(seeds.length, 1000); assert.equal(new Set(seeds.map(item => item.id)).size, 1000);
   data.usePaperLibrary(seeds);
@@ -51,14 +51,14 @@ test("three paper rows keep chronological horizontal cells and independent verti
       let index = indices[0], cell = data.fileLocation(index);
       for (let step = 0; step < 3200; step++) {
         index = indices[loop.wrap(indices.indexOf(index) + direction, indices.length)];
-        const next = loop.selectionCell(index, cell, { axis: "lane", direction });
-        assert.equal(next.row, cell.row, "Horizontal movement must never choose another row");
-        assert.equal(next.lane, cell.lane + direction);
+        const next = loop.selectionCell(index, cell, { axis: "row", direction });
+        assert.equal(next.lane, cell.lane, "Vertical movement must never choose another category");
+        assert.equal(next.row, cell.row + direction);
         assert.equal(loop.fileAtCell(next), index);
         const shift = loop.rebaseShift(next);
         const rebased = { lane: next.lane - shift.lane, row: next.row - shift.row };
         for (let offset = -3; offset <= 3; offset++) {
-          assert.equal(loop.fileAtCell({ ...next, row: next.row + offset }), loop.fileAtCell({ ...rebased, row: rebased.row + offset }));
+          assert.equal(loop.fileAtCell({ ...next, lane: next.lane + offset }), loop.fileAtCell({ ...rebased, lane: rebased.lane + offset }));
         }
         cell = rebased;
       }
@@ -69,8 +69,8 @@ test("three paper rows keep chronological horizontal cells and independent verti
   const memory = [data.columnFiles(0)[17], data.columnFiles(1)[123], data.columnFiles(2)[456]];
   for (let step = 1; step < 10; step++) {
     const index = memory[step % 3];
-    const next = loop.selectionCell(index, cell, { axis: "row", direction: 1 });
-    assert.equal(next.row, cell.row + 1); assert.equal(loop.fileAtCell(next), index); cell = next;
+    const next = loop.selectionCell(index, cell, { axis: "lane", direction: 1 });
+    assert.equal(next.lane, cell.lane + 1); assert.equal(loop.fileAtCell(next), index); cell = next;
   }
   // Old cached directories receive the catalogue's grouping without losing edits.
   await library.storePaper({ ...seeds[0], collection: undefined, paper: { ...seeds[0].paper, title: "My edited title" } });

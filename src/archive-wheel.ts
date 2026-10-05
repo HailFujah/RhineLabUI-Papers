@@ -15,7 +15,7 @@ export class ArchiveWheel {
     if (event.ctrlKey || (!papers && horizontal)) { this.reset(); return null; }
     const raw = horizontal ? event.deltaX : event.deltaY;
     if (!Number.isFinite(raw) || raw === 0) return null;
-    const axis: DragAxis = papers && !event.shiftKey ? "lane" : "row";
+    const axis: DragAxis = papers && (horizontal || event.shiftKey) ? "lane" : "row";
     const key = `${papers}:${axis}`;
     const delta = Math.max(-300, Math.min(300, raw * (event.deltaMode === 1 ? 40 : event.deltaMode === 2 ? pageSize : 1)));
     if (key !== this.key || time - this.time > 180 || Math.sign(delta) !== Math.sign(this.total)) this.total = 0;

@@ -69,8 +69,8 @@ export function columnFiles(lane: number) { return groupedFiles[lane] ?? []; }
 export function fileLocation(index: number) {
   const group = catalogGroup(index);
   const ordinal = columnFiles(group).indexOf(index);
-  const lane = libraryKind === "papers" ? ordinal : group;
-  const row = 12 + (libraryKind === "papers" ? group : ordinal);
+  const lane = group;
+  const row = 12 + ordinal;
   // The legacy slot encoding is only meaningful for the fixed original grid.
   return { lane, row, slot: libraryKind === "papers" ? index : lane * 32 + row };
 }
