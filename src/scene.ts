@@ -226,6 +226,7 @@ export class ArchiveScene {
   private hoverLifts = new Map<string, number>();
   private archiveDrag = new ArchiveDrag();
   private dragTrack: DragPosition | null = null;
+  private pendingDrag: { coordinate: DragPosition; axis?: DragAxis } | null = null;
   private navigatingDrag = false;
   private archiveMomentum: { motion: ArchivePlaneMomentum; time: number; axis?: DragAxis } | null = null;
   private holdingArchive = false;
@@ -962,27 +963,21 @@ export class ArchiveScene {
     if (axis === "lane") goal.row = this.selectedCell.row;
     if (axis === "row") goal.lane = this.selectedCell.lane;
     if (sameCell(goal, this.selectedCell)) return;
-    const from = { ...this.selectedCell };
-    const steps = Math.min(64, Math.max(Math.abs(goal.lane - from.lane), Math.abs(goal.row - from.row)));
     this.navigatingDrag = true;
     try {
-      // Select physical cells along the travelled segment in one update per cell.
-      // Column memory is updated by onSelect, but never pulls a held plane away.
-      for (let i = 1; i <= steps; i++) {
-        if (axis === "lane") {
-          // Category gestures use the same remembered selection as the buttons.
-          this.onNavigate?.("lane", Math.sign(goal.lane - from.lane));
-          continue;
-        }
-        const cell = {
-          lane: Math.round(from.lane + (goal.lane - from.lane) * i / steps),
-          row: Math.round(from.row + (goal.row - from.row) * i / steps),
-        };
-        if (!sameCell(cell, this.selectedCell)) this.onSelect?.(fileAtCell(cell), cell);
-      }
+      // Only this frame's visible cell needs a label, model and HUD update.
+      // Touch category gestures retain memory; free mouse panning follows the
+      // physical plane without a remembered row pulling it off the pointer.
+      if (axis === "lane") this.onNavigate?.("lane", goal.lane - this.selectedCell.lane);
+      else this.onSelect?.(fileAtCell(goal), goal);
     } finally {
       this.navigatingDrag = false;
     }
+  }
+  private flushDrag() {
+    const pending = this.pendingDrag;
+    this.pendingDrag = null;
+    if (pending) this.navigatePlane(pending.coordinate, pending.axis);
   }
   private stopMomentum() {
     if (this.archiveMomentum) {
@@ -1024,6 +1019,7 @@ export class ArchiveScene {
       activePointer = null;
       this.dragging = false;
       this.dragTrack = null;
+      this.pendingDrag = null;
       this.holdingArchive = false;
       browse = false;
       this.setHover(null);
@@ -1059,10 +1055,10 @@ export class ArchiveScene {
       const axis = this.archiveDrag.axis;
       if (axis !== "row") { this.columnCamera.value = this.dragTrack.lane; this.columnCamera.velocity = 0; }
       if (axis !== "lane") { this.rail.value = this.dragTrack.row; this.rail.velocity = 0; }
-      this.navigatePlane({
+      this.pendingDrag = { coordinate: {
         lane: this.trackCoordinate("lane", this.columnCamera.value),
         row: this.trackCoordinate("row", this.rail.value),
-      }, axis ?? undefined);
+      }, axis: axis ?? undefined };
     };
     canvas.addEventListener("pointerdown", (e) => {
       if (e.pointerType === "mouse" && e.button !== 0) return;
@@ -1087,7 +1083,7 @@ export class ArchiveScene {
       this.holdingArchive = browse;
       this.dragging = !browse && this.canInspect;
       startTrack = { lane: this.columnCamera.value, row: this.rail.value };
-      this.archiveDrag.start(e.clientX, e.clientY, this.dragProjection(), e.timeStamp, libraryKind === "papers");
+      this.archiveDrag.start(e.clientX, e.clientY, this.dragProjection(), e.timeStamp, libraryKind === "papers" && e.pointerType !== "mouse");
       this.setHover(null);
       canvas.setPointerCapture(e.pointerId);
       if (this.relayActive) { this.holdingArchive = false; this.dragging = false; }
@@ -1130,6 +1126,8 @@ export class ArchiveScene {
       }
       if (!cancelled && browse && this.canBrowse()) {
         moveArchive(e);
+        // Do not lose a final move when release precedes the next render frame.
+        this.flushDrag();
         if (this.archiveDrag.active) {
           if (this.motion.dragMomentum) {
             this.archiveMomentum = {
@@ -1236,6 +1234,7 @@ export class ArchiveScene {
       this.setHover(null);
       if (this.holdingArchive || this.archiveMomentum) this.cancelPointer();
     }
+    if (!cinematic && this.canBrowse()) this.flushDrag();
     if (this.looping && !cinematic && !this.holdingArchive && !this.archiveMomentum) this.rebaseCoordinates();
     const momentum = !cinematic ? this.archiveMomentum : null;
     if (momentum) {

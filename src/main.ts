@@ -446,6 +446,8 @@ function stepColumn(direction: number) {
   const next = wrap(lane + direction, archiveColumns.length);
   select(columnMemory[next], { axis: "lane", direction });
 }
+let navigationFiles: number[] | undefined;
+let selectionRecords: typeof records | undefined;
 function updateSelection(navigation?: ArchiveNavigation) {
   const r = records[selected];
   const lane = catalogGroup(selected);
@@ -472,7 +474,6 @@ function updateSelection(navigation?: ArchiveNavigation) {
         ? direction
         : "auto",
   });
-  $(".count-total").textContent = String(files.length).padStart(2, "0");
   columnCounter.update({
     value: lane + 1,
     animated: motionActive("rollingNumbers") && mode === "archive",
@@ -484,30 +485,41 @@ function updateSelection(navigation?: ArchiveNavigation) {
   columnTitle.update({ text: archiveColumns[lane], animated: motionActive("rollingText") && mode === "archive" });
   $("#column-name").title = archiveColumns[lane];
   const papers = libraryKind === "papers";
-  $("#column-axis").textContent = "COLUMN";
-  $("#column-total").textContent = String(archiveColumns.length).padStart(2, "0");
-  $(".archive-hint").innerHTML = papers ? '<kbd>←</kbd> <kbd>→</kbd> 横向切类别 <span>／</span> <kbd>↑</kbd> <kbd>↓</kbd> 纵向切论文 <span>／</span> <kbd>SHIFT</kbd>＋滚轮 切类别' : '<kbd>←</kbd> <kbd>→</kbd> 切换列 <span>／</span> <kbd>↑</kbd> <kbd>↓</kbd> 前后档案 <span>／</span> <kbd>ENTER</kbd> 读取';
-  $(".archive-navigation").setAttribute("aria-label", papers ? "纵向切换同类论文" : "切换档案");
-  $(".column-navigation").setAttribute("aria-label", papers ? "横向切换论文类别" : "切换档案列");
-  for (const [action, label, arrow] of [["column-prev", papers ? "上一论文类别" : "上一列", "←"], ["column-next", papers ? "下一论文类别" : "下一列", "→"], ["prev", papers ? "同类上一篇论文" : "上一个档案", "↑"], ["next", papers ? "同类下一篇论文" : "下一个档案", "↓"]]) {
-    const button = $<HTMLButtonElement>(`[data-action="${action}"]`);
-    button.setAttribute("aria-label", label);
-    button.title = label;
-    button.textContent = arrow;
-    button.disabled = action.startsWith("column") ? archiveColumns.length < 2 : files.length < 2;
+  // These controls only change with the category or library, not every paper.
+  if (navigationFiles !== files) {
+    navigationFiles = files;
+    $(".count-total").textContent = String(files.length).padStart(2, "0");
+    $("#column-axis").textContent = "COLUMN";
+    $("#column-total").textContent = String(archiveColumns.length).padStart(2, "0");
+    $(".archive-hint").innerHTML = papers ? '<kbd>←</kbd> <kbd>→</kbd> 横向切类别 <span>／</span> <kbd>↑</kbd> <kbd>↓</kbd> 纵向切论文 <span>／</span> <kbd>SHIFT</kbd>＋滚轮 切类别' : '<kbd>←</kbd> <kbd>→</kbd> 切换列 <span>／</span> <kbd>↑</kbd> <kbd>↓</kbd> 前后档案 <span>／</span> <kbd>ENTER</kbd> 读取';
+    $(".archive-navigation").setAttribute("aria-label", papers ? "纵向切换同类论文" : "切换档案");
+    $(".column-navigation").setAttribute("aria-label", papers ? "横向切换论文类别" : "切换档案列");
+    for (const [action, label, arrow] of [["column-prev", papers ? "上一论文类别" : "上一列", "←"], ["column-next", papers ? "下一论文类别" : "下一列", "→"], ["prev", papers ? "同类上一篇论文" : "上一个档案", "↑"], ["next", papers ? "同类下一篇论文" : "下一个档案", "↓"]]) {
+      const button = $<HTMLButtonElement>(`[data-action="${action}"]`);
+      button.setAttribute("aria-label", label);
+      button.title = label;
+      button.textContent = arrow;
+      button.disabled = action.startsWith("column") ? archiveColumns.length < 2 : files.length < 2;
+    }
   }
   const tickStart = Math.max(0, Math.min(files.indexOf(selected) - 3, files.length - fileTicks.length));
   fileTicks.forEach((button, slot) => {
     const index = files[tickStart + slot], record = records[index];
     button.hidden = !record;
     if (!record) { delete button.dataset.select; return; }
-    button.dataset.select = String(index);
-    button.setAttribute("aria-label", `选择${papers ? "论文" : "档案"} ${recordLabel(record)} ${record.title}`);
-    button.title = `${recordLabel(record)} · ${record.title}`;
+    const title = `${recordLabel(record)} · ${record.title}`;
+    if (button.dataset.select !== String(index) || button.title !== title) {
+      button.dataset.select = String(index);
+      button.setAttribute("aria-label", `选择${papers ? "论文" : "档案"} ${recordLabel(record)} ${record.title}`);
+      button.title = title;
+    }
     button.classList.toggle("selected", index === selected);
     button.setAttribute("aria-pressed", String(index === selected));
   });
-  $("#saved-count").textContent = String(records.filter(record => saved.has(record.id)).length).padStart(2, "0");
+  if (selectionRecords !== records) {
+    selectionRecords = records;
+    $("#saved-count").textContent = String(records.filter(record => saved.has(record.id)).length).padStart(2, "0");
+  }
 }
 function changeLibrary(papers?: StoredPaper[], id?: string) {
   setMode("archive"); scene?.setMode("hidden");

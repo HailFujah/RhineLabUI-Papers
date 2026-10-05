@@ -51,6 +51,14 @@ try {
     await settle();
     const cdp = mobile ? await context.newCDPSession(page) : null;
     const drag = async (dx, dy) => {
+      if (!mobile) {
+        // Mouse panning follows the oblique plane; touch retains screen axes.
+        const projection = (await stats()).dragProjection;
+        const lane = -dx / Math.max(80, Math.hypot(projection.lane.x, projection.lane.y));
+        const row = -dy / Math.max(64, Math.hypot(projection.row.x, projection.row.y));
+        dx = lane * projection.lane.x + row * projection.row.x;
+        dy = lane * projection.lane.y + row * projection.row.y;
+      }
       if (mobile) await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x, y, id: 1 }] });
       else { await page.mouse.move(x, y); await page.mouse.down(); }
       for (let i = 1; i <= 8; i++) {
