@@ -14,8 +14,10 @@ export class ArchiveDrag {
   private lastMotion = -Infinity;
   private motionDirection = { x: 0, y: 0 };
   private pointer = { x: 0, y: 0 };
+  axis: DragAxis | null = null;
+  private screenTracks: DragPosition | null = null;
 
-  start(x: number, y: number, projection: DragProjection, time = 0) {
+  start(x: number, y: number, projection: DragProjection, time = 0, screenAxes = false) {
     this.active = false;
     this.moved = false;
     this.x = x;
@@ -25,7 +27,16 @@ export class ArchiveDrag {
     this.lastMotion = -Infinity;
     this.motionDirection = { x: 0, y: 0 };
     this.pointer = { x, y };
+    this.axis = null;
+    this.screenTracks = null;
     const { lane, row } = projection;
+    if (screenAxes) {
+      const horizontal = Math.hypot(lane.x, lane.y), vertical = Math.hypot(row.x, row.y);
+      if (Number.isFinite(horizontal) && Number.isFinite(vertical) && horizontal > 0 && vertical > 0)
+        this.screenTracks = { lane: Math.max(80, horizontal), row: Math.max(64, vertical) };
+      this.inverse = null;
+      return;
+    }
     const determinant = lane.x * row.y - row.x * lane.y;
     const area = Math.hypot(lane.x, lane.y) * Math.hypot(row.x, row.y);
     this.inverse =
@@ -42,15 +53,23 @@ export class ArchiveDrag {
       dy = y - this.y;
     const distance = Math.hypot(dx, dy);
     if (distance > 7) this.moved = true;
-    if (!this.inverse || (!this.active && distance < 10)) return;
+    if ((!this.inverse && !this.screenTracks) || (!this.active && distance < 10)) return;
+    if (this.screenTracks && !this.axis) {
+      // Wait for a clear intent; diagonal jitter must not choose a category.
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < Math.min(Math.abs(dx), Math.abs(dy)) * 1.2) return;
+      this.axis = Math.abs(dx) >= Math.abs(dy) ? "lane" : "row";
+    }
     this.active = true;
-    const value = {
-      lane: dx * this.inverse.lane.x + dy * this.inverse.lane.y,
-      row: dx * this.inverse.row.x + dy * this.inverse.row.y,
+    const value = this.screenTracks ? {
+      lane: this.axis === "lane" ? -dx / this.screenTracks.lane : 0,
+      row: this.axis === "row" ? -dy / this.screenTracks.row : 0,
+    } : {
+      lane: dx * this.inverse!.lane.x + dy * this.inverse!.lane.y,
+      row: dx * this.inverse!.row.x + dy * this.inverse!.row.y,
     };
     const previous = this.samples.at(-1);
     if (previous) {
-      const delta = { x: x - this.pointer.x, y: y - this.pointer.y };
+      const delta = { x: this.axis === "row" ? 0 : x - this.pointer.x, y: this.axis === "lane" ? 0 : y - this.pointer.y };
       if (Math.hypot(delta.x, delta.y) > 1e-9) {
         this.lastMotion = time;
         // A reversal starts a fresh estimate, without locking either axis.

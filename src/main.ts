@@ -486,10 +486,13 @@ function updateSelection(navigation?: ArchiveNavigation) {
   const papers = libraryKind === "papers";
   $("#column-axis").textContent = papers ? "ROW" : "COLUMN";
   $("#column-total").textContent = String(archiveColumns.length).padStart(2, "0");
-  $(".archive-hint").innerHTML = papers ? '<kbd>←</kbd> <kbd>→</kbd> 同行论文 <span>／</span> <kbd>↑</kbd> <kbd>↓</kbd> 切换分类行 <span>／</span> <kbd>ENTER</kbd> 读取' : '<kbd>←</kbd> <kbd>→</kbd> 切换列 <span>／</span> <kbd>↑</kbd> <kbd>↓</kbd> 前后档案 <span>／</span> <kbd>ENTER</kbd> 读取';
+  $(".archive-hint").innerHTML = papers ? '<kbd>←</kbd> <kbd>→</kbd> 横向切论文 <span>／</span> <kbd>↑</kbd> <kbd>↓</kbd> 纵向切类别 <span>／</span> <kbd>SHIFT</kbd>＋滚轮 切类别' : '<kbd>←</kbd> <kbd>→</kbd> 切换列 <span>／</span> <kbd>↑</kbd> <kbd>↓</kbd> 前后档案 <span>／</span> <kbd>ENTER</kbd> 读取';
+  $(".archive-navigation").setAttribute("aria-label", papers ? "横向切换同类论文" : "切换档案");
+  $(".column-navigation").setAttribute("aria-label", papers ? "纵向切换论文类别" : "切换档案列");
   for (const [action, label, arrow] of [["column-prev", papers ? "上一分类行" : "上一列", papers ? "↑" : "←"], ["column-next", papers ? "下一分类行" : "下一列", papers ? "↓" : "→"], ["prev", papers ? "同一行上一篇论文" : "上一个档案", papers ? "←" : "↑"], ["next", papers ? "同一行下一篇论文" : "下一个档案", papers ? "→" : "↓"]]) {
     const button = $<HTMLButtonElement>(`[data-action="${action}"]`);
     button.setAttribute("aria-label", label);
+    button.title = label;
     button.textContent = arrow;
     button.disabled = action.startsWith("column") ? archiveColumns.length < 2 : files.length < 2;
   }
@@ -499,7 +502,7 @@ function updateSelection(navigation?: ArchiveNavigation) {
     button.hidden = !record;
     if (!record) { delete button.dataset.select; return; }
     button.dataset.select = String(index);
-    button.setAttribute("aria-label", `选择档案 ${recordLabel(record)} ${record.title}`);
+    button.setAttribute("aria-label", `选择${papers ? "论文" : "档案"} ${recordLabel(record)} ${record.title}`);
     button.title = `${recordLabel(record)} · ${record.title}`;
     button.classList.toggle("selected", index === selected);
     button.setAttribute("aria-pressed", String(index === selected));

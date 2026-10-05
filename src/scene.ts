@@ -37,6 +37,7 @@ import {
 import { labelMarkSvg } from "./brand";
 import { archiveFraming } from "./viewport-layout";
 import { ArchiveDrag, ArchivePlaneMomentum, type DragAxis, type DragProjection, type DragPosition } from "./archive-drag";
+import { ArchiveWheel } from "./archive-wheel";
 import { assetUrl as publicAsset } from "./asset-url";
 import { fullMotion, reducedMotion, type MotionPreferences } from "./motion-preferences";
 import {
@@ -226,7 +227,7 @@ export class ArchiveScene {
   private archiveDrag = new ArchiveDrag();
   private dragTrack: DragPosition | null = null;
   private navigatingDrag = false;
-  private archiveMomentum: { motion: ArchivePlaneMomentum; time: number } | null = null;
+  private archiveMomentum: { motion: ArchivePlaneMomentum; time: number; axis?: DragAxis } | null = null;
   private holdingArchive = false;
   private cancelPointer = () => {};
   private rotation = 0;
@@ -956,8 +957,10 @@ export class ArchiveScene {
       ? (coordinate - 2) * COLUMN_SPACING
       : -2.17 - (coordinate - 15.5) * ROW_SPACING;
   }
-  private navigatePlane(coordinate: DragPosition) {
+  private navigatePlane(coordinate: DragPosition, axis?: DragAxis) {
     const goal = { lane: Math.round(coordinate.lane), row: Math.round(coordinate.row) };
+    if (axis === "lane") goal.row = this.selectedCell.row;
+    if (axis === "row") goal.lane = this.selectedCell.lane;
     if (sameCell(goal, this.selectedCell)) return;
     const from = { ...this.selectedCell };
     const steps = Math.min(64, Math.max(Math.abs(goal.lane - from.lane), Math.abs(goal.row - from.row)));
@@ -966,6 +969,11 @@ export class ArchiveScene {
       // Select physical cells along the travelled segment in one update per cell.
       // Column memory is updated by onSelect, but never pulls a held plane away.
       for (let i = 1; i <= steps; i++) {
+        if (axis === "row") {
+          // Category gestures use the same remembered selection as the buttons.
+          this.onNavigate?.("row", Math.sign(goal.row - from.row));
+          continue;
+        }
         const cell = {
           lane: Math.round(from.lane + (goal.lane - from.lane) * i / steps),
           row: Math.round(from.row + (goal.row - from.row) * i / steps),
@@ -993,8 +1001,7 @@ export class ArchiveScene {
     let browse = false,
       cancelled = false;
     let startTrack = { lane: 0, row: 0 };
-    let wheelTotal = 0,
-      wheelTime = 0;
+    const wheel = new ArchiveWheel();
     const pointers = new Set<number>();
     const hover = (e: PointerEvent) => {
       if (
@@ -1028,7 +1035,7 @@ export class ArchiveScene {
       cancelled = true;
       this.stopMomentum();
       pointers.clear();
-      wheelTotal = 0;
+      wheel.reset();
       reset();
     };
     const moveArchive = (e: PointerEvent) => {
@@ -1049,13 +1056,13 @@ export class ArchiveScene {
         lane: startTrack.lane + this.archiveDrag.value.lane * COLUMN_SPACING,
         row: startTrack.row - this.archiveDrag.value.row * ROW_SPACING,
       };
-      this.columnCamera.value = this.dragTrack.lane;
-      this.rail.value = this.dragTrack.row;
-      this.columnCamera.velocity = this.rail.velocity = 0;
+      const axis = this.archiveDrag.axis;
+      if (axis !== "row") { this.columnCamera.value = this.dragTrack.lane; this.columnCamera.velocity = 0; }
+      if (axis !== "lane") { this.rail.value = this.dragTrack.row; this.rail.velocity = 0; }
       this.navigatePlane({
         lane: this.trackCoordinate("lane", this.columnCamera.value),
         row: this.trackCoordinate("row", this.rail.value),
-      });
+      }, axis ?? undefined);
     };
     canvas.addEventListener("pointerdown", (e) => {
       if (e.pointerType === "mouse" && e.button !== 0) return;
@@ -1080,7 +1087,7 @@ export class ArchiveScene {
       this.holdingArchive = browse;
       this.dragging = !browse && this.canInspect;
       startTrack = { lane: this.columnCamera.value, row: this.rail.value };
-      this.archiveDrag.start(e.clientX, e.clientY, this.dragProjection(), e.timeStamp);
+      this.archiveDrag.start(e.clientX, e.clientY, this.dragProjection(), e.timeStamp, libraryKind === "papers");
       this.setHover(null);
       canvas.setPointerCapture(e.pointerId);
       if (this.relayActive) { this.holdingArchive = false; this.dragging = false; }
@@ -1127,6 +1134,7 @@ export class ArchiveScene {
           if (this.motion.dragMomentum) {
             this.archiveMomentum = {
               time: performance.now() / 1000,
+              axis: this.archiveDrag.axis ?? undefined,
               motion: new ArchivePlaneMomentum(
                 { lane: this.trackCoordinate("lane", this.columnCamera.value), row: this.trackCoordinate("row", this.rail.value) },
                 this.archiveDrag.releaseVelocity(e.timeStamp, false),
@@ -1165,34 +1173,18 @@ export class ArchiveScene {
         if (
           !this.canBrowse() ||
           activePointer !== null ||
-          e.ctrlKey ||
-          Math.abs(e.deltaX) > Math.abs(e.deltaY)
+          e.ctrlKey
         )
-          return;
+          { wheel.reset(); return; }
+        const movement = wheel.move(e, libraryKind === "papers", canvas.clientHeight, performance.now());
+        if (!movement) return;
         e.preventDefault();
         if (this.archiveMomentum) this.stopMomentum();
-        const now = performance.now();
-        const delta = THREE.MathUtils.clamp(
-          e.deltaY *
-            (e.deltaMode === 1
-              ? 40
-              : e.deltaMode === 2
-                ? canvas.clientHeight
-                : 1),
-          -300,
-          300,
-        );
-        if (now - wheelTime > 180 || Math.sign(delta) !== Math.sign(wheelTotal))
-          wheelTotal = 0;
-        wheelTime = now;
-        wheelTotal += delta;
-        const steps = Math.min(3, Math.floor(Math.abs(wheelTotal) / 100));
+        const { axis, direction, steps } = movement;
         if (!steps) return;
-        const direction = Math.sign(wheelTotal);
-        wheelTotal -= direction * steps * 100;
         this.navigatingDrag = true;
         try {
-          for (let i = 0; i < steps; i++) this.onNavigate?.(libraryKind === "papers" ? "lane" : "row", direction);
+          for (let i = 0; i < steps; i++) this.onNavigate?.(axis, direction);
         } finally {
           this.navigatingDrag = false;
         }
@@ -1249,7 +1241,7 @@ export class ArchiveScene {
     if (momentum) {
       momentum.motion.step(Math.min(Math.max(time - momentum.time, 0), 0.25));
       momentum.time = time;
-      this.navigatePlane(momentum.motion.value);
+      this.navigatePlane(momentum.motion.value, momentum.axis);
       this.lastInteraction = time;
     }
     const hoverKey = !cinematic && this.hoverCell ? cellKey(this.hoverCell) : null;
@@ -1266,22 +1258,29 @@ export class ArchiveScene {
     const selectedLane = this.selectedCell.lane;
     damp(this.shoulder, selectedRow, this.motion.selectionTransition ? 5 : 35, dt);
     damp(this.laneFocus, selectedLane, this.motion.selectionTransition ? 4 : 35, dt);
-    // A held or freely coasting plane owns both tracks; selection cannot pull it.
-    if (!this.holdingArchive && !momentum) {
+    // Paper gestures own one track. The other settles smoothly to the selected
+    // row / remembered paper, including when a gesture interrupts a transition.
+    const inputAxis = momentum?.axis ?? (this.holdingArchive ? this.archiveDrag.axis : null);
+    if ((!this.holdingArchive && !momentum) || inputAxis === "row") {
       damp(this.columnCamera, chosen.x, this.motion.selectionTransition ? 3.7 : 35, dt);
+    }
+    if ((!this.holdingArchive && !momentum) || inputAxis === "lane") {
       damp(this.rail, cinematic ? 0 : -2.17 - chosen.z, this.motion.selectionTransition ? 3.7 : 35, dt);
     }
     if (momentum) {
-      this.columnCamera.value = this.trackPosition("lane", momentum.motion.lane.value);
-      this.rail.value = this.trackPosition("row", momentum.motion.row.value);
-      this.columnCamera.velocity = momentum.motion.lane.velocity * COLUMN_SPACING;
-      this.rail.velocity = -momentum.motion.row.velocity * ROW_SPACING;
+      if (momentum.axis !== "row") {
+        this.columnCamera.value = this.trackPosition("lane", momentum.motion.lane.value);
+        this.columnCamera.velocity = momentum.motion.lane.velocity * COLUMN_SPACING;
+      }
+      if (momentum.axis !== "lane") {
+        this.rail.value = this.trackPosition("row", momentum.motion.row.value);
+        this.rail.velocity = -momentum.motion.row.velocity * ROW_SPACING;
+      }
       if (momentum.motion.phase === "idle") this.archiveMomentum = null;
     }
     if (this.dragTrack && !cinematic) {
-      this.columnCamera.value = this.dragTrack.lane;
-      this.rail.value = this.dragTrack.row;
-      this.columnCamera.velocity = this.rail.velocity = 0;
+      if (this.archiveDrag.axis !== "row") { this.columnCamera.value = this.dragTrack.lane; this.columnCamera.velocity = 0; }
+      if (this.archiveDrag.axis !== "lane") { this.rail.value = this.dragTrack.row; this.rail.velocity = 0; }
     }
     if (cinematic) {
       this.rail.value = 0;
@@ -1857,7 +1856,7 @@ export class ArchiveScene {
       } : null,
       holdingArchive: this.holdingArchive,
       dragProjection: this.dragProjection(),
-      dragMapping: this.archiveDrag.active ? "free" : null,
+      dragMapping: this.archiveDrag.active ? this.archiveDrag.axis ?? "free" : null,
       coordinateOrigin: { ...this.coordinateOrigin },
       poolBounds: {
         minLane: Math.min(...this.cells.map((c) => c.lane)),

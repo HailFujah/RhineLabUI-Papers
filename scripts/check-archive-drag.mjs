@@ -152,3 +152,30 @@ assert.equal(plane.phase, "idle");
 assert.equal(plane.value.lane, Math.round(plane.value.lane));
 assert.equal(plane.value.row, Math.round(plane.value.row));
 console.log("Two-dimensional coasting and final grid snap passed.");
+
+// Paper gestures interpret screen intent independently of the oblique camera.
+for (const axis of ["lane", "row"]) {
+  const input = new ArchiveDrag();
+  input.start(0, 0, projection, 0, true);
+  input.move(8, 8, 10);
+  assert.equal(input.active, false, "Ambiguous diagonal motion waits for intent");
+  for (let i = 1; i <= 6; i++) input.move(axis === "lane" ? -i * 60 : i, axis === "row" ? -i * 20 : i, i * 20);
+  assert.equal(input.axis, axis);
+  const other = axis === "lane" ? "row" : "lane";
+  assert.equal(input.value[other], 0);
+  assert.equal(input.releaseVelocity(120, false)[other], 0);
+  const momentum = new ArchivePlaneMomentum({ lane: 10 + input.value.lane, row: 12 + input.value.row }, input.releaseVelocity(120, false));
+  for (let frame = 0; frame < 900; frame++) {
+    momentum.step(1 / 120);
+    assert.equal(momentum.value[other], other === "lane" ? 10 : 12, "Inertia cannot change the other axis");
+  }
+  assert.equal(momentum.phase, "idle");
+  input.move(axis === "lane" ? -300 : 1000, axis === "row" ? -100 : 1000, 150);
+  assert.equal(input.axis, axis, "Transverse movement does not switch the locked axis");
+  assert.ok(input.releaseVelocity(150, false)[axis] < 0, "Reversing the active axis reverses inertia");
+  assert.deepEqual(input.releaseVelocity(150, true), { lane: 0, row: 0 });
+  input.start(0, 0, projection, 200, true);
+  input.move(other === "lane" ? -100 : 0, other === "row" ? -100 : 0, 220);
+  assert.equal(input.axis, other, "A new gesture can choose the other axis");
+}
+console.log("Paper screen axes, diagonal intent, locked inertia and reversal passed.");
