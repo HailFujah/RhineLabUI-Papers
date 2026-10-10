@@ -1,325 +1,267 @@
-# RHINE LAB · ANALYSIS OS
+# RhineLabUI Papers · AI 论文阅读与管理 / AI Paper Reader & Library
 
-**把莱茵生命的终端，做成可以操作的三维界面。**
+基于 **[LBEILC / RhineLabUI](https://github.com/LBEILC/RhineLabUI)** 的论文阅读与管理扩展，将 AI 领域论文接入莱茵生命风格的三维档案阵列，提供 PDF 光学切片阅读、个人论文导入和浏览器本地缓存。
 
-**[在线体验 → rhine.lubeiluchen.cc](https://rhine.lubeiluchen.cc/)**
+A paper reading and library extension built on **[LBEILC / RhineLabUI](https://github.com/LBEILC/RhineLabUI)**. It brings AI research papers into a Rhine Lab inspired 3D archive, with optical-slice PDF reading, personal PDF imports, and browser-local storage.
 
-iPhone 可用 Safari 打开在线版，通过“分享 → 添加到主屏幕”安装；从主屏幕图标进入可使用独立窗口。首次联网后，设置中显示“离线资源已就绪”即可离线浏览档案和模型。支持桌面不同比例、手机横竖屏和触摸操作。[安装与更新说明](docs/PWA.md)
+> “AI 论文”指研究领域；当前没有接入大模型问答、自动翻译或 AI 总结服务。本项目是完整网页应用，不是可单独安装的浏览器插件。
+>
+> “AI papers” refers to the research subject. This app does not currently provide LLM chat, automatic translation, or AI summaries. It is a web application, not an installable browser extension.
 
-![莱茵生命终端：由透明档案盒构成的三维阵列](docs/media/archive.jpg)
+## 基底与署名 / Upstream & credits
 
-这是对《明日方舟》特别映像「莱茵生命：访问」终端界面的非官方复刻。从白底开场进入五列循环档案阵列，抽取一份档案，等待玻璃与正文解密，再进入独立查看器观察内部结构。
+| 项目 / Item | 来源 / Source |
+| --- | --- |
+| 原项目 / Original project | [LBEILC/RhineLabUI](https://github.com/LBEILC/RhineLabUI) |
+| 原作者 / Original author | [LBEILC](https://github.com/LBEILC) |
+| 本扩展仓库 / This extension | [HailFujah/RhineLabUI-Papers](https://github.com/HailFujah/RhineLabUI-Papers) |
+| 扩展维护者 / Extension maintainer | [HailFujah](https://github.com/HailFujah) |
+| 许可证 / License | [MIT](LICENSE), preserving `Copyright (c) 2026 LBEILC` |
 
-项目以原 PV 的 **5–40 秒**为主要视觉与动效参考，实际开场从 **6.76 秒的白色画面**开始；内部结构另参考约 **41 秒及 46–51 秒**的正面与多角度画面。检索、收藏、正文阅读、结构拆解与声音设置是可操作的扩展功能。
+**继承自原项目：** 三维档案阵列、模型与建模脚本、开场与解密动效、主题、声音、画质设置和 PWA 基础设施。本扩展不将这些成果声称为原创。
 
-代码由 GPT-6 Astra 协助完成，模型通过 Blender MCP 制作。界面采用 **TypeScript + Three.js + Vite**，运行时实时渲染三维模型，开场由 DOM / SVG 与场景时间轴驱动。
+**Inherited from upstream:** the 3D archive, models and modeling scripts, boot and decryption animations, themes, audio, quality settings, and PWA infrastructure. This extension does not claim authorship of that foundation.
 
-[快速运行](#快速运行) · [界面与动效](#界面与动效) · [操作说明](#操作说明) · [源码与 Blender 工程下载](https://pan.quark.cn/s/762d9ee9dfc3) · [参考原 PV](https://www.bilibili.com/video/BV1rr4y1b7sz/)
+**本扩展内容：** PDF 阅读与导入、论文元数据和千篇目录、本地文件缓存、收藏与阅读记录，以及论文导航和鼠标拖动优化。代码开发由 GPT-6 Astra 协助；原项目的模型制作采用 Blender MCP 工作流。
 
-## Wallpaper Engine 壁纸与独立仓库
+**Extension work:** PDF reading and import, paper metadata and a 1,000-paper catalog, local file caching, favorites and reading history, and improvements to paper navigation and mouse dragging. Development was assisted by GPT-6 Astra; upstream models were produced with a Blender MCP workflow.
 
-壁纸版已从本项目拆分为独立公共仓库，后续功能在 **[RhineLabWallpaper](https://github.com/LBEILC/RhineLabWallpaper)** 的 `main` 分支开发。本仓库继续维护网页版本；[原壁纸分支 codex/wallpaper-engine](https://github.com/LBEILC/RhineLabUI/tree/codex/wallpaper-engine) 保留迁移记录。需要最新壁纸源码，请前往独立仓库。
+[上游在线演示 / Upstream live demo](https://rhine.lubeiluchen.cc/) 由原作者维护，**不是本扩展的在线部署**。本扩展的运行方法见下文。
 
-**[在 Steam 创意工坊订阅壁纸 → Rhine Lab · 莱茵生命交互桌面](https://steamcommunity.com/sharedfiles/filedetails/?id=3799142774)**
+The upstream demo is maintained by the original author and **does not host this extension**. Follow the instructions below to run this version.
 
-![Wallpaper Engine 工作台预览](wallpaper/preview.gif)
+## 功能 / Features
 
-- **两种工作模式**：三维档案展示与桌面工作台，可显示时间日期、今日事项、日程倒计时、系统媒体信息和专注计时。
-- **壁纸交互**：音乐律动、呼吸效果、波纹接力小游戏，以及亮暗配色、玻璃模糊、HUD 曲面与视差。
-- **按需保留画面**：在 WE 属性中选择显示哪些组件；可关闭启动时加载 3D，播放 2D 开场后直接进入工作台，再从左下角手动载入模型。
-- **自定义图片**：关闭 3D 后可显示自行选择的壁纸，支持调整上下遮罩范围，设为 0 即关闭；时钟和媒体信息复用滚动数字与文字效果。
-- **宿主适配**：接入 WE 属性、音频响应、媒体信息、帧率及暂停通知，壁纸资源本地打包，壁纸构建不启用 PWA。
+- **千篇目录：** 100 篇代表论文、400 篇 ACL／ICML 会议论文、500 篇近期 arXiv 论文。这是固定选集，没有自动每日更新。
+  **1,000-paper catalog:** 100 representative papers, 400 ACL/ICML conference papers, and 500 recent arXiv papers. This is a fixed selection, not a live database or daily feed.
+- **横向切类别，纵向切论文：** 支持键盘、按钮、滚轮和触摸；鼠标左键长按可自由拖动三维阵列，中途转向或反向。
+  **Horizontal categories, vertical papers:** keyboard, buttons, wheel, and touch navigation. Hold the left mouse button to freely drag the 3D array, including turns and reversals within one gesture.
+- **PDF 光学阅读：** 页面切片导航、逐页阅读、缩放、平移、适宽、明暗主题，以及模型拆解／重组过渡。
+  **Optical PDF reader:** page slices, page navigation, zoom, pan, fit to width, light/dark themes, and model disassembly/reassembly transitions.
+- **个人论文库：** 导入 PDF，提取文字和元信息，编辑标题、作者、机构、发表日期、期刊／会议、摘要和参考文献。缺失字段可手动补全；不含 OCR 或自动翻译。
+  **Personal library:** import PDFs, extract text and metadata, and edit titles, authors, affiliations, dates, venues, abstracts, and references. Missing fields can be entered manually; OCR and automatic translation are not included.
+- **本地保存：** 官方 PDF 按需下载，导入文件不上传服务器；PDF、收藏和阅读记录保存在当前浏览器中。
+  **Local storage:** official PDFs download on demand; imported files are not uploaded. PDFs, favorites, and reading history stay in the current browser.
+- **保留原档案库：** 原项目五类、40 份演示档案与论文库独立，可从 `UPLOAD ARCHIVE` 切换。
+  **Original archive retained:** the original five categories and 40 demo archives remain separate from the paper library and are accessible through `UPLOAD ARCHIVE`.
 
-使用壁纸请通过上方创意工坊链接订阅，在 Wallpaper Engine 中应用并调整属性。需要自行构建时：
+## 依赖与插件 / Requirements & plugins
+
+**普通使用不需要浏览器 PDF 插件、Codex 插件、Blender MCP 或 AI API Key。** `npm ci` 会安装网页需要的软件依赖。
+
+**Normal use requires no browser PDF plugin, Codex plugin, Blender MCP, or AI API key.** Install the application's dependencies with `npm ci`.
+
+| 场景 / Use case | 依赖 / Requirement | 说明 / Notes |
+| --- | --- | --- |
+| 本地运行与构建 / Run & build | Node.js 22.13+ or 24+, npm | 本地验证使用 Node 24 / Locally tested with Node 24 |
+| 浏览与阅读 / Browse & read | WebGL 2, Web Workers, IndexedDB | 现代浏览器，建议硬件加速 / Modern browser; hardware acceleration recommended |
+| PDF 解析与渲染 / PDF parsing & rendering | `pdfjs-dist` | npm 自动安装；worker、字体、CMap、WASM 同源提供 / Installed by npm; worker, fonts, CMaps and WASM served from the app's origin |
+| 三维界面与动画 / 3D & animation | `three`, `@kitlangton/rolling-number` | npm 自动安装 / Installed by npm |
+| 内置论文首次下载 / First catalog PDF download | 网络及同源 `/api/papers/:slug` / Network and same-origin endpoint | Vite 开发与预览已集成 / Included in Vite dev and preview |
+| 修改模型，可选 / Model editing, optional | Blender | 使用现成 GLB 不需要；AI 控制 Blender 才需配置 Blender MCP / Not needed for shipped GLBs; Blender MCP is only needed for AI control of Blender |
+| 浏览器测试，可选 / Browser tests, optional | Playwright, Microsoft Edge | 可通过 `PLAYWRIGHT_MODULE` 指定模块路径 / Scripts accept a module path via `PLAYWRIGHT_MODULE` |
+| 重建目录，可选 / Catalog maintenance, optional | Python 3 | `scripts/import-paper-catalog.py`; 普通运行无需 Python / Not required to run the app |
+
+## 快速运行 / Quick start
+
+从本仓库克隆，或使用 GitHub 的 **Code → Download ZIP** 解压后进入项目根目录。
+
+Clone this repository, or use **Code → Download ZIP** on GitHub and open a terminal in the extracted project directory.
 
 ```sh
-git clone https://github.com/LBEILC/RhineLabWallpaper.git
-cd RhineLabWallpaper
-npm ci
-npm run build:wallpaper
-```
-
-输出目录为 `release/wallpaper`，在 Wallpaper Engine 编辑器中打开其中的 `index.html`。系统媒体信息取决于播放器支持及 WE 媒体集成设置。更多细节见 [壁纸使用与开发说明](docs/WALLPAPER-ENGINE.md) 和 [创意工坊发布说明](docs/WORKSHOP-PUBLISH.md)。
-
-以下为项目共用的网页与三维档案功能介绍。
-
-
-## 新版效果
-
-- **亮暗配色**：设置中切换，卡片依次变色，详情与独立查看器同步适配。
-- **自适应阵列**：按实际镜头与屏幕范围布置、裁剪档案，改善宽屏边角露出尽头；开场铺满实际视口。
-- **超级性能模式**：设置中独立开启，降低三维渲染负担并保留动效，关闭恢复之前的画质。
-- **数字时钟**：页脚时、分、秒独立滚动，修复变换布局下部分数字动画中断。
-
-整合范围与验证见 [主分支整合记录](verification/WEB-INTEGRATION.md)。
-
-- **模型与正文同步解密**：对角解密线合拢、保持并收束，盖板自上而下由磨砂变清晰；右侧文档的遮挡条随之退开，露出标题、资料字段与正文。
-- **可看清的双环内构**：双环、连接带与白色／橙色部件封装在盖板与基板之间。顶边黄色方块、两处螺丝和盖板后的刻线补全了外壳细节。
-- **清晰／磨砂切换**：独立查看器可以随时改变玻璃状态，保留当前视角和拆解位置；支持平滑缩放、平移及复位。
-- **滚动文字与编号**：档案标题、分类、权限标签及编号连续滚动，快速输入衔接最新选择。
-- **重新校准的开场**：逐字输入、圆环绕行、连续 Logo 笔画、身份验证和欢迎转场，按原片逐帧修订轨迹与节奏。
-- **声音与画质设置**：玻璃交互音、系统电子音与三轨循环配乐；音效和音乐可独立开关、调节音量。画质提供四档预设及精细设置。
-
-## 界面与动效
-
-以下截图与动图于 **2026-09-09** 重新采集，均来自当前版本的实际浏览器运行。截图为 **1600 × 900**，GIF 为 **8–12 fps**、原速播放；压缩后的帧率与颜色不代表实时渲染质量。采集版本与复现步骤见 [素材说明](docs/media/README.md)。
-
-### 抽取、解密与阅读
-
-档案竖直升起，镜头靠近并转向详情构图。解密时玻璃与文档一起揭示；完成后可阅读概述、研究记录及访问日志，也可以收藏或导出 UTF-8 文本。
-
-![档案抽取与同步解密：对角线收束，玻璃从上向下变清晰，正文遮挡退开](docs/media/decryption.gif)
-
-| 解密完成 · 清晰内构与档案概述 | 研究记录 · 正文阅读 |
-| --- | --- |
-| [![解密后的档案：左侧可见双环内构，右侧显示机构资料](docs/media/detail.jpg)](docs/media/detail.jpg) | [![档案研究记录页签](docs/media/research.jpg)](docs/media/research.jpg) |
-
-### 清晰内构与磨砂玻璃
-
-在 360° 查看器中比较两种玻璃状态。切换不会重置镜头或拆解状态，返回详情后仍保留已解密状态。
-
-| 清晰 · 双环与连接带 | 磨砂 · 轻柔折射 |
-| --- | --- |
-| [![清晰玻璃下的档案内部结构](docs/media/viewer-clear.jpg)](docs/media/viewer-clear.jpg) | [![相同视角下的磨砂玻璃](docs/media/viewer-frosted.jpg)](docs/media/viewer-frosted.jpg) |
-
-<details>
-<summary><strong>查看动图：清晰／磨砂连续切换</strong></summary>
-
-![玻璃由清晰过渡到磨砂，再恢复清晰](docs/media/glass-motion.gif)
-
-</details>
-
-### 360° 旋转、拆解与重组
-
-紧固件、透明盖板、折射环组、光学核心、信息基板、背板与框架按六组展开。拆解后仍可旋转、平移和缩放，观察部件之间的关系，再一键重组。
-
-[![新版档案模型：六组结构分层展开](docs/media/assembly.jpg)](docs/media/assembly.jpg)
-
-<details>
-<summary><strong>查看动图：模型拆解、旋转与重组</strong></summary>
-
-![操作动图：档案盒从完整状态拆开，旋转观察后连续重组](docs/media/assembly-motion.gif)
-
-</details>
-
-### 循环阵列与滚动标题
-
-五类、每类八份，共 **40 份档案**。上下翻阅、左右切列均可持续循环；切回某列时保留上次选择。选中抬起与阵列波浪同时开始，标题和编号跟随输入滚动；返回阵列时，档案先转正再下降。
-
-<details>
-<summary><strong>查看动图：切列、翻阅与连续文字滚动</strong></summary>
-
-![循环切换档案，标题、编号、分类及刻度同步更新](docs/media/browse.gif)
-
-</details>
-
-### 白底开场
-
-从终端逐字输入到圆环、Logo 绘制，再进入身份接入与权限验证。可以重播，也可以跳过开场直接进入阵列。
-
-[![白底开场中的莱茵生命标志与身份接入文字](docs/media/boot.jpg)](docs/media/boot.jpg)
-
-<details>
-<summary><strong>查看动图：新版开场片段</strong></summary>
-
-![新版白底开场：逐字输入、圆环和连续标志绘制、身份验证与欢迎转场](docs/media/boot-motion.gif)
-
-</details>
-
-### 检索、声音与画质
-
-检索支持编号、标题、英文名、科室、相关人物与分类筛选。收藏和设置保存在当前浏览器中。音效区分档案的玻璃碰触与系统操作的电子反馈，背景配乐随开场、阵列、详情和查看器调整三轨比例。
-
-| 档案索引 · 关键词与分类筛选 | 系统设置 · 声音与画质 |
-| --- | --- |
-| [![输入莱茵关键词后的档案检索结果](docs/media/search.jpg)](docs/media/search.jpg) | [![独立音效和音乐音量、减少动态效果与画质预设](docs/media/settings.jpg)](docs/media/settings.jpg) |
-
-GIF 不含声音。可单独[试听原创配乐「观测室」](public/audio/observatory-preview.mp3)，完整声音效果请启动应用体验。浏览器可能需要一次点击或按键才允许播放音频。
-
-## 快速运行
-
-需要 **Node.js 22.13 或更高版本**（可使用 Node.js 24），以及支持 WebGL 2 的现代桌面浏览器。首次安装依赖需要网络；应用不需要 API Key，也不需要启动后端服务。
-
-### 获取项目
-
-```sh
-git clone https://github.com/LBEILC/RhineLabUI.git
-cd RhineLabUI
-```
-
-也可以从 GitHub 的 **Code → Download ZIP** 下载当前源码，或获取[夸克项目包](https://pan.quark.cn/s/762d9ee9dfc3)。夸克包是 **2026-09-08 的打包快照**，包含源码、运行模型与 Blender 源工程；后续更新以本仓库为准。
-
-### 安装并启动
-
-```sh
+git clone https://github.com/HailFujah/RhineLabUI-Papers.git
+cd RhineLabUI-Papers
 npm ci
 npm run dev
 ```
 
-打开终端显示的地址，通常为 `http://127.0.0.1:5173/`。如果端口被占用，以终端实际输出为准。
+打开终端打印的地址，通常为 `http://127.0.0.1:5173/`。首次安装依赖需要联网；本地服务已包含论文下载接口，不需要另起后端进程。
 
-Windows 用户安装 Node.js 并解压项目后，也可以双击 [`启动终端.cmd`](启动终端.cmd)：首次运行会安装依赖，然后启动本地服务并打开浏览器。
+Open the URL printed in the terminal, usually `http://127.0.0.1:5173/`. Dependency installation requires network access. The local service includes the paper download endpoint; no separate backend process is needed.
 
-### 构建与预览
+如需使用 5205 端口并直接进入阵列：
+
+To use port 5205 and open the archive directly:
+
+```sh
+npm run dev -- --port 5205 --strictPort
+```
+
+访问 `http://127.0.0.1:5205/?scene=archive`。**保持终端服务运行**；`ERR_CONNECTION_REFUSED` 通常表示服务没有启动或已退出。这个地址只属于运行服务的本机。
+
+Visit `http://127.0.0.1:5205/?scene=archive`. **Keep the server running**; `ERR_CONNECTION_REFUSED` usually means it has not started or has stopped. This address is local to the computer running the server.
+
+Windows 用户安装 Node.js 后，也可双击 [`启动终端.cmd`](启动终端.cmd) 自动安装依赖、启动并打开浏览器。
+
+On Windows, after installing Node.js, you can also double-click [`启动终端.cmd`](启动终端.cmd) to install dependencies, start the service, and open the browser.
+
+### 构建与预览 / Build & preview
 
 ```sh
 npm run build
 npm run preview
 ```
 
-生产文件输出到 `dist/`，可以交给静态 HTTP 服务托管。请通过服务地址访问，不要直接双击 `dist/index.html`。
+输出目录为 `dist/`。通过 HTTP 服务访问，不要直接双击 `dist/index.html`。`npm run preview` 同样包含论文下载接口。
 
-## 操作说明
+The build output is `dist/`. Serve it over HTTP instead of opening `dist/index.html` directly. `npm run preview` also includes the paper download endpoint.
 
-### 终端与档案
+### 线上部署与字体 / Deployment & fonts
 
-| 操作 | 效果 |
+- **Cloudflare Pages：** 同时部署前端与根目录 `functions/`，才能提供 `/api/papers/:slug`。接口只代理目录白名单内的官方 PDF。
+  **Cloudflare Pages:** deploy the frontend together with the root `functions/` directory to provide `/api/papers/:slug`. The endpoint only proxies official PDF URLs from the catalog allowlist.
+- **其他平台：** 使用 `npm run build` 的 `dist/`，并实现与 [`server/paper-source.ts`](server/paper-source.ts) 等效的同源接口。仓库没有通用 Node 生产服务启动命令。
+  **Other platforms:** deploy `dist/` from `npm run build` and provide an equivalent same-origin endpoint based on [`server/paper-source.ts`](server/paper-source.ts). No generic production Node server command is included.
+- **纯静态托管：** GitHub Pages 或只上传静态 ZIP 不会提供下载接口；可以使用界面与本地 PDF 导入／缓存，无法直接完成内置论文的首次下载。
+  **Static-only hosting:** GitHub Pages or a static ZIP deployment does not supply the endpoint. The UI, local PDF imports, and existing caches remain usable, but initial catalog PDF downloads require a backend.
+- **原 Cloudflare 发行命令：** `npm run build:cloudflare` 会校验原作者授权的 Novecento 字体文件，缺失时会停止。新克隆请使用普通 `npm run build`；原托管配置见 [部署记录](docs/CLOUDFLARE-DEPLOYMENT.md)。
+  **Upstream Cloudflare packaging:** `npm run build:cloudflare` validates the original author's licensed Novecento files and stops if they are missing. Fresh clones should use `npm run build`; see the [upstream deployment notes](docs/CLOUDFLARE-DEPLOYMENT.md) for the original setup.
+- **商业字体：** Novecento Webfont 不进入 Git；普通构建保留回退图形。使用同款字体需取得适用于自己站点的授权，不应复制原作者的字体或托管凭据。
+  **Commercial fonts:** Novecento webfonts are excluded from Git; normal builds retain fallback graphics. Obtain a license for your own site before using these fonts; do not copy upstream font files or hosting credentials.
+- **PWA：** 正式部署使用 HTTPS。离线包缓存应用资源，不预缓存千篇全文；首次下载仍取决于部署环境能否访问论文来源。见 [PWA 说明](docs/PWA.md)。
+  **PWA:** use HTTPS in production. The offline package caches app assets, not all paper PDFs. Initial downloads depend on access to the publication sources. See the [PWA guide](docs/PWA.md).
+
+## 操作说明 / Controls
+
+### 阵列与论文库 / Archive & paper library
+
+| 操作 / Input | 效果 / Action |
 | --- | --- |
-| 开场中按 `Enter` / `Esc`，或点击 `ENTER SYSTEM` | 资源就绪后进入交互阵列 |
-| `←` / `→` | 切换档案类别，首尾循环 |
-| `↑` / `↓` | 翻阅同类档案，首尾循环 |
-| `Enter`、`ACCESS FILE` 或文件编号 | 读取当前档案 |
-| 在详情模型上拖动 | 档案获得净空后，旋转观察 |
-| `/` 或 `ARCHIVE INDEX` | 打开检索，可搜索编号、标题、英文名、科室、负责人和分类 |
-| `READ DOCUMENT` | 从详情拆解并读取 PDF 光学切片 |
-| `SAVE` / `SAVED` | 收藏当前档案 / 查看收藏 |
-| `DOWNLOAD` | 下载当前关联的 PDF；没有附件时不可用 |
-| `UPLOAD ARCHIVE` | 导入／编辑个人论文，切换论文库与原档案库 |
-| `Esc` | 关闭当前弹窗，或从详情返回阵列 |
+| `Enter` / `Esc` / `ENTER SYSTEM`，开场中 / during boot | 资源就绪后进入阵列 / Enter the array once assets are ready |
+| `←` / `→` | 横向切换类别 / Switch categories horizontally |
+| `↑` / `↓` | 纵向切换同类论文 / Switch papers vertically within the category |
+| 普通滚轮 / Vertical wheel | 切换同类论文 / Browse papers in the category |
+| 横向滚动或 `Shift` + 滚轮 / Horizontal scroll or `Shift` + wheel | 切换类别 / Switch categories |
+| 触摸横拖／纵拖 / Horizontal / vertical touch gesture | 切类别／切论文 / Switch category / paper |
+| 鼠标左键长按拖动 / Hold left mouse button and drag | 自由拖动三维阵列，可中途转向 / Freely pan the 3D array, including turns |
+| `Enter` / `ACCESS FILE` / 文件编号 / file number | 打开详情 / Open details |
+| `/` / `ARCHIVE INDEX` | 打开检索 / Open search |
+| `READ DOCUMENT` | 打开 PDF 光学阅读器 / Open the optical PDF reader |
+| `SAVE` / `SAVED` | 收藏当前文档／查看收藏 / Save current document / view favorites |
+| `DOWNLOAD` | 下载关联 PDF；无附件时不可用 / Download the attached PDF; unavailable without an attachment |
+| `UPLOAD ARCHIVE` | 导入、编辑论文与切换库 / Import or edit papers and switch libraries |
+| `Esc` | 关闭弹窗或返回上一层 / Close the overlay or return |
 
-### 个人论文库
+论文按三列分组，每列按发表时间排序，未知日期在末尾；个人导入独立归组。X-001 等编号是组内显示序号，不是论文的唯一 ID。切类别会记住各类别的选择；自由拖动按实际格位选档。期刊／会议仍保留在论文详情中。见 [导航记录](verification/PAPER-ROWS.md) 和 [鼠标拖动修复](verification/MOUSE-PAN.md)。
 
-网页首次默认进入论文库，之后记住上次选用的库。已内置 **1,000 篇 AI 论文目录**（含 Attention、BERT、ResNet、GAN、DDPM 等原五篇）：100 篇代表论文、400 篇 ACL／ICML 会议论文、500 篇近期 arXiv 论文。先浏览标题、作者与原文摘要；首次阅读／下载 PDF 或提取参考文献时取得官方原文件并保存，后续直接使用本地副本。范围、来源和维护命令见 [首批目录记录](verification/PAPER-CATALOG.md)。
+The built-in catalog has three category columns, ordered by publication date within each column; unknown dates come last. Personal imports form a separate group. X-001 and similar labels are display positions, not unique paper IDs. Category navigation remembers each category's selection, while free dragging follows physical cells. Venue information remains in the paper details. See [navigation notes](verification/PAPER-ROWS.md) and the [mouse pan fix](verification/MOUSE-PAN.md).
 
-目录与 PDF 分开存储，启动只读目录，不下载整库。文件保存在**当前浏览器、当前站点的 IndexedDB**，不是磁盘上的自选文件夹；清除本站数据或换浏览器会失去本地副本。应用离线资源准备好后，已保存论文可离线阅读。实现与检查说明见 [论文缓存记录](verification/PAPER-CACHE.md)。
+### 导入、阅读与缓存 / Import, reading & caching
 
-右上角 **UPLOAD ARCHIVE** → 选择 PDF → 核对、补全识别信息 → 保存并打开。原 40 份档案独立保留，两个库可在该窗口切换。
+1. 点击 **UPLOAD ARCHIVE**，选择 PDF，核对和补全字段，然后保存并打开。
+   Click **UPLOAD ARCHIVE**, choose a PDF, review and complete its metadata, then save and open it.
+2. 详情提供原文摘要、文末参考文献和实际页码阅读记录；信息区与正文区独立滚动，底部操作保持固定。
+   Details show the original abstract, references from the end of the paper, and reading history with page numbers. Metadata and tab content scroll separately, with fixed bottom actions.
+3. 点击 **READ DOCUMENT**，模型居中拆解后出现页面切片。悬停提起、点击阅读；可通过滚轮、滑杆、页码输入和方向键定位页面。支持有限倾转、缩放、平移、适宽、复位和暗色反相。
+   Click **READ DOCUMENT** to center and disassemble the model into page slices. Hover to lift a slice and click to read. Navigate with the wheel, slider, page input, or arrow keys. The reader supports limited tilt, zoom, pan, fit to width, reset, and dark-mode inversion.
+4. 阅读器内「载入 PDF」只临时替换文件；需要长期保存时使用 **UPLOAD ARCHIVE**。`Esc` 先回到切片堆叠；退出时模型重组并返回详情。
+   Loading a PDF inside the reader is temporary; use **UPLOAD ARCHIVE** to keep it in the library. `Esc` first returns to the slice stack; leaving the reader reassembles the model and returns to details.
 
-内置论文按**代表论文（100）／ACL／ICML 会议论文（400）／近期 arXiv 论文（500）**三行排列，同一行从左到右按发表时间由早到晚，每行从 X-001 开始编号。刻度旁左右按钮、`←` / `→` 和滚轮翻阅同行论文；分类名旁上下按钮和 `↑` / `↓` 切换分类行，并记住各行选择。真正的期刊信息保留在详情中，个人上传另行归组。重新排序不改变收藏与阅读记录关联，未知日期置于所属行末尾。见 [三行导航修订](verification/PAPER-ROWS.md)。
+**存储边界：** 目录与 PDF 分开保存，启动不下载全部论文。文件属于当前浏览器与当前站点的 IndexedDB，不是自选磁盘目录或云同步。更换浏览器、域名或端口会使用不同存储；清除站点数据会删除缓存、个人论文及记录。只有应用离线资源和对应论文已保存后，才能离线阅读。
 
-详情显示论文原名、中文译名、作者、机构、发表时间、期刊／会议及研究领域、关键词；三个页签为原文 Abstract、论文末尾的参考文献、实际页码阅读记录。论文信息与页签正文分别滚动，底部阅读、收藏、下载和论文页面入口保持固定。
+**Storage scope:** catalog records and PDF files are stored separately; startup does not download the entire collection. Files live in IndexedDB for the current browser and origin, not a chosen disk folder or cloud account. Changing browsers, domains, or ports uses a different store. Clearing site data removes cached files, personal papers, and records. Offline reading requires both the app assets and the specific paper to have been saved beforehand.
 
-导入采用 PDF.js 的文字与元信息提取，无法识别的字段可手动填写，中文译名不自动翻译。扫描 PDF 暂无 OCR。个人论文原文件和字段仅保存在当前浏览器；清除本站数据也会清除论文库。详细数据规则和实现边界见 [个人论文库说明](verification/PAPER-LIBRARY.md)。
+详细说明 / Further details: [论文库 / Library](verification/PAPER-LIBRARY.md) · [缓存 / Cache](verification/PAPER-CACHE.md) · [PDF 阅读器 / Reader](verification/PDF-READER.md) · [目录来源 / Catalog sources](verification/PAPER-CATALOG.md)
 
-### 独立模型查看器
+### 模型查看与画质 / Model viewer & quality
 
-在详情页点击 **「360° 查看文档模型」** 进入。
+详情页的 **360° 查看文档模型** 进入独立查看器。拖动旋转、滚轮或 `+` / `−` 缩放、方向键平移、`Home` 复位；可切换清晰／磨砂玻璃、拆解六组结构并重组。它与 PDF 阅读器的有限倾转相互独立。
 
-| 操作 | 效果 |
+Open the **360° model viewer** from the details screen. Drag to orbit, use the wheel or `+` / `−` to zoom, arrows to pan, and `Home` to reset. Switch clear/frosted glass or disassemble and reassemble six component groups. This is separate from the PDF reader's limited tilt.
+
+界面主要面向桌面和横向屏幕，按 1920 × 1080 基准适应窗口。设置中提供亮暗主题、音效与音乐独立音量、减少动态效果，以及性能／原始／高／极高画质；超级性能模式与减少动态效果独立。首次加载需要模型和字体，浏览器可能要求点击或按键后才能播放声音。
+
+The layout primarily targets desktop and landscape screens and scales from a 1920 × 1080 baseline. Settings include light/dark themes, separate sound and music volumes, reduced motion, and performance/original/high/ultra quality presets. Super performance mode is independent of reduced motion. Initial loading includes models and fonts, and browsers may require a click or keypress before audio playback.
+
+## 基底预览 / Upstream visual preview
+
+以下图片来自基底 **2026-09-09** 的原档案界面，**不是最新论文界面截图**。GIF 的压缩帧率不代表实时渲染性能。更多素材及版本见 [素材说明](docs/media/README.md)。
+
+The images below show the upstream archive UI from **2026-09-09**, **not the latest paper UI**. Compressed GIF frame rates do not represent real-time rendering performance. See [media notes](docs/media/README.md) for capture details.
+
+![原档案阵列 / Original archive array](docs/media/archive.jpg)
+
+| 解密与阅读 / Decryption & reading | 模型拆解 / Model disassembly |
 | --- | --- |
-| 鼠标拖动 | 环绕旋转模型 |
-| 滚轮、`+` / `−` | 平滑缩放 |
-| 方向键 | 平移观察位置 |
-| 「复位视角」或 `Home` | 平滑恢复初始观察位置 |
-| 「清晰」 / 「磨砂」 | 切换玻璃状态，保留视角和拆解位置 |
-| 「拆解档案」 / 「一键重组」 | 展开六组部件 / 连续收回 |
-| `Esc` 或「返回档案」 | 关闭查看器，返回原档案 |
+| ![解密后的档案详情 / Decrypted archive details](docs/media/detail.jpg) | ![六组结构拆解 / Six-part disassembly](docs/media/assembly.jpg) |
 
-### PDF 光学阅读
+<details>
+<summary>查看解密与开场动图 / View decryption and boot animations</summary>
 
-详情页点击 **READ DOCUMENT**，复用已保存的论文 PDF；未保存的示例首次下载后再阅读。右上「载入 PDF」可临时换入本地文件；需要长期归档时使用 **UPLOAD ARCHIVE**。示例与游戏档案独立，X-001 是各期刊内最早论文的显示编号。
+![抽取与同步解密 / Extraction and synchronized decryption](docs/media/decryption.gif)
 
-档案先移到中央再拆解，页面从信息基板显影、抽出，成为左侧的光学切片导航。悬停提起，点击在右侧阅读；滚轮、滑杆、页码输入和方向键定位页面。阅读页可有限倾转、缩放、平移、适宽与复位，暗色主题反相 PDF 内容。Esc 先返回堆叠；返回档案时，光学切片依次移出屏幕，模型在中央重组后平缓回到详情预览。架构与复核见 [PDF 阅读器记录](verification/PDF-READER.md)。
+![白底开场 / White boot sequence](docs/media/boot-motion.gif)
 
-### 显示与偏好
+</details>
 
-布局以 **1920 × 1080** 为基准等比例适应窗口，主要面向桌面与横向屏幕。设置页提供音效与背景音乐的独立开关、独立音量，以及完整、减少或自定义动画、画质、全屏和重新播放开场。动画选择由本站设置控制，收藏和偏好保存在当前浏览器中。
+基底参考《明日方舟》特别映像「莱茵生命：访问」的 5–40 秒，开场从约 6.76 秒的白色画面开始；内构还参考约 41 秒及 46–51 秒。三维场景实时渲染，开场采用 DOM / SVG 与时间轴，不使用原片作为界面背景。参考视频不随仓库分发，普通运行也不需要。
 
-首次载入需要加载字体与 GLB 模型。项目保留了四份官方 MiSans WOFF2，合计约 19.7 MB，按实际使用加载。画质预设为**性能、原始、高、极高**，默认使用原始；精细设置可调整渲染比例、像素密度、抗锯齿、纹理过滤、透明材质分辨率、阴影、环境遮蔽及景深。运行不够流畅时可选性能档；需要简化镜头、文字与揭示动画时，可启用减少动态效果。
+Upstream is an unofficial recreation of the terminal in the Arknights special video “Rhine Lab: Access,” primarily referencing seconds 5–40, with the white boot sequence starting around 6.76 seconds and internal structure references around 41 and 46–51 seconds. The 3D scene renders in real time; boot uses DOM/SVG and a timeline rather than the original footage as a background. The reference video is not distributed or needed for normal use.
 
-## 工程结构
+[原 PV / Reference video](https://www.bilibili.com/video/BV1rr4y1b7sz/) · [上游早期源码与 Blender 快照 / Early upstream source & Blender snapshot](https://pan.quark.cn/s/762d9ee9dfc3)
 
-| 目录或文件 | 内容 |
+上游的 Wallpaper Engine 版本独立维护于 [LBEILC/RhineLabWallpaper](https://github.com/LBEILC/RhineLabWallpaper)，另有 [Steam 创意工坊页面](https://steamcommunity.com/sharedfiles/filedetails/?id=3799142774)。壁纸工作台、媒体集成和音乐律动不属于本论文网页的普通运行依赖；本扩展源码应从本仓库获取。
+
+Upstream maintains its Wallpaper Engine edition separately at [LBEILC/RhineLabWallpaper](https://github.com/LBEILC/RhineLabWallpaper), with a [Steam Workshop page](https://steamcommunity.com/sharedfiles/filedetails/?id=3799142774). Its desktop workbench, media integration, and audio-reactive features are not requirements for this paper web app. Obtain this extension's source from this repository.
+
+## 工程与验证 / Development & verification
+
+技术栈 / Stack: **TypeScript + Three.js + Vite + PDF.js**.
+
+| 路径 / Path | 内容 / Purpose |
 | --- | --- |
-| [`src/main.ts`](src/main.ts) | 页面状态、档案阅读、检索、收藏与快捷键 |
-| [`src/boot.ts`](src/boot.ts)、[`src/boot-motion.ts`](src/boot-motion.ts) | 开场界面与逐帧时间轴 |
-| [`src/scene.ts`](src/scene.ts)、[`src/archive-loop.ts`](src/archive-loop.ts) | Three.js 场景、循环阵列、抽取与归位 |
-| [`src/model-viewer.ts`](src/model-viewer.ts) | 独立模型查看器与拆解动画 |
-| [`src/decryption.ts`](src/decryption.ts)、[`src/document-decryption.ts`](src/document-decryption.ts) | 模型解密轨迹与正文同步揭示 |
-| [`src/audio.ts`](src/audio.ts)、[`public/audio/`](public/audio/) | 交互音效、三轨配乐与音源记录 |
-| [`src/render-quality.ts`](src/render-quality.ts)、[`src/quality-renderer.ts`](src/quality-renderer.ts) | 画质预设与渲染管线 |
-| [`content/archives.json`](content/archives.json) | 页面与下载共用的五类、40 份档案数据 |
-| [`src/data.ts`](src/data.ts) | 档案类型与阵列位置映射 |
-| [`public/assets/`](public/assets/) | 运行所需的 GLB 模型 |
-| [`public/archives/`](public/archives/) | 导出的档案文本；启动和构建前自动生成 |
-| [`art/`](art/) | Blender 源文件、建模与审阅脚本 |
-| [`scripts/`](scripts/) | 档案导出与行为检查 |
-| [`reference/`](reference/)、[`verification/`](verification/) | 开发对照工具与分阶段验证记录 |
-| [`docs/media/`](docs/media/) | README 截图与动图 |
-| [`DESIGN.md`](DESIGN.md) | 视觉、相机、材质与运动约束 |
-
-原片时间轴使用 160 个阵列位置；交互模式使用固定的可见窗口与外围卡片补位，让有限的档案内容可以持续循环。
-
-### 修改与复核
-
-修改档案内容从 [`content/archives.json`](content/archives.json) 入手，字段与操作步骤见 [档案修改说明](content/README.md)。`npm run dev` 与 `npm run build` 会先校验数据，再更新 `public/archives/` 中的文本导出；开发过程中修改数据后，可执行 `npm run export:archives` 同步下载文件。`npm run check:content` 检查数据规则与导出一致性。
+| [`src/main.ts`](src/main.ts) | 页面状态、检索与交互 / UI state, search, and interaction |
+| [`src/scene.ts`](src/scene.ts), [`src/archive-loop.ts`](src/archive-loop.ts) | 三维阵列与循环导航 / 3D array and looping navigation |
+| [`src/paper-library.ts`](src/paper-library.ts), [`src/paper-import.ts`](src/paper-import.ts) | 论文存储与 PDF 导入 / Paper storage and PDF import |
+| [`content/paper-catalog.json`](content/paper-catalog.json) | 论文下载白名单 / Paper download allowlist |
+| [`server/paper-source.ts`](server/paper-source.ts), [`functions/`](functions/) | 同源论文下载 / Same-origin paper downloads |
+| [`content/archives.json`](content/archives.json) | 原 40 份档案数据 / Original 40 archive records |
+| [`public/assets/`](public/assets/), [`art/`](art/) | GLB、Blender 工程与建模脚本 / GLBs, Blender projects, and modeling scripts |
+| [`scripts/`](scripts/), [`verification/`](verification/) | 检查脚本、复现方法与已知限制 / Checks, reproduction steps, and limitations |
+| [`DESIGN.md`](DESIGN.md) | 视觉、相机、材质与运动规范 / Visual, camera, material, and motion specifications |
 
 ```sh
-node scripts/check-motion.mjs
-node scripts/check-loop.mjs
-node scripts/check-appearance.mjs
-node scripts/check-assembly.mjs
-node scripts/check-decryption.mjs
-node scripts/check-shell.mjs
-node scripts/check-internal-optics.mjs
-node scripts/check-quality.mjs
+npm run check:paper-catalog
+npm run check:paper-cache
+npm run check:content
+npm run build
 ```
 
-这些脚本检查运动、循环位置、外观、装配结构、解密轨迹、外壳、内构与画质参数。视觉效果仍需在浏览器中实际查看，尤其是快速切换、模型归位、文档揭示及查看器进出过渡。
+浏览器回归脚本包括 `scripts/check-paper-navigation.mjs` 和 `scripts/check-mouse-pan.mjs`；需另外提供 Playwright 与 Edge。源代码／数据检查不等于真实 GPU 或手机验收。输入合帧减少了拖动中间状态提交，但整体流畅度仍取决于 GPU、分辨率与画质，实测边界见 [MOUSE-PAN.md](verification/MOUSE-PAN.md)。
 
-| 本地调试路径 | 用途 |
-| --- | --- |
-| `/?scene=archive` | 直接进入档案阵列 |
-| `/?scene=detail` | 直接进入档案详情 |
-| `/?time=28&freeze=1` | 固定在参考时间轴的指定时刻 |
-| `/reference/review.html`、`/reference/boot-review.html` | 原片与复刻对照工具 |
-| `/reference/decryption-review.html` | 玻璃解密逐帧对照 |
-| `/reference/document-decryption-check.html` | 正文同步解密与布局检查 |
-| `/reference/boot-audio.html` | 完整开场声音试听 |
+Browser regression scripts include `scripts/check-paper-navigation.mjs` and `scripts/check-mouse-pan.mjs`; they require Playwright and Edge separately. Source/data checks do not establish real GPU or physical-phone compatibility. Batched input reduces intermediate drag updates, but overall smoothness still depends on GPU, resolution, and quality settings. See [MOUSE-PAN.md](verification/MOUSE-PAN.md) for measurement limits.
 
-原 PV 不随仓库分发。使用视频对照工具时，需要自行准备对应参考视频；正常运行应用不依赖它。
+修改原档案数据后可运行 `npm run export:archives`；开发和构建也会自动导出。修改模型时使用 `art/` 中的 Blender 工程及脚本，正常运行直接使用现成 GLB。更多说明见 [档案维护](content/README.md)。
 
-### Blender 源工程
+After editing the original archive data, run `npm run export:archives`; development and build commands also regenerate exports. Model editing uses the Blender projects and scripts in `art/`, while normal use loads the shipped GLBs. See [archive maintenance](content/README.md).
 
-| 文件 | 用途 |
-| --- | --- |
-| [`art/rhine-archive.blend`](art/rhine-archive.blend) | 档案盒基础模型与审阅灯光 |
-| [`art/archive-assembly.blend`](art/archive-assembly.blend) | 可按六组结构拆解的模型 |
-| [`art/build_archive.py`](art/build_archive.py) | 生成基础模型与 GLB |
-| [`art/build_assembly.py`](art/build_assembly.py) | 生成拆解模型与 GLB |
-| [`art/internal_architecture.py`](art/internal_architecture.py) | 当前双环内构与连接带 |
-| [`art/shell_reference_details.py`](art/shell_reference_details.py) | 顶边方块、螺丝及盖板后刻线 |
-| [`art/setup_studio.py`](art/setup_studio.py) | 配置资产审阅灯光与相机 |
+## 许可与第三方资源 / License & third-party resources
 
-普通运行直接使用现有 GLB 即可，无需安装 Blender。重新建模时，可在 Blender 的脚本环境中通过 `runpy.run_path()` 执行对应脚本，或通过 Blender MCP 调用。脚本根据自身位置确定项目目录，重新生成会更新对应模型输出。
+本扩展保留原项目 [MIT License](LICENSE) 及 **Copyright (c) 2026 LBEILC**。原项目声明其有权授权的程序代码、建模脚本、技术文档、Blender 工程、GLB 模型、原创配乐／音效和原创图像适用 MIT；本扩展保留这些署名与许可，不将原作者身份用于代表扩展维护者。
 
-## 参考与资源说明
+This extension preserves the upstream [MIT License](LICENSE) and **Copyright (c) 2026 LBEILC**. Upstream states that MIT covers the code, modeling scripts, technical documentation, Blender projects, GLB models, original music/sound effects, and original images that its author is entitled to license. These credits and licenses are retained; the upstream author's identity does not represent the extension maintainer.
 
-参考作品为《明日方舟》特别映像「莱茵生命：访问」：[BV1rr4y1b7sz](https://www.bilibili.com/video/BV1rr4y1b7sz/)。本项目与官方制作方无隶属关系，原 PV、相关名称、标志与设定的权利归各自权利人所有。原片未展示的档案摘要、日期、研究记录等属于本项目的扩展演示内容。
+MIT 允许使用、复制、修改和再分发，包括商业或非商业、开源或闭源用途；分发内容或其重要部分时须保留版权声明与许可证。获授权内容按原样提供，不作担保；以 [许可证全文](LICENSE) 为准。
 
-模型为重新制作；实时折射、景深、灯光与局部细节和原 PV 仍有差异。身份验证画面是演示状态机，不连接真实身份或业务服务。
+MIT permits use, copying, modification, and redistribution, including commercial, noncommercial, open-source, and closed-source uses. Preserve the copyright notice and license when distributing the software or substantial portions of it. Licensed material is provided as-is without warranty; the [full license](LICENSE) governs.
 
-- **MiSans**：使用小米官方字体文件，保留[字体许可](public/fonts/MiSans-license.pdf)及字体目录内的版权说明，设置页也提供署名与许可入口。
-- **Rolling Number**：用于编号和文字滚动，许可见 [`public/licenses/rolling-number.txt`](public/licenses/rolling-number.txt)。
-- **PDF.js**：PDF 解析与渲染，Apache-2.0 许可见 [`public/licenses/pdfjs.txt`](public/licenses/pdfjs.txt)；字体与解码器保留各自随包许可。论文仅作为标注的外部技术样例，不随发行包提供全文。
-- **声音**：三轨配乐为本项目程序编配；逐字输入使用原 PV 的三个 38ms 短音，来源与处理记录见 [音频说明](public/audio/README.md)。原片短音及其衍生片段不纳入原创配乐的 MIT 授权声明。
-- **其他依赖**：各自遵循其原有许可。源码公开不改变第三方资源的权利。
+**第三方内容不因源码公开而获得 MIT 授权：**
 
-源码包包含运行代码、模型、Blender 工程、说明与验证脚本，不包含依赖目录、本机缓存、原 PV 或完整录制素材。
+**Publishing this source does not place third-party content under MIT:**
 
-## 开源许可
+- **《明日方舟》：** 相关名称、标志、设定、原 PV、原作视觉设计及原片音频采样与衍生片段归各自权利人所有；包括其在模型、界面、截图与演示文字中的呈现。本项目与官方无隶属关系，无法代替权利人授权。身份验证仅为演示状态机。
+  **Arknights:** names, logos, lore, the original video and visual designs, and sampled audio and its derivatives belong to their respective rights holders, including appearances in models, UI, screenshots, and demo text. This is an unofficial project and cannot grant permission on their behalf. The authentication screen is a demo state machine.
+- **模型：** 上游授权包含 `archive-cassette.glb`、`archive-assembly.glb`、对应 Blender 工程及作者有权授权的衍生内容；模型中的第三方元素仍受上述排除条款约束。
+  **Models:** upstream's grant includes `archive-cassette.glb`, `archive-assembly.glb`, their Blender projects, and derivatives the author may license. Third-party elements within them remain subject to the exclusions above.
+- **字体：** MiSans 保留[官方许可](public/fonts/MiSans-license.pdf)与目录内版权说明；Novecento 为独立商业授权且未提交到 Git。
+  **Fonts:** MiSans retains its [official license](public/fonts/MiSans-license.pdf) and accompanying notices. Novecento requires a separate commercial license and is not committed to Git.
+- **依赖：** [Rolling Number](public/licenses/rolling-number.txt)、[PDF.js](public/licenses/pdfjs.txt) 及其他依赖遵循各自许可证；PDF.js 的字体和解码器也保留随包许可。
+  **Dependencies:** [Rolling Number](public/licenses/rolling-number.txt), [PDF.js](public/licenses/pdfjs.txt), and other dependencies retain their own licenses, including bundled PDF.js fonts and decoders.
+- **论文：** 目录引用外部论文来源；全文不随发行包分发。论文版权及下载使用条件由论文作者、出版方和来源网站决定。
+  **Papers:** the catalog links to external publication sources; full texts are not bundled. Paper copyright and download/use terms remain with authors, publishers, and source sites.
+- **声音：** 原项目三轨配乐为程序编配；逐字输入含原 PV 的三个 38 ms 采样，采样及衍生片段不纳入原创配乐 MIT 授权。见 [音频来源](public/audio/README.md)。
+  **Audio:** upstream's three music tracks are programmatically arranged. Typing audio includes three 38 ms samples from the original video; these samples and derivatives are excluded from the original music's MIT grant. See [audio sources](public/audio/README.md).
 
-本项目由作者创作且有权授权的全部内容统一采用 [MIT License](LICENSE)，版权署名为 **Copyright (c) 2026 LBEILC**。授权范围包括程序代码、建模脚本、技术文档、Blender 源工程、GLB 模型、原创配乐与音效，以及图像、动图和其他原创资源；非代码资产同样适用此许可。
+欢迎在衍生项目中注明并链接 **[LBEILC / RhineLabUI](https://github.com/LBEILC/RhineLabUI)**。这是致谢建议，不增加 MIT 之外的强制条件，也不替代保留许可证的要求。原作者早期快照与历史部署文档用于追溯基底，不表示本扩展已获其站点、账号或第三方资源的使用授权。
 
-你可以使用、复制、修改、制作衍生版本和再分发上述内容，包括随 GitHub 仓库、Release 或应用安装包发布，以及用于截图、GIF 和演示视频。商业、非商业、开源或闭源项目均可使用，也可以用于申请开源项目支持、奖励或会员权益，无需另行申请本项目作者的许可。分发上述内容或其重要部分时，须保留版权声明和 MIT 许可证。所有获授权内容均按原样提供，不作担保，具体以许可证全文为准。
-
-以下第三方内容及权利不在本项目的 MIT 授权范围内：
-
-- **《明日方舟》相关内容**：包括《明日方舟》及莱茵生命相关名称、标志、设定、原 PV、原作视觉设计、原片音频采样及其衍生片段，以及这些内容在模型、界面、截图或演示文本中的呈现。相关权利归各自权利人所有，本项目无法代替他们授权。
-- **其他第三方资源**：MiSans、Novecento、Rolling Number 及其他第三方字体、依赖或素材继续遵循各自的许可证和版权声明，不因本项目的许可范围扩大而改变；独立许可资源也不会因此成为可自由分发的资源。
-
-上述模型授权明确包含 `public/assets/archive-cassette.glb`、`public/assets/archive-assembly.glb`、对应 Blender 源工程及作者有权授权的衍生内容。模型中涉及《明日方舟》或其他第三方的元素仍适用上述排除条款；作者对自行制作部分的授权不代表原作相关权利也已获授权。
-
-欢迎在项目 README、关于页面或展示材料中注明 **LBEILC / RhineLabUI** 并链接[本项目](https://github.com/LBEILC/RhineLabUI)，这不是 MIT 许可证之外的额外强制条件，也不替代分发时保留版权声明和许可证的要求。
-
-复用时，请根据用途处理涉及的第三方素材与标志。GitHub 当前源码包已包含本许可证；上方夸克链接为早期打包快照，最新许可说明以本仓库为准。
+Credit and a link to **[LBEILC / RhineLabUI](https://github.com/LBEILC/RhineLabUI)** are appreciated in derivative projects. This is an attribution suggestion, not an additional MIT condition or a replacement for preserving the license. Early upstream snapshots and historical deployment documents provide provenance; they do not grant this extension access to upstream sites, accounts, or third-party assets.
