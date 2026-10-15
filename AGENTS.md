@@ -1,5 +1,12 @@
 # Rhine Lab UI
 
+## 自动更新论文目录（2026-10-15）
+
+- `.github/workflows/sync-papers.yml` 每六小时及手动触发 `scripts/sync-paper-database.py`。当前年度来源：OpenReview API v2 上 NeurIPS、ICML、ICLR 的录用 Notes；PMLR 官网索引及 citeproc YAML 上的正式 ICML 论文；ACL Anthology 官方 XML 上已出版的 ACL、EMNLP 记录。
+- 生成的 `content/paper-live-catalog.json`、`paper-live-index.json` 和 `paper-live-provenance.json` 随同步提交。只同步元数据，不下载 PDF；预先存在的数据保留，真实 ID 按来源 ID 稳定生成，标题／DOI 去重。
+- `src/paper-catalog.ts` 把 live JSON 与静态精选目录合并到现有 `conference` 类别，`server/paper-source.ts` 仅新增 OpenReview PDF、PMLR 官方资产、ACL PDF 白名单，不允许重定向。新增来源需同步更新这一白名单并验证实际 PDF 路径。
+- 本同步将 Git 数据文件更新，不提供远程数据库 API，也不触发由 `GITHUB_TOKEN` 触发的其他 GitHub Actions。线上静态站须从新提交重新构建／部署；不连接或部署到 LBEILC 原作者的站点。AAAI 与 IJCAI 暂不属于已接入来源。
+
 ## 论文扩展仓库（2026-10-10）
 
 - 当前衍生项目维护者为 HailFujah，目标公开仓库为 `HailFujah/RhineLabUI-Papers`；基底与原作者为 `LBEILC/RhineLabUI` / LBEILC，保留 MIT 版权声明和历史。

@@ -22,7 +22,7 @@ A paper reading and library extension built on **[LBEILC / RhineLabUI](https://g
 
 **Inherited from upstream:** the 3D archive, models and modeling scripts, boot and decryption animations, themes, audio, quality settings, and PWA infrastructure. This extension does not claim authorship of that foundation.
 
-**本扩展内容：** PDF 阅读与导入、论文元数据和千篇目录、本地文件缓存、收藏与阅读记录，以及论文导航和鼠标拖动优化。代码开发由 GPT-6 Astra 协助；原项目的模型制作采用 Blender MCP 工作流。
+**本扩展内容：** PDF 阅读与导入、论文元数据与千篇精选初始目录、自动更新的会议记录、本地文件缓存、收藏与阅读记录，以及论文导航和鼠标拖动优化。代码开发由 GPT-6 Astra 协助；原项目的模型制作采用 Blender MCP 工作流。
 
 **Extension work:** PDF reading and import, paper metadata and a 1,000-paper catalog, local file caching, favorites and reading history, and improvements to paper navigation and mouse dragging. Development was assisted by GPT-6 Astra; upstream models were produced with a Blender MCP workflow.
 
@@ -32,8 +32,8 @@ The upstream demo is maintained by the original author and **does not host this 
 
 ## 功能 / Features
 
-- **千篇目录：** 100 篇代表论文、400 篇 ACL／ICML 会议论文、500 篇近期 arXiv 论文。这是固定选集，没有自动每日更新。
-  **1,000-paper catalog:** 100 representative papers, 400 ACL/ICML conference papers, and 500 recent arXiv papers. This is a fixed selection, not a live database or daily feed.
+- **论文目录：** 保留 1,000 篇精选论文，并自动并入当前年份公开的 NeurIPS／ICML／ICLR 录用论文和 ACL／EMNLP 正式论文。
+  **Paper catalog:** keeps the 1,000-paper starter selection and adds publicly released accepted papers from the current NeurIPS/ICML/ICLR year and published ACL/EMNLP records.
 - **横向切类别，纵向切论文：** 支持键盘、按钮、滚轮和触摸；鼠标左键长按可自由拖动三维阵列，中途转向或反向。
   **Horizontal categories, vertical papers:** keyboard, buttons, wheel, and touch navigation. Hold the left mouse button to freely drag the 3D array, including turns and reversals within one gesture.
 - **PDF 光学阅读：** 页面切片导航、逐页阅读、缩放、平移、适宽、明暗主题，以及模型拆解／重组过渡。
@@ -61,6 +61,16 @@ The upstream demo is maintained by the original author and **does not host this 
 | 修改模型，可选 / Model editing, optional | Blender | 使用现成 GLB 不需要；AI 控制 Blender 才需配置 Blender MCP / Not needed for shipped GLBs; Blender MCP is only needed for AI control of Blender |
 | 浏览器测试，可选 / Browser tests, optional | Playwright, Microsoft Edge | 可通过 `PLAYWRIGHT_MODULE` 指定模块路径 / Scripts accept a module path via `PLAYWRIGHT_MODULE` |
 | 重建目录，可选 / Catalog maintenance, optional | Python 3 | `scripts/import-paper-catalog.py`; 普通运行无需 Python / Not required to run the app |
+
+## 会议论文自动同步 / Conference metadata sync
+
+GitHub Actions 每六小时检查当前年度的 OpenReview API v2（NeurIPS、ICML、ICLR）、ICML 官方 PMLR 元数据，以及 ACL Anthology 官方 XML（ACL、EMNLP）。只导入 OpenReview 中 venue ID 明确为会议录用组的论文；PMLR 和 ACL Anthology 提供正式出版目录，并补齐最终论文链接。元数据提交到 `content/paper-live-*.json`；PDF 不会随任务下载，用户首次阅读时仍由白名单接口按需获取。历史同步条目保留，重复 DOI／标题会跳过。用户浏览器中的个人论文、编辑、收藏和阅读记录不参与同步任务。
+
+GitHub Actions checks the current year's OpenReview API v2 (NeurIPS, ICML, ICLR), official ICML PMLR metadata, and official ACL Anthology XML (ACL, EMNLP) every six hours. It imports OpenReview papers only when their venue ID marks them as accepted; PMLR and the ACL Anthology provide published proceedings and final paper links. Metadata is committed to `content/paper-live-*.json`; the job does not download PDFs. The allowlisted endpoint fetches each PDF when a reader first opens it. Previously synced records are retained, and duplicate DOIs/titles are skipped. Personal papers, edits, favorites, and reading history in users' browsers are not part of this sync.
+
+Sync is scheduled, not instantaneous: records appear after the conference or anthology publishes them. GitHub may delay scheduled jobs. Run **Actions → Sync conference papers → Run workflow** to request a manual refresh. The task updates this repository; a deployed website must rebuild/redeploy from the updated `main` to show new metadata. This does not update the upstream author's site. The sync currently covers these first five conferences; AAAI and IJCAI are not included yet.
+
+Sync is periodic, not instantaneous: records appear after the conference or Anthology publishes them, and GitHub may delay scheduled runs. For a manual refresh, use **Actions → Sync conference papers → Run workflow**. The workflow updates this repository; a deployed site must rebuild/redeploy from the updated `main` to display new metadata. It does not update the upstream author's site. AAAI and IJCAI are not covered yet.
 
 ## 快速运行 / Quick start
 
@@ -142,9 +152,9 @@ The build output is `dist/`. Serve it over HTTP instead of opening `dist/index.h
 | `UPLOAD ARCHIVE` | 导入、编辑论文与切换库 / Import or edit papers and switch libraries |
 | `Esc` | 关闭弹窗或返回上一层 / Close the overlay or return |
 
-论文按三列分组，每列按发表时间排序，未知日期在末尾；个人导入独立归组。X-001 等编号是组内显示序号，不是论文的唯一 ID。切类别会记住各类别的选择；自由拖动按实际格位选档。期刊／会议仍保留在论文详情中。见 [导航记录](verification/PAPER-ROWS.md) 和 [鼠标拖动修复](verification/MOUSE-PAN.md)。
+论文初始精选目录按三列分组，实时目录追加到会议论文类别；各类别按发表时间排序，未知日期在末尾。个人导入独立归组。X-001 等编号是组内显示序号，不是论文的唯一 ID。切类别会记住各类别的选择；自由拖动按实际格位选档。期刊／会议仍保留在论文详情中。见 [导航记录](verification/PAPER-ROWS.md) 和 [鼠标拖动修复](verification/MOUSE-PAN.md)。
 
-The built-in catalog has three category columns, ordered by publication date within each column; unknown dates come last. Personal imports form a separate group. X-001 and similar labels are display positions, not unique paper IDs. Category navigation remembers each category's selection, while free dragging follows physical cells. Venue information remains in the paper details. See [navigation notes](verification/PAPER-ROWS.md) and the [mouse pan fix](verification/MOUSE-PAN.md).
+The starter catalog uses three category columns; synchronized proceedings are added to the conference category. Papers are ordered by publication date within each category, with unknown dates last. Personal imports form a separate group. X-001 and similar labels are display positions, not unique paper IDs. Category navigation remembers each category's selection, while free dragging follows physical cells. Venue information remains in the paper details. See [navigation notes](verification/PAPER-ROWS.md) and the [mouse pan fix](verification/MOUSE-PAN.md).
 
 ### 导入、阅读与缓存 / Import, reading & caching
 

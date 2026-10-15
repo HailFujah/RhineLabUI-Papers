@@ -2,17 +2,25 @@
 
 ## 最新三行编排（2026-09-30）
 
-内置目录按 `collection` 分三行：classic（代表论文100）、conference（ACL／ICML会议400）、recent（近期arXiv500）。`paper-catalog.json` 的分组由 `import-paper-catalog.py` 输出，不能从当前数组位置猜测；元数据的 venue 仍是实际期刊。每行日期升序、X-NNN 重新计数，真实 ID 和 PDF 修订不变。此规则覆盖下文历史期刊分行说明；手动导入保留独立个人导入行。
+精选起始目录按 `collection` 分三行：classic（代表论文100）、conference（ACL／ICML会议400，自动同步的正式会议论文追加于此）、recent（近期arXiv500）。`paper-catalog.json` 的分组由 `import-paper-catalog.py` 输出，`paper-live-catalog.json` 来自定时同步；不能从当前数组位置猜测。元数据的 venue 仍是实际会议或期刊。每行日期升序、X-NNN 重新计数，真实 ID 和 PDF 修订不变。此规则覆盖下文历史期刊分行说明；手动导入保留独立个人导入行。
 
 ## 论文目录（2026-09-30）
 
-网页默认读取独立论文库，目前 1,000 篇。`paper-catalog.json` 保存稳定 ID、元数据键、官方 PDF 地址与修订号；`paper-index.json` 保存新增 995 篇字段，`papers.json` 保存五篇人工核对字段，`paper-seeds.json` 固定五篇身份。`paper-selection.json` 和 `paper-provenance.json` 分别保存选取配置和实际来源记录。运行 `python scripts/import-paper-catalog.py --fetch` 仅拉取缺失元数据，输出前检查目标数量；无参数从忽略目录的缓存重现。它不下载 PDF，也不是每日同步服务。详见 [首批目录](../verification/PAPER-CATALOG.md)。
+网页默认读取独立论文库。固定精选目录 1,000 篇，此外按年增长的 `paper-live-catalog.json` 保存自动同步的会议论文。前者配套 `paper-index.json`、`papers.json`、`paper-seeds.json` 和选取／溯源配置；同步脚本维护 live catalog、metadata index 与 provenance 三个文件。固定选集重建说明见 [首批目录](../verification/PAPER-CATALOG.md)。
 
 新增内容沿用已有 UUID，不能拿 X-001 之类动态排序号当真实身份。仅原 PDF 内容改变时更新修订号；普通字段调整不应导致已保存 PDF 重新下载。
 
 启动仅载入目录；首次打开才经白名单下载入口取得 PDF 并存入 IndexedDB。个人导入及用户编辑保存在本地，不回写此目录。检查命令为 `npm run check:paper-cache`，详细流程见 [论文缓存](../verification/PAPER-CACHE.md)。以下五列八份约束只用于原游戏档案。
 
 [`archives.json`](archives.json) 是原 40 份设定档案与 TXT 导出共用的数据。修改原档案内容无需编辑 TypeScript；`src/data.ts` 同时负责原档案／个人论文库的数据切换与阵列位置映射。
+
+## 自动同步的会议论文（2026-10-15）
+
+GitHub Actions 每六小时同步当年目录，手动入口在 Actions → Sync conference papers。OpenReview API v2 仅保留 NeurIPS／ICML／ICLR 已将 venue ID 改为录用组的记录；ICML 官方当前卷 PMLR BibTeX/YAML 元数据补充正式出版资料；ACL／EMNLP 来自 ACL Anthology 官方 XML。暂不包括 AAAI、IJCAI，也不追补更早年份。临时来源错误会使任务失败，不会清空现有目录。
+
+`paper-live-catalog.json` 与 `paper-live-index.json` 和原三文件并列，由 `src/paper-catalog.ts` 加载到现有 conference 类别。`paper-live-provenance.json` 记录同步时间、来源计数和总目录长度。ID 基于官方来源 ID 固定；以 DOI 和规范化标题去重。源元数据修订会更新目录，但用户浏览器 IndexedDB 中个人导入／编辑、收藏、阅读记录和已缓存 PDF 不会被任务访问。
+
+同步结果是 Git 仓库中的 JSON 数据集，没有独立线上数据库。GitHub Action 更新提交后，网页托管平台需要重新构建／部署才会显示更新。OpenReview 和会议论文集各自决定公开时间；六小时轮询并不保证投稿后即刻可见。任务从不下载论文全文；阅读器首次请求仍经过 `server/paper-source.ts` 对 `openreview.net`、`api2.openreview.net`、`aclanthology.org` 和 PMLR 官方资产的 HTTPS 路径检查。新增来源必须明确限定主机与路径。
 
 ## 论文数据（2026-09-28）
 

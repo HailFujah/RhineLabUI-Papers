@@ -1,7 +1,7 @@
 /** Editorial library rows are independent of a paper's scholarly venue. */
 export const paperCollections = [
   { id: "classic", label: "代表论文" },
-  { id: "conference", label: "ACL／ICML 会议论文" },
+  { id: "conference", label: "国际会议论文" },
   { id: "recent", label: "近期 arXiv 论文" },
 ] as const;
 export type PaperCollection = typeof paperCollections[number]["id"];

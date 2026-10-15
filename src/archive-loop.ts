@@ -14,7 +14,7 @@ export function wrap(value: number, count: number) {
   return ((value % count) + count) % count;
 }
 
-/** Rebase only by whole content periods, including differently sized categories. */
+/** Preserve every category's row contents when resetting an unbounded row. */
 export function rebaseShift(cell: ArchiveCell) {
   if (Math.abs(cell.lane) <= 2048 && Math.abs(cell.row) <= 2048) return { lane: 0, row: 0 };
   const gcd = (a: number, b: number): number => b ? gcd(b, a % b) : a;
@@ -22,7 +22,7 @@ export function rebaseShift(cell: ArchiveCell) {
     if (!period) return 0;
     const count = columnFiles(group).length;
     const next = period / gcd(period, count) * count;
-    return Number.isSafeInteger(next) && next <= 1_000_000 ? next : 0;
+    return Number.isSafeInteger(next) && next <= Number.MAX_SAFE_INTEGER / 8 ? next : 0;
   }, 1);
   const lanePeriod = archiveColumns.length;
   const rowPeriod = itemPeriod;
