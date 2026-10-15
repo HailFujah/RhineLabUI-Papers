@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - ".github/workflows/sync-papers.yml"
+      - "scripts/sync-paper-database.py"
   schedule:
     - cron: "23 */6 * * *"
   workflow_dispatch:

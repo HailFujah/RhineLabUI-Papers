@@ -98,6 +98,7 @@ def openreview_papers(stats: dict):
         venue_id = f"{prefix}/{YEAR}/Conference"
         offset = 0
         fetched = 0
+        result_window_limited = False
         while True:
             params = urllib.parse.urlencode({"content": "venueid", "term": venue_id,
                                              "type": "exact", "limit": 500, "offset": offset})
@@ -144,7 +145,12 @@ def openreview_papers(stats: dict):
             time.sleep(0.25)
             if len(notes) < 500:
                 break
-        stats[f"{short} {YEAR}"] = fetched
+            if offset >= 10_000 and int(result.get("count") or 0) >= 10_000:
+                result_window_limited = True
+                break
+        stats[f"{short} {YEAR}"] = (
+            f">={fetched} (OpenReview 10,000-result window)" if result_window_limited else fetched
+        )
 
 
 def acl_papers(stats: dict):
@@ -312,3 +318,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
