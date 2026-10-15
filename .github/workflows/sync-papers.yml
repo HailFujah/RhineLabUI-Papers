@@ -1,6 +1,9 @@
 name: Sync conference papers
 
 on:
+  push:
+    paths:
+      - ".github/workflows/sync-papers.yml"
   schedule:
     - cron: "23 */6 * * *"
   workflow_dispatch:
@@ -36,3 +39,4 @@ jobs:
           git add content/paper-live-catalog.json content/paper-live-index.json content/paper-live-provenance.json
           git commit -m "Sync conference paper metadata"
           git push
+
