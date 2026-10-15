@@ -1,1 +1,27 @@
-{"syncedAt":null,"year":null,"sources":{},"total":0}
+{
+  "providers": {
+    "ACL Anthology official XML": [
+      "ACL",
+      "EMNLP"
+    ],
+    "OpenReview API v2": [
+      "NeurIPS",
+      "ICML",
+      "ICLR"
+    ],
+    "PMLR official citeproc YAML": [
+      "ICML final proceedings"
+    ]
+  },
+  "sources": {
+    "ACL 2026": 2648,
+    "EMNLP 2026": "not published yet",
+    "ICLR 2026": ">=5351 (OpenReview 10,000-result window)",
+    "ICML 2026": 6341,
+    "ICML 2026 PMLR": 6552,
+    "NeurIPS 2026": 0
+  },
+  "syncedAt": "2026-10-15T16:02:50.725299+00:00",
+  "total": 14571,
+  "year": 2026
+}
