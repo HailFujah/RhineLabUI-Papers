@@ -11123,7 +11123,7 @@
     "id": "paper:b648b2a4-3067-530b-b39c-0ed81e64734c",
     "metadata": "acl-anthology-2026-acl-long-2036",
     "slug": "acl-anthology-2026-acl-long-2036",
-    "revision": "0a4f1549480a151a",
+    "revision": "814649bf181c60a8",
     "pdf": "https://aclanthology.org/2026.acl-long.2036.pdf",
     "collection": "conference"
   },
@@ -41163,7 +41163,7 @@
     "id": "paper:7e155e64-76a2-5cce-b08c-36c61b31a981",
     "metadata": "acl-anthology-2026-emnlp-main-497",
     "slug": "acl-anthology-2026-emnlp-main-497",
-    "revision": "59182e494dc89830",
+    "revision": "d3acb29339c933fc",
     "pdf": "https://aclanthology.org/2026.emnlp-main.497.pdf",
     "collection": "conference"
   },
@@ -41219,7 +41219,7 @@
     "id": "paper:57beb8b8-3c80-576d-803e-7bbdb157ede4",
     "metadata": "acl-anthology-2026-emnlp-main-502",
     "slug": "acl-anthology-2026-emnlp-main-502",
-    "revision": "a8d7dea061f2ce87",
+    "revision": "75e395a369374331",
     "pdf": "https://aclanthology.org/2026.emnlp-main.502.pdf",
     "collection": "conference"
   },
@@ -41235,7 +41235,7 @@
     "id": "paper:00ffb97d-23df-5a48-81d1-a3e1987367a1",
     "metadata": "acl-anthology-2026-emnlp-main-504",
     "slug": "acl-anthology-2026-emnlp-main-504",
-    "revision": "c8e22e64fd8ff19e",
+    "revision": "02ca08eb183e7f24",
     "pdf": "https://aclanthology.org/2026.emnlp-main.504.pdf",
     "collection": "conference"
   },
@@ -41259,7 +41259,7 @@
     "id": "paper:b2ac316d-04f2-505d-9ebe-5483e679fb00",
     "metadata": "acl-anthology-2026-emnlp-main-507",
     "slug": "acl-anthology-2026-emnlp-main-507",
-    "revision": "126f5364d104330e",
+    "revision": "2e3fc11529244d32",
     "pdf": "https://aclanthology.org/2026.emnlp-main.507.pdf",
     "collection": "conference"
   },
@@ -41339,7 +41339,7 @@
     "id": "paper:33d1889b-3a7d-5f8b-852c-027ea45ec8e0",
     "metadata": "acl-anthology-2026-emnlp-main-516",
     "slug": "acl-anthology-2026-emnlp-main-516",
-    "revision": "73158685dd96118a",
+    "revision": "433928c446e2740e",
     "pdf": "https://aclanthology.org/2026.emnlp-main.516.pdf",
     "collection": "conference"
   },
@@ -41363,7 +41363,7 @@
     "id": "paper:f4564517-73df-50a1-8b82-7bdedae01d53",
     "metadata": "acl-anthology-2026-emnlp-main-519",
     "slug": "acl-anthology-2026-emnlp-main-519",
-    "revision": "8a7963d3a0c8dacf",
+    "revision": "09e13fd7f3d34aaa",
     "pdf": "https://aclanthology.org/2026.emnlp-main.519.pdf",
     "collection": "conference"
   },
@@ -41427,7 +41427,7 @@
     "id": "paper:bda76d84-a381-5677-9002-40ad202604d1",
     "metadata": "acl-anthology-2026-emnlp-main-526",
     "slug": "acl-anthology-2026-emnlp-main-526",
-    "revision": "db059fa5319dc8b0",
+    "revision": "fc41b5f23d7d782f",
     "pdf": "https://aclanthology.org/2026.emnlp-main.526.pdf",
     "collection": "conference"
   },
@@ -41483,7 +41483,7 @@
     "id": "paper:444a47ed-271f-5f7d-a588-97b49a6a643f",
     "metadata": "acl-anthology-2026-emnlp-main-532",
     "slug": "acl-anthology-2026-emnlp-main-532",
-    "revision": "fbd877b2a1ea874e",
+    "revision": "58927a143d7470db",
     "pdf": "https://aclanthology.org/2026.emnlp-main.532.pdf",
     "collection": "conference"
   },
@@ -41539,7 +41539,7 @@
     "id": "paper:c20c30d7-22df-5c12-ba6a-d89a050d4d40",
     "metadata": "acl-anthology-2026-emnlp-main-539",
     "slug": "acl-anthology-2026-emnlp-main-539",
-    "revision": "420198bcea6bea8b",
+    "revision": "bf405adc5c94a6c5",
     "pdf": "https://aclanthology.org/2026.emnlp-main.539.pdf",
     "collection": "conference"
   },
@@ -41627,7 +41627,7 @@
     "id": "paper:a5d04cda-e70b-5095-91ec-6d9f800547a2",
     "metadata": "acl-anthology-2026-emnlp-main-549",
     "slug": "acl-anthology-2026-emnlp-main-549",
-    "revision": "59d6ab31d0015fcc",
+    "revision": "713502f76918c094",
     "pdf": "https://aclanthology.org/2026.emnlp-main.549.pdf",
     "collection": "conference"
   },
@@ -41667,7 +41667,7 @@
     "id": "paper:e6d17622-3034-5537-8305-bcf85d17844c",
     "metadata": "acl-anthology-2026-emnlp-main-553",
     "slug": "acl-anthology-2026-emnlp-main-553",
-    "revision": "976dd758bfb89ef9",
+    "revision": "c63cfa411edfb386",
     "pdf": "https://aclanthology.org/2026.emnlp-main.553.pdf",
     "collection": "conference"
   },
@@ -41707,7 +41707,7 @@
     "id": "paper:fe6ae94c-e30b-5e7e-b5f0-5b168daf5ceb",
     "metadata": "acl-anthology-2026-emnlp-main-558",
     "slug": "acl-anthology-2026-emnlp-main-558",
-    "revision": "527f7d4d31b7fc6e",
+    "revision": "3a27fed886408eb6",
     "pdf": "https://aclanthology.org/2026.emnlp-main.558.pdf",
     "collection": "conference"
   },
@@ -41747,7 +41747,7 @@
     "id": "paper:58c69f5a-a782-56fe-ab22-d2c305a3d0e5",
     "metadata": "acl-anthology-2026-emnlp-main-562",
     "slug": "acl-anthology-2026-emnlp-main-562",
-    "revision": "7b8ce73fad6c73d6",
+    "revision": "599765bdb5fa142b",
     "pdf": "https://aclanthology.org/2026.emnlp-main.562.pdf",
     "collection": "conference"
   },
@@ -41779,7 +41779,7 @@
     "id": "paper:b938207e-27d5-5356-b3ec-da56a6737f03",
     "metadata": "acl-anthology-2026-emnlp-main-566",
     "slug": "acl-anthology-2026-emnlp-main-566",
-    "revision": "bc8e3adca7934ab3",
+    "revision": "c9f737ce3fc3a283",
     "pdf": "https://aclanthology.org/2026.emnlp-main.566.pdf",
     "collection": "conference"
   },
@@ -41835,7 +41835,7 @@
     "id": "paper:bc3331ee-13df-5ce9-b7fa-70663670e1a2",
     "metadata": "acl-anthology-2026-emnlp-main-572",
     "slug": "acl-anthology-2026-emnlp-main-572",
-    "revision": "f52e39d46408b7c8",
+    "revision": "cff01b947f91ce8a",
     "pdf": "https://aclanthology.org/2026.emnlp-main.572.pdf",
     "collection": "conference"
   },
@@ -41891,7 +41891,7 @@
     "id": "paper:7751313e-5c58-56e4-8ef5-4932e5844e62",
     "metadata": "acl-anthology-2026-emnlp-main-579",
     "slug": "acl-anthology-2026-emnlp-main-579",
-    "revision": "22f165194e0cec05",
+    "revision": "66661bbe8ce16929",
     "pdf": "https://aclanthology.org/2026.emnlp-main.579.pdf",
     "collection": "conference"
   },
@@ -41931,7 +41931,7 @@
     "id": "paper:3746964e-2cb5-58fa-b067-e2ced1129388",
     "metadata": "acl-anthology-2026-emnlp-main-583",
     "slug": "acl-anthology-2026-emnlp-main-583",
-    "revision": "f35eda408627d0a8",
+    "revision": "37e1ad136d41fa75",
     "pdf": "https://aclanthology.org/2026.emnlp-main.583.pdf",
     "collection": "conference"
   },
@@ -41955,7 +41955,7 @@
     "id": "paper:444cc5f4-df10-5944-b115-d36a79e6e5ee",
     "metadata": "acl-anthology-2026-emnlp-main-586",
     "slug": "acl-anthology-2026-emnlp-main-586",
-    "revision": "6f7baebfb0690375",
+    "revision": "6003b3f6b9b42ad8",
     "pdf": "https://aclanthology.org/2026.emnlp-main.586.pdf",
     "collection": "conference"
   },
@@ -41963,7 +41963,7 @@
     "id": "paper:2b7f1ddd-7ced-5e23-bb80-3267e444da89",
     "metadata": "acl-anthology-2026-emnlp-main-587",
     "slug": "acl-anthology-2026-emnlp-main-587",
-    "revision": "13a00674eb3f80f7",
+    "revision": "ad40d7414cd6938f",
     "pdf": "https://aclanthology.org/2026.emnlp-main.587.pdf",
     "collection": "conference"
   },
@@ -42003,7 +42003,7 @@
     "id": "paper:d475059b-f5cf-5e99-a916-a26e9a60c2fc",
     "metadata": "acl-anthology-2026-emnlp-main-591",
     "slug": "acl-anthology-2026-emnlp-main-591",
-    "revision": "6e7b26a0ecf35cee",
+    "revision": "f5d2abb6995885e4",
     "pdf": "https://aclanthology.org/2026.emnlp-main.591.pdf",
     "collection": "conference"
   },
@@ -42051,7 +42051,7 @@
     "id": "paper:95b82245-a8bc-5634-b846-75214c23cffa",
     "metadata": "acl-anthology-2026-emnlp-main-597",
     "slug": "acl-anthology-2026-emnlp-main-597",
-    "revision": "d159efa2a1e574f4",
+    "revision": "28bd35f134eb537c",
     "pdf": "https://aclanthology.org/2026.emnlp-main.597.pdf",
     "collection": "conference"
   },
@@ -42107,7 +42107,7 @@
     "id": "paper:a5ffbf7e-e330-5ef8-8a31-9d0d21903479",
     "metadata": "acl-anthology-2026-emnlp-main-602",
     "slug": "acl-anthology-2026-emnlp-main-602",
-    "revision": "99498b31b2c7eac0",
+    "revision": "f3f07f35f4506e09",
     "pdf": "https://aclanthology.org/2026.emnlp-main.602.pdf",
     "collection": "conference"
   },
@@ -42123,7 +42123,7 @@
     "id": "paper:746ef8ce-412c-5fc9-a2a3-4bcef7808fe4",
     "metadata": "acl-anthology-2026-emnlp-main-604",
     "slug": "acl-anthology-2026-emnlp-main-604",
-    "revision": "e483c4957edabb0d",
+    "revision": "44bbdaa079009a0c",
     "pdf": "https://aclanthology.org/2026.emnlp-main.604.pdf",
     "collection": "conference"
   },
@@ -42139,7 +42139,7 @@
     "id": "paper:05448558-5837-5e8a-86ac-b973ed4039de",
     "metadata": "acl-anthology-2026-emnlp-main-606",
     "slug": "acl-anthology-2026-emnlp-main-606",
-    "revision": "defcae2fd3fb6241",
+    "revision": "96ba2fa1d78590fe",
     "pdf": "https://aclanthology.org/2026.emnlp-main.606.pdf",
     "collection": "conference"
   },
@@ -42147,7 +42147,7 @@
     "id": "paper:2a21844f-1562-5572-a1b2-fc347b15eeed",
     "metadata": "acl-anthology-2026-emnlp-main-607",
     "slug": "acl-anthology-2026-emnlp-main-607",
-    "revision": "b233f73fed0ad3ac",
+    "revision": "7f087829a9110ca3",
     "pdf": "https://aclanthology.org/2026.emnlp-main.607.pdf",
     "collection": "conference"
   },
@@ -42155,7 +42155,7 @@
     "id": "paper:6a37c2e1-1d64-52ef-8921-f8ffcdbf006a",
     "metadata": "acl-anthology-2026-emnlp-main-608",
     "slug": "acl-anthology-2026-emnlp-main-608",
-    "revision": "b6753087c39d266d",
+    "revision": "df55bad54ea88e7e",
     "pdf": "https://aclanthology.org/2026.emnlp-main.608.pdf",
     "collection": "conference"
   },
@@ -42219,7 +42219,7 @@
     "id": "paper:50dca0d5-48dc-5bac-8415-23554bed63e9",
     "metadata": "acl-anthology-2026-emnlp-main-615",
     "slug": "acl-anthology-2026-emnlp-main-615",
-    "revision": "7e38f6e0c5c59f41",
+    "revision": "0281055cc2ecf23a",
     "pdf": "https://aclanthology.org/2026.emnlp-main.615.pdf",
     "collection": "conference"
   },
@@ -42243,7 +42243,7 @@
     "id": "paper:e31b49f7-8810-5698-a3e3-83a8693f1dc0",
     "metadata": "acl-anthology-2026-emnlp-main-618",
     "slug": "acl-anthology-2026-emnlp-main-618",
-    "revision": "04972bd1a6ace9ce",
+    "revision": "8ca7e4e8999ae600",
     "pdf": "https://aclanthology.org/2026.emnlp-main.618.pdf",
     "collection": "conference"
   },
@@ -42251,7 +42251,7 @@
     "id": "paper:d0fd3d24-a451-5623-8d2b-22546a60cfb8",
     "metadata": "acl-anthology-2026-emnlp-main-619",
     "slug": "acl-anthology-2026-emnlp-main-619",
-    "revision": "e53a73be57327f41",
+    "revision": "8f030f8b5348085b",
     "pdf": "https://aclanthology.org/2026.emnlp-main.619.pdf",
     "collection": "conference"
   },
@@ -42299,7 +42299,7 @@
     "id": "paper:1b5c6cbf-f2f7-58c2-9c1b-9d978d2752b7",
     "metadata": "acl-anthology-2026-emnlp-main-624",
     "slug": "acl-anthology-2026-emnlp-main-624",
-    "revision": "d8182fc80af6ea42",
+    "revision": "32323672d7d25986",
     "pdf": "https://aclanthology.org/2026.emnlp-main.624.pdf",
     "collection": "conference"
   },
@@ -42315,7 +42315,7 @@
     "id": "paper:078d3c94-eb84-5bde-a922-601eec111088",
     "metadata": "acl-anthology-2026-emnlp-main-626",
     "slug": "acl-anthology-2026-emnlp-main-626",
-    "revision": "f3244da7acf327a0",
+    "revision": "3c59aeb9fff1c60d",
     "pdf": "https://aclanthology.org/2026.emnlp-main.626.pdf",
     "collection": "conference"
   },
@@ -42323,7 +42323,7 @@
     "id": "paper:77da8570-b4cc-59a5-8439-ab8a914842ec",
     "metadata": "acl-anthology-2026-emnlp-main-627",
     "slug": "acl-anthology-2026-emnlp-main-627",
-    "revision": "7926f5d98a3003d2",
+    "revision": "4ba4934996f907b2",
     "pdf": "https://aclanthology.org/2026.emnlp-main.627.pdf",
     "collection": "conference"
   },
@@ -42387,7 +42387,7 @@
     "id": "paper:2bf182f2-e98e-5899-b6a3-44c295707a63",
     "metadata": "acl-anthology-2026-emnlp-main-634",
     "slug": "acl-anthology-2026-emnlp-main-634",
-    "revision": "23d1c98399bb2802",
+    "revision": "9b9b471858c70d12",
     "pdf": "https://aclanthology.org/2026.emnlp-main.634.pdf",
     "collection": "conference"
   },
@@ -42403,7 +42403,7 @@
     "id": "paper:3cf2b03b-065f-578b-ba06-9ca109a08e07",
     "metadata": "acl-anthology-2026-emnlp-main-636",
     "slug": "acl-anthology-2026-emnlp-main-636",
-    "revision": "f4cbe396528489e8",
+    "revision": "6ba5dd06b7780b22",
     "pdf": "https://aclanthology.org/2026.emnlp-main.636.pdf",
     "collection": "conference"
   },
@@ -42411,7 +42411,7 @@
     "id": "paper:f89833e3-c16b-55f8-9c63-7826f62849bf",
     "metadata": "acl-anthology-2026-emnlp-main-637",
     "slug": "acl-anthology-2026-emnlp-main-637",
-    "revision": "a973d43362635e34",
+    "revision": "78ce4bbe66d53c18",
     "pdf": "https://aclanthology.org/2026.emnlp-main.637.pdf",
     "collection": "conference"
   },
@@ -42459,7 +42459,7 @@
     "id": "paper:9b237b12-4668-5c93-80a3-5ffdbc36dee9",
     "metadata": "acl-anthology-2026-emnlp-main-642",
     "slug": "acl-anthology-2026-emnlp-main-642",
-    "revision": "8e0bf1a90f0d3ffe",
+    "revision": "a21a09b47087a855",
     "pdf": "https://aclanthology.org/2026.emnlp-main.642.pdf",
     "collection": "conference"
   },
@@ -42467,7 +42467,7 @@
     "id": "paper:c541a960-272f-5b80-b560-0351573b4f2b",
     "metadata": "acl-anthology-2026-emnlp-main-643",
     "slug": "acl-anthology-2026-emnlp-main-643",
-    "revision": "26955ade42461e3c",
+    "revision": "5d8f47c8fa7c2354",
     "pdf": "https://aclanthology.org/2026.emnlp-main.643.pdf",
     "collection": "conference"
   },
@@ -42515,7 +42515,7 @@
     "id": "paper:51609b7f-53a9-5852-aa84-b48c6662f686",
     "metadata": "acl-anthology-2026-emnlp-main-649",
     "slug": "acl-anthology-2026-emnlp-main-649",
-    "revision": "0df67263ddbab617",
+    "revision": "58bbf8d4d16be211",
     "pdf": "https://aclanthology.org/2026.emnlp-main.649.pdf",
     "collection": "conference"
   },
@@ -42595,7 +42595,7 @@
     "id": "paper:b2f50bd6-35de-51c7-beec-50a2b6a1737f",
     "metadata": "acl-anthology-2026-emnlp-main-658",
     "slug": "acl-anthology-2026-emnlp-main-658",
-    "revision": "a3bff07227b25c63",
+    "revision": "5fb55ac925ecd4f9",
     "pdf": "https://aclanthology.org/2026.emnlp-main.658.pdf",
     "collection": "conference"
   },
@@ -42619,7 +42619,7 @@
     "id": "paper:bc4325f0-5edf-5bf2-9fc2-6d4913bd184f",
     "metadata": "acl-anthology-2026-emnlp-main-660",
     "slug": "acl-anthology-2026-emnlp-main-660",
-    "revision": "2fc9265f20e8a753",
+    "revision": "2cafdc8403d86213",
     "pdf": "https://aclanthology.org/2026.emnlp-main.660.pdf",
     "collection": "conference"
   },
@@ -42659,7 +42659,7 @@
     "id": "paper:20291410-e006-50af-bd81-68cec8dfce47",
     "metadata": "acl-anthology-2026-emnlp-main-665",
     "slug": "acl-anthology-2026-emnlp-main-665",
-    "revision": "c28983689bbb8956",
+    "revision": "d0340c05b0a8a70d",
     "pdf": "https://aclanthology.org/2026.emnlp-main.665.pdf",
     "collection": "conference"
   },
@@ -42691,7 +42691,7 @@
     "id": "paper:ded89ecf-fe4a-59cb-b405-162cb8cf4d8b",
     "metadata": "acl-anthology-2026-emnlp-main-669",
     "slug": "acl-anthology-2026-emnlp-main-669",
-    "revision": "501b3e132f61d203",
+    "revision": "22c6241ec730aeb6",
     "pdf": "https://aclanthology.org/2026.emnlp-main.669.pdf",
     "collection": "conference"
   },
@@ -42723,7 +42723,7 @@
     "id": "paper:87884e7b-22fe-5cc8-9aeb-41d73e16a911",
     "metadata": "acl-anthology-2026-emnlp-main-672",
     "slug": "acl-anthology-2026-emnlp-main-672",
-    "revision": "79d4b5f64deb357e",
+    "revision": "faa8e823367e8607",
     "pdf": "https://aclanthology.org/2026.emnlp-main.672.pdf",
     "collection": "conference"
   },
@@ -42763,7 +42763,7 @@
     "id": "paper:d08c8092-522a-593a-b220-4cc8104a63d4",
     "metadata": "acl-anthology-2026-emnlp-main-677",
     "slug": "acl-anthology-2026-emnlp-main-677",
-    "revision": "1f8ef0d84da263d9",
+    "revision": "5a77a8d24f14e2f6",
     "pdf": "https://aclanthology.org/2026.emnlp-main.677.pdf",
     "collection": "conference"
   },
@@ -42795,7 +42795,7 @@
     "id": "paper:6f1490c1-2d8c-5b1d-bd95-883e4dcb847e",
     "metadata": "acl-anthology-2026-emnlp-main-680",
     "slug": "acl-anthology-2026-emnlp-main-680",
-    "revision": "d3f221ca661a7f62",
+    "revision": "7ac0b798ed8feb6b",
     "pdf": "https://aclanthology.org/2026.emnlp-main.680.pdf",
     "collection": "conference"
   },
@@ -42819,7 +42819,7 @@
     "id": "paper:a93025c0-ee54-5e1f-9299-413ea6965668",
     "metadata": "acl-anthology-2026-emnlp-main-683",
     "slug": "acl-anthology-2026-emnlp-main-683",
-    "revision": "e5f02906bc6ea5de",
+    "revision": "3a6763eb97d446ff",
     "pdf": "https://aclanthology.org/2026.emnlp-main.683.pdf",
     "collection": "conference"
   },
@@ -42827,7 +42827,7 @@
     "id": "paper:5039b647-38d7-58a4-ae3f-ec80c4371bdf",
     "metadata": "acl-anthology-2026-emnlp-main-684",
     "slug": "acl-anthology-2026-emnlp-main-684",
-    "revision": "b31c969a12b0d8b4",
+    "revision": "5a5461faa6da56cb",
     "pdf": "https://aclanthology.org/2026.emnlp-main.684.pdf",
     "collection": "conference"
   },
@@ -42851,7 +42851,7 @@
     "id": "paper:7875b933-fe88-584b-953d-270c61709dfe",
     "metadata": "acl-anthology-2026-emnlp-main-687",
     "slug": "acl-anthology-2026-emnlp-main-687",
-    "revision": "c05f78e77fbc6299",
+    "revision": "c84915798f02dfc1",
     "pdf": "https://aclanthology.org/2026.emnlp-main.687.pdf",
     "collection": "conference"
   },
@@ -42907,7 +42907,7 @@
     "id": "paper:0ae34fae-711b-50ab-9720-c3c30dac7912",
     "metadata": "acl-anthology-2026-emnlp-main-693",
     "slug": "acl-anthology-2026-emnlp-main-693",
-    "revision": "5d8a6bbfdaacfe83",
+    "revision": "6855968209fdf80c",
     "pdf": "https://aclanthology.org/2026.emnlp-main.693.pdf",
     "collection": "conference"
   },
@@ -42947,7 +42947,7 @@
     "id": "paper:408701e9-b317-52bd-8695-156fc5f80c6a",
     "metadata": "acl-anthology-2026-emnlp-main-698",
     "slug": "acl-anthology-2026-emnlp-main-698",
-    "revision": "fce7612a1edcb32b",
+    "revision": "f23abbe1181d4115",
     "pdf": "https://aclanthology.org/2026.emnlp-main.698.pdf",
     "collection": "conference"
   },
@@ -42963,7 +42963,7 @@
     "id": "paper:8263ed8f-dbac-525f-8ba1-afd5bd59f08b",
     "metadata": "acl-anthology-2026-emnlp-main-7",
     "slug": "acl-anthology-2026-emnlp-main-7",
-    "revision": "fff7b54100d4f8d8",
+    "revision": "1934569a2a8bd14e",
     "pdf": "https://aclanthology.org/2026.emnlp-main.7.pdf",
     "collection": "conference"
   },
@@ -42987,7 +42987,7 @@
     "id": "paper:07168ad2-5c32-5fff-82bb-6e26a2996ff3",
     "metadata": "acl-anthology-2026-emnlp-main-701",
     "slug": "acl-anthology-2026-emnlp-main-701",
-    "revision": "7f4664eebc18f4c0",
+    "revision": "f7c7436547a58d1d",
     "pdf": "https://aclanthology.org/2026.emnlp-main.701.pdf",
     "collection": "conference"
   },
@@ -43003,7 +43003,7 @@
     "id": "paper:f613c3fa-37d7-5cb1-831c-83c5f58e3441",
     "metadata": "acl-anthology-2026-emnlp-main-703",
     "slug": "acl-anthology-2026-emnlp-main-703",
-    "revision": "23a98d2fb0172fa8",
+    "revision": "0912d23454602940",
     "pdf": "https://aclanthology.org/2026.emnlp-main.703.pdf",
     "collection": "conference"
   },
@@ -43027,7 +43027,7 @@
     "id": "paper:e0a40d57-c89e-5b6b-8041-f3196f321458",
     "metadata": "acl-anthology-2026-emnlp-main-706",
     "slug": "acl-anthology-2026-emnlp-main-706",
-    "revision": "edc3feffc2b12851",
+    "revision": "2efe8a289798135e",
     "pdf": "https://aclanthology.org/2026.emnlp-main.706.pdf",
     "collection": "conference"
   },
@@ -43075,7 +43075,7 @@
     "id": "paper:20116d0c-c8e6-5ee2-8fa9-91c979f17316",
     "metadata": "acl-anthology-2026-emnlp-main-711",
     "slug": "acl-anthology-2026-emnlp-main-711",
-    "revision": "0257fc7b01ab5d61",
+    "revision": "fdf2f07b1c4776e2",
     "pdf": "https://aclanthology.org/2026.emnlp-main.711.pdf",
     "collection": "conference"
   },
@@ -43091,7 +43091,7 @@
     "id": "paper:de9c5809-2164-50d2-b892-8f90dcc2e9f8",
     "metadata": "acl-anthology-2026-emnlp-main-713",
     "slug": "acl-anthology-2026-emnlp-main-713",
-    "revision": "22581b72eaed1e54",
+    "revision": "aea07446149c32c6",
     "pdf": "https://aclanthology.org/2026.emnlp-main.713.pdf",
     "collection": "conference"
   },
@@ -43115,7 +43115,7 @@
     "id": "paper:97da1684-3949-5314-a9cd-b85cf13918f9",
     "metadata": "acl-anthology-2026-emnlp-main-716",
     "slug": "acl-anthology-2026-emnlp-main-716",
-    "revision": "474b8173d3fd281e",
+    "revision": "966b735f96024d3e",
     "pdf": "https://aclanthology.org/2026.emnlp-main.716.pdf",
     "collection": "conference"
   },
@@ -43155,7 +43155,7 @@
     "id": "paper:53c2dcc2-70a1-53a0-b473-1c77623f42c9",
     "metadata": "acl-anthology-2026-emnlp-main-720",
     "slug": "acl-anthology-2026-emnlp-main-720",
-    "revision": "b9da3e248b6aaa5b",
+    "revision": "413b8ad02f589f8b",
     "pdf": "https://aclanthology.org/2026.emnlp-main.720.pdf",
     "collection": "conference"
   },
@@ -43171,7 +43171,7 @@
     "id": "paper:08adf004-014f-58ba-a003-b37033a01d3b",
     "metadata": "acl-anthology-2026-emnlp-main-722",
     "slug": "acl-anthology-2026-emnlp-main-722",
-    "revision": "d6eac1d246052c4f",
+    "revision": "bccc78be5efb8bd9",
     "pdf": "https://aclanthology.org/2026.emnlp-main.722.pdf",
     "collection": "conference"
   },
@@ -43179,7 +43179,7 @@
     "id": "paper:d0926de4-893e-5d88-a008-2c7bb0c93452",
     "metadata": "acl-anthology-2026-emnlp-main-723",
     "slug": "acl-anthology-2026-emnlp-main-723",
-    "revision": "8f6569183e853cd5",
+    "revision": "e258aed0a868ffcd",
     "pdf": "https://aclanthology.org/2026.emnlp-main.723.pdf",
     "collection": "conference"
   },
@@ -43203,7 +43203,7 @@
     "id": "paper:96e16fd3-f15f-512c-bad3-022552cc9097",
     "metadata": "acl-anthology-2026-emnlp-main-726",
     "slug": "acl-anthology-2026-emnlp-main-726",
-    "revision": "567959a039b08696",
+    "revision": "6711824e87803eca",
     "pdf": "https://aclanthology.org/2026.emnlp-main.726.pdf",
     "collection": "conference"
   },
@@ -43211,7 +43211,7 @@
     "id": "paper:8553f5da-8968-54ea-b096-46c3d8c97683",
     "metadata": "acl-anthology-2026-emnlp-main-727",
     "slug": "acl-anthology-2026-emnlp-main-727",
-    "revision": "9b30c9f0b6525347",
+    "revision": "99117eef3afddef5",
     "pdf": "https://aclanthology.org/2026.emnlp-main.727.pdf",
     "collection": "conference"
   },
@@ -43259,7 +43259,7 @@
     "id": "paper:81d669b2-7172-55fb-88ed-99a28b9ef42d",
     "metadata": "acl-anthology-2026-emnlp-main-732",
     "slug": "acl-anthology-2026-emnlp-main-732",
-    "revision": "0428e819c59d1389",
+    "revision": "3e259bf07ada6111",
     "pdf": "https://aclanthology.org/2026.emnlp-main.732.pdf",
     "collection": "conference"
   },
@@ -43275,7 +43275,7 @@
     "id": "paper:76fa28e6-e3b5-5163-8d10-5db0fe9a9e74",
     "metadata": "acl-anthology-2026-emnlp-main-734",
     "slug": "acl-anthology-2026-emnlp-main-734",
-    "revision": "02cb1c90b6399b8b",
+    "revision": "a69f8d3bad0cd604",
     "pdf": "https://aclanthology.org/2026.emnlp-main.734.pdf",
     "collection": "conference"
   },
@@ -43315,7 +43315,7 @@
     "id": "paper:3a697c49-0c78-540e-85f1-ec606856445f",
     "metadata": "acl-anthology-2026-emnlp-main-739",
     "slug": "acl-anthology-2026-emnlp-main-739",
-    "revision": "a0156336f497eeb8",
+    "revision": "b79dd48857f5ae37",
     "pdf": "https://aclanthology.org/2026.emnlp-main.739.pdf",
     "collection": "conference"
   },
@@ -43347,7 +43347,7 @@
     "id": "paper:9e145b97-98c4-5f7b-b8b7-ee32956287cb",
     "metadata": "acl-anthology-2026-emnlp-main-742",
     "slug": "acl-anthology-2026-emnlp-main-742",
-    "revision": "981b4de60aad0877",
+    "revision": "fa744785f447856b",
     "pdf": "https://aclanthology.org/2026.emnlp-main.742.pdf",
     "collection": "conference"
   },
@@ -43443,7 +43443,7 @@
     "id": "paper:0c146640-e424-5bb3-87d9-adb71d5bfba2",
     "metadata": "acl-anthology-2026-emnlp-main-753",
     "slug": "acl-anthology-2026-emnlp-main-753",
-    "revision": "5e073ced3d5c3efe",
+    "revision": "81fa5b93195de949",
     "pdf": "https://aclanthology.org/2026.emnlp-main.753.pdf",
     "collection": "conference"
   },
@@ -43467,7 +43467,7 @@
     "id": "paper:d3ff6613-362b-57f6-8f31-78a5d16209e0",
     "metadata": "acl-anthology-2026-emnlp-main-756",
     "slug": "acl-anthology-2026-emnlp-main-756",
-    "revision": "bf029670512c4876",
+    "revision": "87ef79d711cebcf2",
     "pdf": "https://aclanthology.org/2026.emnlp-main.756.pdf",
     "collection": "conference"
   },
@@ -43507,7 +43507,7 @@
     "id": "paper:8342b86c-0420-5cfd-99d6-62b9f3d896f9",
     "metadata": "acl-anthology-2026-emnlp-main-760",
     "slug": "acl-anthology-2026-emnlp-main-760",
-    "revision": "6c445c46d44b69cf",
+    "revision": "0a8a4b81c972cc8e",
     "pdf": "https://aclanthology.org/2026.emnlp-main.760.pdf",
     "collection": "conference"
   },
@@ -43515,7 +43515,7 @@
     "id": "paper:a8123408-c02e-5718-88eb-87385e9b631c",
     "metadata": "acl-anthology-2026-emnlp-main-761",
     "slug": "acl-anthology-2026-emnlp-main-761",
-    "revision": "42f36f8fd05eeb10",
+    "revision": "32094bb6228ba3d5",
     "pdf": "https://aclanthology.org/2026.emnlp-main.761.pdf",
     "collection": "conference"
   },
@@ -43531,7 +43531,7 @@
     "id": "paper:ce160406-1ada-5529-b770-27e4c32f2c29",
     "metadata": "acl-anthology-2026-emnlp-main-763",
     "slug": "acl-anthology-2026-emnlp-main-763",
-    "revision": "19814b958995c1ce",
+    "revision": "65adf6154126eb42",
     "pdf": "https://aclanthology.org/2026.emnlp-main.763.pdf",
     "collection": "conference"
   },
@@ -43563,7 +43563,7 @@
     "id": "paper:f9d74807-1841-544f-9b14-64364c5b0220",
     "metadata": "acl-anthology-2026-emnlp-main-767",
     "slug": "acl-anthology-2026-emnlp-main-767",
-    "revision": "29dadc00ae454e4b",
+    "revision": "14c2b6c48f064ac6",
     "pdf": "https://aclanthology.org/2026.emnlp-main.767.pdf",
     "collection": "conference"
   },
@@ -43571,7 +43571,7 @@
     "id": "paper:129db3a9-7372-56aa-a77f-38f06c960060",
     "metadata": "acl-anthology-2026-emnlp-main-768",
     "slug": "acl-anthology-2026-emnlp-main-768",
-    "revision": "1a791d5420e014cc",
+    "revision": "44ede55480c287ce",
     "pdf": "https://aclanthology.org/2026.emnlp-main.768.pdf",
     "collection": "conference"
   },
@@ -43595,7 +43595,7 @@
     "id": "paper:79c99fdd-7405-5517-b1c7-78a7b2ead09d",
     "metadata": "acl-anthology-2026-emnlp-main-770",
     "slug": "acl-anthology-2026-emnlp-main-770",
-    "revision": "b58d703e3c28065d",
+    "revision": "983d45f267d00eaf",
     "pdf": "https://aclanthology.org/2026.emnlp-main.770.pdf",
     "collection": "conference"
   },
@@ -43611,7 +43611,7 @@
     "id": "paper:1aa432ad-0427-5c53-b8aa-fa7a84ca8ff6",
     "metadata": "acl-anthology-2026-emnlp-main-772",
     "slug": "acl-anthology-2026-emnlp-main-772",
-    "revision": "64cdd6d071333460",
+    "revision": "1ce31621144855e9",
     "pdf": "https://aclanthology.org/2026.emnlp-main.772.pdf",
     "collection": "conference"
   },
@@ -43667,7 +43667,7 @@
     "id": "paper:26701d7c-0330-5dda-b761-e41598d18dec",
     "metadata": "acl-anthology-2026-emnlp-main-779",
     "slug": "acl-anthology-2026-emnlp-main-779",
-    "revision": "fcab268c71e8447c",
+    "revision": "f13df4c13e7d2247",
     "pdf": "https://aclanthology.org/2026.emnlp-main.779.pdf",
     "collection": "conference"
   },
@@ -43683,7 +43683,7 @@
     "id": "paper:26271ac7-d80f-553b-82e2-01414bbb0a3f",
     "metadata": "acl-anthology-2026-emnlp-main-780",
     "slug": "acl-anthology-2026-emnlp-main-780",
-    "revision": "2e048e0267edf4a9",
+    "revision": "212b9a9b70d5780b",
     "pdf": "https://aclanthology.org/2026.emnlp-main.780.pdf",
     "collection": "conference"
   },
@@ -43723,7 +43723,7 @@
     "id": "paper:14e00e5e-538e-5259-8f9e-8613fdafdc2a",
     "metadata": "acl-anthology-2026-emnlp-main-785",
     "slug": "acl-anthology-2026-emnlp-main-785",
-    "revision": "f9b288eb9d39da1e",
+    "revision": "ec149a8239ad632a",
     "pdf": "https://aclanthology.org/2026.emnlp-main.785.pdf",
     "collection": "conference"
   },
@@ -43739,7 +43739,7 @@
     "id": "paper:fb8507a4-6769-56bc-8afd-4f55234c09fb",
     "metadata": "acl-anthology-2026-emnlp-main-787",
     "slug": "acl-anthology-2026-emnlp-main-787",
-    "revision": "da427da9a5972711",
+    "revision": "ca9a6e4db96a3c9a",
     "pdf": "https://aclanthology.org/2026.emnlp-main.787.pdf",
     "collection": "conference"
   },
@@ -43755,7 +43755,7 @@
     "id": "paper:5befb04b-32ba-5ced-a9d4-afbbdb5a59a2",
     "metadata": "acl-anthology-2026-emnlp-main-789",
     "slug": "acl-anthology-2026-emnlp-main-789",
-    "revision": "00d786845bf52d71",
+    "revision": "fcca170547ac340e",
     "pdf": "https://aclanthology.org/2026.emnlp-main.789.pdf",
     "collection": "conference"
   },
@@ -43771,7 +43771,7 @@
     "id": "paper:51aa33f0-ae76-57f7-9e0b-3406c599f2d4",
     "metadata": "acl-anthology-2026-emnlp-main-790",
     "slug": "acl-anthology-2026-emnlp-main-790",
-    "revision": "a3d1943f6337486e",
+    "revision": "ce6366d755cc1e42",
     "pdf": "https://aclanthology.org/2026.emnlp-main.790.pdf",
     "collection": "conference"
   },
@@ -43787,7 +43787,7 @@
     "id": "paper:5275da95-c116-54a8-8b09-a95a37be9336",
     "metadata": "acl-anthology-2026-emnlp-main-792",
     "slug": "acl-anthology-2026-emnlp-main-792",
-    "revision": "ec55259f82f35c05",
+    "revision": "a1f662e839576cc5",
     "pdf": "https://aclanthology.org/2026.emnlp-main.792.pdf",
     "collection": "conference"
   },
@@ -43795,7 +43795,7 @@
     "id": "paper:4bdf4d5d-7fe9-5448-8bd3-01903a40de51",
     "metadata": "acl-anthology-2026-emnlp-main-793",
     "slug": "acl-anthology-2026-emnlp-main-793",
-    "revision": "aeb2b22c18359379",
+    "revision": "763b91622ee574d8",
     "pdf": "https://aclanthology.org/2026.emnlp-main.793.pdf",
     "collection": "conference"
   },
@@ -43891,7 +43891,7 @@
     "id": "paper:7be09eea-a816-5a88-b991-b574383d7bd8",
     "metadata": "acl-anthology-2026-emnlp-main-803",
     "slug": "acl-anthology-2026-emnlp-main-803",
-    "revision": "b57ec4f80d30ba47",
+    "revision": "3b75f9e0a7f632ad",
     "pdf": "https://aclanthology.org/2026.emnlp-main.803.pdf",
     "collection": "conference"
   },
@@ -43915,7 +43915,7 @@
     "id": "paper:68404147-8c8b-5697-8fad-4db2df7f7fc3",
     "metadata": "acl-anthology-2026-emnlp-main-806",
     "slug": "acl-anthology-2026-emnlp-main-806",
-    "revision": "0b28081bc69bb2cd",
+    "revision": "7e8c3704195f6f33",
     "pdf": "https://aclanthology.org/2026.emnlp-main.806.pdf",
     "collection": "conference"
   },
@@ -43995,7 +43995,7 @@
     "id": "paper:15d4b0c4-e9eb-54d4-b12b-88d6b3475d04",
     "metadata": "acl-anthology-2026-emnlp-main-815",
     "slug": "acl-anthology-2026-emnlp-main-815",
-    "revision": "289e80a717906b47",
+    "revision": "03fa4a89bc8cac66",
     "pdf": "https://aclanthology.org/2026.emnlp-main.815.pdf",
     "collection": "conference"
   },
@@ -44003,7 +44003,7 @@
     "id": "paper:6de2e676-3ccc-5da6-a4ab-6eef00ea1d29",
     "metadata": "acl-anthology-2026-emnlp-main-816",
     "slug": "acl-anthology-2026-emnlp-main-816",
-    "revision": "3fdfba804f9f0ae7",
+    "revision": "db4c6e299340950b",
     "pdf": "https://aclanthology.org/2026.emnlp-main.816.pdf",
     "collection": "conference"
   },
@@ -44107,7 +44107,7 @@
     "id": "paper:acf88c4a-b569-51e9-9218-0efb56a54e37",
     "metadata": "acl-anthology-2026-emnlp-main-828",
     "slug": "acl-anthology-2026-emnlp-main-828",
-    "revision": "bfe2facb0b88e3bd",
+    "revision": "fb80480f25d32dd6",
     "pdf": "https://aclanthology.org/2026.emnlp-main.828.pdf",
     "collection": "conference"
   },
@@ -44171,7 +44171,7 @@
     "id": "paper:aa39596e-4b69-5feb-ac1b-aee7f022f4c7",
     "metadata": "acl-anthology-2026-emnlp-main-835",
     "slug": "acl-anthology-2026-emnlp-main-835",
-    "revision": "47fc4e3583eb55c3",
+    "revision": "4cdff899de0d8060",
     "pdf": "https://aclanthology.org/2026.emnlp-main.835.pdf",
     "collection": "conference"
   },
@@ -44195,7 +44195,7 @@
     "id": "paper:ee23e08b-db5c-5adf-9f22-c922ae95169e",
     "metadata": "acl-anthology-2026-emnlp-main-838",
     "slug": "acl-anthology-2026-emnlp-main-838",
-    "revision": "f44192a34eb2d773",
+    "revision": "5663728b0e779285",
     "pdf": "https://aclanthology.org/2026.emnlp-main.838.pdf",
     "collection": "conference"
   },
@@ -44243,7 +44243,7 @@
     "id": "paper:be89e909-557b-5131-8e6b-9904ec0ea3d0",
     "metadata": "acl-anthology-2026-emnlp-main-843",
     "slug": "acl-anthology-2026-emnlp-main-843",
-    "revision": "99607a1fd0b026d2",
+    "revision": "d4b71d58f977c29c",
     "pdf": "https://aclanthology.org/2026.emnlp-main.843.pdf",
     "collection": "conference"
   },
@@ -44259,7 +44259,7 @@
     "id": "paper:a731c41e-90cb-5994-8844-e624bdc8985a",
     "metadata": "acl-anthology-2026-emnlp-main-845",
     "slug": "acl-anthology-2026-emnlp-main-845",
-    "revision": "388ffa5e3970efd6",
+    "revision": "5b6d62c6c528b20c",
     "pdf": "https://aclanthology.org/2026.emnlp-main.845.pdf",
     "collection": "conference"
   },
@@ -44283,7 +44283,7 @@
     "id": "paper:f4ebbb0a-1022-580c-ab8b-153316485b01",
     "metadata": "acl-anthology-2026-emnlp-main-848",
     "slug": "acl-anthology-2026-emnlp-main-848",
-    "revision": "b794b94896f6cfd8",
+    "revision": "f2728c7c50091952",
     "pdf": "https://aclanthology.org/2026.emnlp-main.848.pdf",
     "collection": "conference"
   },
@@ -44339,7 +44339,7 @@
     "id": "paper:a4e1a1b5-0a87-5418-8ae1-ca821c479150",
     "metadata": "acl-anthology-2026-emnlp-main-854",
     "slug": "acl-anthology-2026-emnlp-main-854",
-    "revision": "b26accf60c96363c",
+    "revision": "c511120c494e3dab",
     "pdf": "https://aclanthology.org/2026.emnlp-main.854.pdf",
     "collection": "conference"
   },
@@ -44411,7 +44411,7 @@
     "id": "paper:97ad32c7-2afd-545b-9f17-e1d91914415f",
     "metadata": "acl-anthology-2026-emnlp-main-862",
     "slug": "acl-anthology-2026-emnlp-main-862",
-    "revision": "68106f3ac58e091a",
+    "revision": "5e25627fd9d46ff2",
     "pdf": "https://aclanthology.org/2026.emnlp-main.862.pdf",
     "collection": "conference"
   },
@@ -44435,7 +44435,7 @@
     "id": "paper:103746fc-e42a-535e-a8ac-9e9cb909bf10",
     "metadata": "acl-anthology-2026-emnlp-main-865",
     "slug": "acl-anthology-2026-emnlp-main-865",
-    "revision": "9e9f5142e9c17811",
+    "revision": "9ed4ba80eef312b6",
     "pdf": "https://aclanthology.org/2026.emnlp-main.865.pdf",
     "collection": "conference"
   },
@@ -44443,7 +44443,7 @@
     "id": "paper:08cc715e-d9dc-5fe9-bcb7-7131c828c3f1",
     "metadata": "acl-anthology-2026-emnlp-main-866",
     "slug": "acl-anthology-2026-emnlp-main-866",
-    "revision": "120dd0dba3d0a40d",
+    "revision": "c29bab7d64a4c772",
     "pdf": "https://aclanthology.org/2026.emnlp-main.866.pdf",
     "collection": "conference"
   },
@@ -44451,7 +44451,7 @@
     "id": "paper:5269d673-1db1-50e6-acc7-623dc4c9d699",
     "metadata": "acl-anthology-2026-emnlp-main-867",
     "slug": "acl-anthology-2026-emnlp-main-867",
-    "revision": "19fc95e6f7af48f6",
+    "revision": "09b7656c8c92991b",
     "pdf": "https://aclanthology.org/2026.emnlp-main.867.pdf",
     "collection": "conference"
   },
@@ -44507,7 +44507,7 @@
     "id": "paper:dcf5e9d5-73b5-5edb-9fe9-30fd1295d71a",
     "metadata": "acl-anthology-2026-emnlp-main-873",
     "slug": "acl-anthology-2026-emnlp-main-873",
-    "revision": "32c1d883ece25d25",
+    "revision": "65ca89206cd3eaf0",
     "pdf": "https://aclanthology.org/2026.emnlp-main.873.pdf",
     "collection": "conference"
   },
@@ -44531,7 +44531,7 @@
     "id": "paper:34cd532f-a027-5486-b74f-8e073e13db0f",
     "metadata": "acl-anthology-2026-emnlp-main-876",
     "slug": "acl-anthology-2026-emnlp-main-876",
-    "revision": "935db7623e6faa94",
+    "revision": "86d58e2584c4c46b",
     "pdf": "https://aclanthology.org/2026.emnlp-main.876.pdf",
     "collection": "conference"
   },
@@ -44539,7 +44539,7 @@
     "id": "paper:678853b0-c62f-58aa-b5f5-1517a83192eb",
     "metadata": "acl-anthology-2026-emnlp-main-877",
     "slug": "acl-anthology-2026-emnlp-main-877",
-    "revision": "200ef2ad7f2502c4",
+    "revision": "0a390af3f6a4cbce",
     "pdf": "https://aclanthology.org/2026.emnlp-main.877.pdf",
     "collection": "conference"
   },
@@ -44547,7 +44547,7 @@
     "id": "paper:f80fcc74-17fa-5d2d-bb40-b7bed9f9666d",
     "metadata": "acl-anthology-2026-emnlp-main-878",
     "slug": "acl-anthology-2026-emnlp-main-878",
-    "revision": "9f2f5a74d252b202",
+    "revision": "4f3a74076e7e3583",
     "pdf": "https://aclanthology.org/2026.emnlp-main.878.pdf",
     "collection": "conference"
   },
@@ -44555,7 +44555,7 @@
     "id": "paper:4b737863-d735-54da-bfa7-37414d9f03fc",
     "metadata": "acl-anthology-2026-emnlp-main-879",
     "slug": "acl-anthology-2026-emnlp-main-879",
-    "revision": "f1c51d6dfc2e7a97",
+    "revision": "8aea01d4d0a2fa72",
     "pdf": "https://aclanthology.org/2026.emnlp-main.879.pdf",
     "collection": "conference"
   },
@@ -44587,7 +44587,7 @@
     "id": "paper:523c44f9-9fa8-5655-be23-a98c995a48e8",
     "metadata": "acl-anthology-2026-emnlp-main-882",
     "slug": "acl-anthology-2026-emnlp-main-882",
-    "revision": "6aa5dd628ce2953f",
+    "revision": "ab00bb9f2940a261",
     "pdf": "https://aclanthology.org/2026.emnlp-main.882.pdf",
     "collection": "conference"
   },
@@ -44603,7 +44603,7 @@
     "id": "paper:105cb994-5ff1-5cb4-9239-74ed512e3dcb",
     "metadata": "acl-anthology-2026-emnlp-main-884",
     "slug": "acl-anthology-2026-emnlp-main-884",
-    "revision": "90fa48909a8f2aff",
+    "revision": "0443c7f62af0c6ab",
     "pdf": "https://aclanthology.org/2026.emnlp-main.884.pdf",
     "collection": "conference"
   },
@@ -44611,7 +44611,7 @@
     "id": "paper:2e2ea2a7-5ad7-5bad-94f8-bf44b5179000",
     "metadata": "acl-anthology-2026-emnlp-main-885",
     "slug": "acl-anthology-2026-emnlp-main-885",
-    "revision": "a7387f77f0f4205c",
+    "revision": "6dfe6032b0d631b3",
     "pdf": "https://aclanthology.org/2026.emnlp-main.885.pdf",
     "collection": "conference"
   },
@@ -44675,7 +44675,7 @@
     "id": "paper:266ee047-2637-5c46-9452-5026c5e8fc4c",
     "metadata": "acl-anthology-2026-emnlp-main-892",
     "slug": "acl-anthology-2026-emnlp-main-892",
-    "revision": "ce6b5db369ff90bb",
+    "revision": "68e0f54cc9894111",
     "pdf": "https://aclanthology.org/2026.emnlp-main.892.pdf",
     "collection": "conference"
   },
@@ -44691,7 +44691,7 @@
     "id": "paper:83ebda89-6b71-5f78-8e9e-922f751956bb",
     "metadata": "acl-anthology-2026-emnlp-main-894",
     "slug": "acl-anthology-2026-emnlp-main-894",
-    "revision": "3edd8edeb874fd4a",
+    "revision": "1da70a7775858b0c",
     "pdf": "https://aclanthology.org/2026.emnlp-main.894.pdf",
     "collection": "conference"
   },
@@ -44699,7 +44699,7 @@
     "id": "paper:2424d961-fda4-50e6-be33-e2df1457c472",
     "metadata": "acl-anthology-2026-emnlp-main-895",
     "slug": "acl-anthology-2026-emnlp-main-895",
-    "revision": "4cc988bbf154f59d",
+    "revision": "3b851a621aff5a8c",
     "pdf": "https://aclanthology.org/2026.emnlp-main.895.pdf",
     "collection": "conference"
   },
@@ -44707,7 +44707,7 @@
     "id": "paper:9d0320b9-a6e2-59bc-b362-4dea15639ca8",
     "metadata": "acl-anthology-2026-emnlp-main-896",
     "slug": "acl-anthology-2026-emnlp-main-896",
-    "revision": "288a78bf7f4dfd92",
+    "revision": "991726b5ee0a915d",
     "pdf": "https://aclanthology.org/2026.emnlp-main.896.pdf",
     "collection": "conference"
   },
@@ -44731,7 +44731,7 @@
     "id": "paper:e41553f1-74b9-5e6c-ae37-6c76741366c5",
     "metadata": "acl-anthology-2026-emnlp-main-899",
     "slug": "acl-anthology-2026-emnlp-main-899",
-    "revision": "d14267c9b6bc2566",
+    "revision": "9893b11f1a302f46",
     "pdf": "https://aclanthology.org/2026.emnlp-main.899.pdf",
     "collection": "conference"
   },
@@ -44755,7 +44755,7 @@
     "id": "paper:419a062a-db46-59cb-ba00-636dc555d99e",
     "metadata": "acl-anthology-2026-emnlp-main-900",
     "slug": "acl-anthology-2026-emnlp-main-900",
-    "revision": "fcae7bd20333528a",
+    "revision": "7f1b172afec09f66",
     "pdf": "https://aclanthology.org/2026.emnlp-main.900.pdf",
     "collection": "conference"
   },
@@ -44779,7 +44779,7 @@
     "id": "paper:7e4aa797-8929-5c77-887e-f37fcab7b83e",
     "metadata": "acl-anthology-2026-emnlp-main-903",
     "slug": "acl-anthology-2026-emnlp-main-903",
-    "revision": "32fad5a5735813c6",
+    "revision": "2d5ae9893025056c",
     "pdf": "https://aclanthology.org/2026.emnlp-main.903.pdf",
     "collection": "conference"
   },
@@ -44827,7 +44827,7 @@
     "id": "paper:39479599-295c-5549-bb44-f0942fa8c94e",
     "metadata": "acl-anthology-2026-emnlp-main-909",
     "slug": "acl-anthology-2026-emnlp-main-909",
-    "revision": "30b531f923b7aef6",
+    "revision": "d42cb62b4e3317bb",
     "pdf": "https://aclanthology.org/2026.emnlp-main.909.pdf",
     "collection": "conference"
   },
@@ -44859,7 +44859,7 @@
     "id": "paper:5f90b6eb-a686-5231-98fb-d778cce8fb13",
     "metadata": "acl-anthology-2026-emnlp-main-912",
     "slug": "acl-anthology-2026-emnlp-main-912",
-    "revision": "c39978c5ca1c5285",
+    "revision": "010f6cd84aee03d7",
     "pdf": "https://aclanthology.org/2026.emnlp-main.912.pdf",
     "collection": "conference"
   },
@@ -44891,7 +44891,7 @@
     "id": "paper:de5423f4-7c12-5abe-929f-df76f7c84e6b",
     "metadata": "acl-anthology-2026-emnlp-main-916",
     "slug": "acl-anthology-2026-emnlp-main-916",
-    "revision": "f4f0439c7faee1ff",
+    "revision": "f2dce314554d7da1",
     "pdf": "https://aclanthology.org/2026.emnlp-main.916.pdf",
     "collection": "conference"
   },
@@ -44963,7 +44963,7 @@
     "id": "paper:198299b5-c8d3-5d6e-b625-5c6a7aee94c5",
     "metadata": "acl-anthology-2026-emnlp-main-924",
     "slug": "acl-anthology-2026-emnlp-main-924",
-    "revision": "69bfc6507c124f15",
+    "revision": "2fe71d53cc0edafb",
     "pdf": "https://aclanthology.org/2026.emnlp-main.924.pdf",
     "collection": "conference"
   },
@@ -45019,7 +45019,7 @@
     "id": "paper:00cb4e31-7d9f-5413-8465-fc8b9b0b46b9",
     "metadata": "acl-anthology-2026-emnlp-main-930",
     "slug": "acl-anthology-2026-emnlp-main-930",
-    "revision": "06389e453bb8b799",
+    "revision": "684718c43058b6a5",
     "pdf": "https://aclanthology.org/2026.emnlp-main.930.pdf",
     "collection": "conference"
   },
@@ -45027,7 +45027,7 @@
     "id": "paper:ea8c99c0-ec0f-5e96-bccd-0adf4e3a4acb",
     "metadata": "acl-anthology-2026-emnlp-main-931",
     "slug": "acl-anthology-2026-emnlp-main-931",
-    "revision": "ccfc475d2ef20d6f",
+    "revision": "da0d79553d8025c0",
     "pdf": "https://aclanthology.org/2026.emnlp-main.931.pdf",
     "collection": "conference"
   },
@@ -45043,7 +45043,7 @@
     "id": "paper:01ff1ccb-297d-5c50-8761-904e43fad6a6",
     "metadata": "acl-anthology-2026-emnlp-main-933",
     "slug": "acl-anthology-2026-emnlp-main-933",
-    "revision": "89ba529570a4e0fb",
+    "revision": "0fe4b4e6fd385a3e",
     "pdf": "https://aclanthology.org/2026.emnlp-main.933.pdf",
     "collection": "conference"
   },
@@ -45083,7 +45083,7 @@
     "id": "paper:4a0c8fc1-6486-541a-b06b-a62ec29687f3",
     "metadata": "acl-anthology-2026-emnlp-main-938",
     "slug": "acl-anthology-2026-emnlp-main-938",
-    "revision": "2ea9fd6826cec791",
+    "revision": "5bd8d7775d8712d2",
     "pdf": "https://aclanthology.org/2026.emnlp-main.938.pdf",
     "collection": "conference"
   },
@@ -45123,7 +45123,7 @@
     "id": "paper:0dbdfd89-dac0-5403-9f79-0a996274cd5f",
     "metadata": "acl-anthology-2026-emnlp-main-942",
     "slug": "acl-anthology-2026-emnlp-main-942",
-    "revision": "2e87c6ce413b28ab",
+    "revision": "de8d2cd741870bc0",
     "pdf": "https://aclanthology.org/2026.emnlp-main.942.pdf",
     "collection": "conference"
   },
@@ -45131,7 +45131,7 @@
     "id": "paper:91270af2-c1e3-5bb9-bb9e-c9f8a5939819",
     "metadata": "acl-anthology-2026-emnlp-main-943",
     "slug": "acl-anthology-2026-emnlp-main-943",
-    "revision": "01aa12f47db42a2f",
+    "revision": "f7976f488a63ea87",
     "pdf": "https://aclanthology.org/2026.emnlp-main.943.pdf",
     "collection": "conference"
   },
@@ -45243,7 +45243,7 @@
     "id": "paper:0699c3b4-4181-5817-b648-010b14d481a5",
     "metadata": "acl-anthology-2026-emnlp-main-956",
     "slug": "acl-anthology-2026-emnlp-main-956",
-    "revision": "080805853341f38c",
+    "revision": "d3747284c82597ec",
     "pdf": "https://aclanthology.org/2026.emnlp-main.956.pdf",
     "collection": "conference"
   },
