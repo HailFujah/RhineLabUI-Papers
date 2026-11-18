@@ -19,9 +19,9 @@
     "ICLR 2026": ">=5351 (OpenReview 10,000-result window)",
     "ICML 2026": 6341,
     "ICML 2026 PMLR": 6552,
-    "NeurIPS 2026": 0
+    "NeurIPS 2026": 7896
   },
-  "syncedAt": "2026-11-18T07:40:03.479937+00:00",
-  "total": 17632,
+  "syncedAt": "2026-11-18T20:41:08.542665+00:00",
+  "total": 25528,
   "year": 2026
 }
